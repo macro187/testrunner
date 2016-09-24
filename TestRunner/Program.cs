@@ -131,6 +131,31 @@ namespace TestRunner
         }
 
 
+        static string GetFullAssemblyPath(string path)
+        {
+            if (!Path.IsPathRooted(path))
+            {
+                path = Path.Combine(
+                    Environment.CurrentDirectory,
+                    path);
+            }
+
+            return path;
+        }
+
+
+        static void UseConfigFile(Assembly assembly)
+        {
+            string configPath = assembly.Location + ".config";
+            if (File.Exists(configPath))
+            {
+                AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
+                Console.WriteLine();
+                Console.WriteLine(string.Format("Using configuration file: '{0}'", configPath));
+            }
+        }
+
+
         /// <summary>
         /// Run tests in an assembly
         /// </summary>
@@ -230,18 +255,6 @@ namespace TestRunner
                 Console.WriteLine("  An unexpected error occured:");
                 Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
                 return false;
-            }
-        }
-
-
-        static void UseConfigFile(Assembly assembly)
-        {
-            string configPath = assembly.Location + ".config";
-            if (File.Exists(configPath))
-            {
-                AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
-                Console.WriteLine();
-                Console.WriteLine(string.Format("Using configuration file: '{0}'", configPath));
             }
         }
 
@@ -350,19 +363,6 @@ namespace TestRunner
         static string[] SplitLines(string theString)
         {
             return theString.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
-        }
-
-
-        static string GetFullAssemblyPath(string path)
-        {
-            if (!Path.IsPathRooted(path))
-            {
-                path = Path.Combine(
-                    Environment.CurrentDirectory,
-                    path);
-            }
-
-            return path;
         }
 
 
