@@ -60,8 +60,8 @@ namespace TestRunner
                 //
                 // Run tests in assembly
                 //
-                var result = RunTests(assembly);
-                return result ? 0 : 1;
+                var success = RunTests(assembly);
+                return success ? 0 : 1;
             }
 
             //
