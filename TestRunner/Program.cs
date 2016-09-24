@@ -14,6 +14,8 @@ namespace TestRunner
         [STAThread]
         static int Main(string[] args)
         {
+            Banner();
+
             if (args.Count() != 1)
             {
                 Usage();
@@ -21,14 +23,25 @@ namespace TestRunner
             }
 
             string assemblyPath = GetFullAssemblyPath(args[0]);
+
             if (!File.Exists(assemblyPath))
             {
                 Console.WriteLine("The specified assembly could not be found at '{0}'.", assemblyPath);
                 return 1;
             }
 
-            var isAllPassed = RunTests(args[0]);
+            var isAllPassed = RunTests(assemblyPath);
             return isAllPassed ? 0 : 1;
+        }
+
+
+        /// <summary>
+        /// Print program information
+        /// </summary>
+        private static void Banner()
+        {
+            WriterHeader("TestRunner alpha 0.21 for .NET 4.0");
+            Console.WriteLine();
         }
 
 
@@ -37,15 +50,19 @@ namespace TestRunner
         /// </summary>
         private static void Usage()
         {
-            WriterHeader("TestRunner alpha 0.21 for .NET 4.0");
             Console.WriteLine("This tool executes unit tests created with the MSTest framework.");
-            Console.WriteLine("Usage: TestRunner.exe [AssemblyName(.dll)]");
-            Console.WriteLine("       AssemblyName - name of the assembly containing the unit tests.");
-            Console.WriteLine("                      The assembly must be in the same directory.");
             Console.WriteLine();
-            Console.WriteLine("Examples:");
-            Console.WriteLine("TestRunner.exe Your.Test.Assembly");
-            Console.WriteLine("TestRunner.exe Your.Test.Assembly.dll");
+            Console.WriteLine("Usage");
+            Console.WriteLine();
+            Console.WriteLine("  TestRunner.exe <assemblypath>");
+            Console.WriteLine();
+            Console.WriteLine("       assemblypath - Path to an assembly containing MSTest unit tests");
+            Console.WriteLine();
+            Console.WriteLine("Examples");
+            Console.WriteLine();
+            Console.WriteLine("  TestRunner.exe MyTestAssembly.dll");
+            Console.WriteLine();
+            Console.WriteLine("  TestRunner.exe C:\\foo\\MyTestAssembly.dll");
         }
 
 
@@ -53,15 +70,12 @@ namespace TestRunner
         /// Runs the tests.
         /// </summary>
         /// <param name="assemblyName">Name of the assembly.</param>
-        public static bool RunTests(string assemblyName)
+        public static bool RunTests(string assemblyPath)
         {
-            WriterHeader("TestRunner alpha 0.21 for .NET 4.0");
-            Console.WriteLine();
-
             try
             {
                 // 1. Load the assembly.
-                Assembly assembly = GetAssembly(GetAssemblyName(assemblyName));
+                Assembly assembly = GetAssembly(assemblyPath);
 
                 // 2. Get test classes.
                 var classes = assembly.GetTypes()
@@ -168,18 +182,18 @@ namespace TestRunner
         }
 
 
-        private static Assembly GetAssembly(string name)
+        private static Assembly GetAssembly(string assemblyPath)
         {
-            Assembly assembly = Assembly.Load(name);
-            string location = assembly.Location + ".config";
-            string configFileName = name + ".config";
+            Assembly assembly = Assembly.LoadFrom(assemblyPath);
 
-            if (File.Exists(location))
+            string configPath = assembly.Location + ".config";
+            if (File.Exists(configPath))
             {
-                AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", location);
-                Console.WriteLine(String.Format("Configuration file loaded from: '{0}'", configFileName));
+                AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
+                Console.WriteLine(String.Format("Configuration file loaded from: '{0}'", configPath));
                 Console.WriteLine();
             }
+
             return assembly;
         }
 
@@ -198,20 +212,16 @@ namespace TestRunner
 
         private static string GetFullAssemblyPath(string path)
         {
-            if (path.ToLower().EndsWith(".dll"))
-                return Path.Combine(Environment.CurrentDirectory, path);
+            if (!Path.IsPathRooted(path))
+            {
+                path = Path.Combine(
+                    Environment.CurrentDirectory,
+                    path);
+            }
 
-            return Path.Combine(Environment.CurrentDirectory, path + ".dll");
+            return path;
         }
 
-
-        private static string GetAssemblyName(string assemblyName)
-        {
-            if (assemblyName.ToLower().EndsWith(".dll"))
-                return assemblyName.Replace(".dll", String.Empty);
-
-            return assemblyName;
-        }
 
     }
 }
