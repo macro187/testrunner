@@ -18,28 +18,55 @@ namespace TestRunner
         {
             try
             {
+                //
+                // Route trace output to stdout
+                //
                 Trace.Listeners.Add(new ConsoleTraceListener());
 
+                //
+                // Print program banner
+                //
                 Banner();
 
-                if (args.Count() != 1)
+                //
+                // Parse arguments
+                //
+                if (!ParseArgs(args))
                 {
                     Usage();
                     return 1;
                 }
 
-                string assemblyPath = GetFullAssemblyPath(args[0]);
-
-                if (!File.Exists(assemblyPath))
+                //
+                // Resolve full path to test assembly
+                //
+                string fullAssemblyPath = GetFullAssemblyPath(assemblyPath);
+                if (!File.Exists(fullAssemblyPath))
                 {
-                    Console.WriteLine("The specified assembly could not be found at '{0}'.", assemblyPath);
+                    Console.WriteLine("The test assembly '{0}' could not be found", fullAssemblyPath);
                     return 1;
                 }
 
-                var isAllPassed = RunTests(assemblyPath);
-                return isAllPassed ? 0 : 1;
+                //
+                // Load test assembly
+                //
+                var assembly = Assembly.LoadFrom(fullAssemblyPath);
+
+                //
+                // Pull in test assembly .config file if present
+                //
+                UseConfigFile(assembly);
+
+                //
+                // Run tests in assembly
+                //
+                var result = RunTests(assembly);
+                return result ? 0 : 1;
             }
 
+            //
+            // Handle internal errors
+            //
             catch (Exception e)
             {
                 Console.WriteLine();
@@ -49,6 +76,17 @@ namespace TestRunner
                 Console.WriteLine(FormatException(e));
                 return 1;
             }
+        }
+
+
+        static string assemblyPath;
+
+
+        static bool ParseArgs(string[] args)
+        {
+            if (args.Length != 1) return false;
+            assemblyPath = args[0];
+            return true;
         }
 
 
@@ -94,17 +132,13 @@ namespace TestRunner
 
 
         /// <summary>
-        /// Runs the tests.
+        /// Run tests in an assembly
         /// </summary>
-        /// <param name="assemblyName">Name of the assembly.</param>
-        public static bool RunTests(string assemblyPath)
+        public static bool RunTests(Assembly assembly)
         {
             try
             {
-                // 1. Load the assembly.
-                Assembly assembly = GetAssembly(assemblyPath);
-
-                // 2. Get test classes.
+                // Get test classes.
                 var classes = assembly.GetTypes()
                     .Where(t => t.GetCustomAttributes(typeof(TestClassAttribute), false).Count() != 0)
                     .OrderBy(t => t.Name);
@@ -112,7 +146,7 @@ namespace TestRunner
                 if (!classes.Any())
                     return true;
 
-                // 3. Get test methods for each class.
+                // Get test methods for each class.
                 Stats stats = new Stats();
                 List<MethodInfo> methods = null;
                 foreach (var current in classes)
@@ -132,7 +166,7 @@ namespace TestRunner
 
                         object instance = assembly.CreateInstance(current.FullName);
 
-                        // 3.5 Run test initialize.
+                        // Run test initialize.
                         var initializeMethod = current.GetMethods()
                             .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestInitializeAttribute), false).Any());
 
@@ -141,7 +175,7 @@ namespace TestRunner
                             initializeMethod.Invoke(instance, null);
                         }
 
-                        // 4. Run test methods.
+                        // Run test methods.
                         foreach (var method in methods)
                         {
                             try
@@ -197,19 +231,15 @@ namespace TestRunner
         }
 
 
-        static Assembly GetAssembly(string assemblyPath)
+        static void UseConfigFile(Assembly assembly)
         {
-            Assembly assembly = Assembly.LoadFrom(assemblyPath);
-
             string configPath = assembly.Location + ".config";
             if (File.Exists(configPath))
             {
                 AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
-                Console.WriteLine(String.Format("Configuration file loaded from: '{0}'", configPath));
                 Console.WriteLine();
+                Console.WriteLine(string.Format("Using configuration file: '{0}'", configPath));
             }
-
-            return assembly;
         }
 
 
