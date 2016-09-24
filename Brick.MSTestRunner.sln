@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{67E0D726-2A47-4129-BD6E-BF99BE4412A3}"
+	ProjectSection(SolutionItems) = preProject
+		Brick.MSTestRunner.vsmdi = Brick.MSTestRunner.vsmdi
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brick.MSTestRunner", "Brick.MSTestRunner\Brick.MSTestRunner.csproj", "{C997F396-E4DC-4F7B-91C3-B82D23757760}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brick.DemoTest", "Brick.DemoTest\Brick.DemoTest.csproj", "{D6078C82-F85E-4239-8A55-759CA58AA23F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brick.DemoTest.UnitTest", "Brick.DemoTest.UnitTest\Brick.DemoTest.UnitTest.csproj", "{F20872CE-6726-4738-96CF-FDC9A86F1CD5}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs07
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Brick.DemoTest.UnitTest\\Brick.DemoTest.UnitTest.csproj
+		SccProjectName1 = Brick.DemoTest.UnitTest
+		SccLocalPath1 = Brick.DemoTest.UnitTest
+		SccProjectUniqueName2 = Brick.DemoTest\\Brick.DemoTest.csproj
+		SccProjectName2 = Brick.DemoTest
+		SccLocalPath2 = Brick.DemoTest
+		SccProjectUniqueName3 = Brick.MSTestRunner\\Brick.MSTestRunner.csproj
+		SccProjectName3 = Brick.MSTestRunner
+		SccLocalPath3 = Brick.MSTestRunner
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Brick.MSTestRunner.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C997F396-E4DC-4F7B-91C3-B82D23757760}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C997F396-E4DC-4F7B-91C3-B82D23757760}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C997F396-E4DC-4F7B-91C3-B82D23757760}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C997F396-E4DC-4F7B-91C3-B82D23757760}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6078C82-F85E-4239-8A55-759CA58AA23F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6078C82-F85E-4239-8A55-759CA58AA23F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6078C82-F85E-4239-8A55-759CA58AA23F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6078C82-F85E-4239-8A55-759CA58AA23F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F20872CE-6726-4738-96CF-FDC9A86F1CD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F20872CE-6726-4738-96CF-FDC9A86F1CD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F20872CE-6726-4738-96CF-FDC9A86F1CD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F20872CE-6726-4738-96CF-FDC9A86F1CD5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
