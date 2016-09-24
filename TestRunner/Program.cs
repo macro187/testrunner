@@ -16,6 +16,8 @@ namespace TestRunner
         [STAThread]
         static int Main(string[] args)
         {
+            Trace.Listeners.Add(new ConsoleTraceListener());
+
             Banner();
 
             if (args.Count() != 1)
