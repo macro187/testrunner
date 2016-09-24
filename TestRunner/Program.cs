@@ -16,33 +16,46 @@ namespace TestRunner
         [STAThread]
         static int Main(string[] args)
         {
-            Trace.Listeners.Add(new ConsoleTraceListener());
-
-            Banner();
-
-            if (args.Count() != 1)
+            try
             {
-                Usage();
-                return 1;
+                Trace.Listeners.Add(new ConsoleTraceListener());
+
+                Banner();
+
+                if (args.Count() != 1)
+                {
+                    Usage();
+                    return 1;
+                }
+
+                string assemblyPath = GetFullAssemblyPath(args[0]);
+
+                if (!File.Exists(assemblyPath))
+                {
+                    Console.WriteLine("The specified assembly could not be found at '{0}'.", assemblyPath);
+                    return 1;
+                }
+
+                var isAllPassed = RunTests(assemblyPath);
+                return isAllPassed ? 0 : 1;
             }
 
-            string assemblyPath = GetFullAssemblyPath(args[0]);
-
-            if (!File.Exists(assemblyPath))
+            catch (Exception e)
             {
-                Console.WriteLine("The specified assembly could not be found at '{0}'.", assemblyPath);
+                Console.WriteLine();
+                Console.WriteLine(
+                    "An internal error occurred in {0}:",
+                    Path.GetFileName(Assembly.GetExecutingAssembly().Location));
+                Console.WriteLine(FormatException(e));
                 return 1;
             }
-
-            var isAllPassed = RunTests(assemblyPath);
-            return isAllPassed ? 0 : 1;
         }
 
 
         /// <summary>
         /// Print program information
         /// </summary>
-        private static void Banner()
+        static void Banner()
         {
             WriteHeading(
                 string.Format(
@@ -58,7 +71,7 @@ namespace TestRunner
         /// <summary>
         /// Print usage information
         /// </summary>
-        private static void Usage()
+        static void Usage()
         {
             var description = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).Comments;
             var fileName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
@@ -144,17 +157,10 @@ namespace TestRunner
                             catch (Exception ex)
                             {
                                 stats.AddGlobalFailCount();
-                                // Check for a failing assert.
-                                if (ex.InnerException != null && ex.InnerException.GetType() == typeof(AssertFailedException))
-                                {
-                                    Console.WriteLine("  Failed: {0} ({1} s).", ex.InnerException.Message, stats.LocalTime.TotalSeconds);
-                                    continue;
-                                }
-
-                                // Unexpected error.
-                                Console.WriteLine("  An unexpected error occured: {0}", ex.Message);
-                                if (ex.InnerException != null)
-                                    Console.WriteLine("  Reason: {0}", ex.InnerException.Message);
+                                Console.WriteLine();
+                                Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
+                                Console.WriteLine("  Failed ({0} s).", stats.LocalTime.TotalSeconds);
+                                continue;
                             }
                             finally
                             {
@@ -166,10 +172,8 @@ namespace TestRunner
                     }
                     catch (Exception ex)
                     {
-                        // Unexpected error.
-                        Console.WriteLine("  An unexpected error occured: {0}", ex.Message);
-                        if (ex.InnerException != null)
-                            Console.WriteLine("  Reason: {0}", ex.InnerException.Message);
+                        Console.WriteLine("  An unexpected error occured:");
+                        Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
                         Console.WriteLine();
                         if (methods != null)
                         {
@@ -186,17 +190,14 @@ namespace TestRunner
             }
             catch (Exception ex)
             {
-                // Unexpected error.
-                Console.WriteLine("  An unexpected error occured: {0}", ex.Message);
-                if (ex.InnerException != null)
-                    Console.WriteLine("  Reason: {0}", ex.InnerException.Message);
-
+                Console.WriteLine("  An unexpected error occured:");
+                Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
                 return false;
             }
         }
 
 
-        private static Assembly GetAssembly(string assemblyPath)
+        static Assembly GetAssembly(string assemblyPath)
         {
             Assembly assembly = Assembly.LoadFrom(assemblyPath);
 
@@ -212,19 +213,27 @@ namespace TestRunner
         }
 
 
-        private static void WriteHeading(params string[] lines)
+        static Exception UnwrapTargetInvocationException(Exception ex)
+        {
+            var tie = ex as TargetInvocationException;
+            if (tie == null) return ex;
+            return tie.InnerException;
+        }
+
+
+        static void WriteHeading(params string[] lines)
         {
             WriteHeading('=', lines);
         }
 
 
-        private static void WriteSubheading(params string[] lines)
+        static void WriteSubheading(params string[] lines)
         {
             WriteHeading('-', lines);
         }
 
 
-        private static void WriteHeading(char ruleCharacter, params string[] lines)
+        static void WriteHeading(char ruleCharacter, params string[] lines)
         {
             if (lines == null) return;
             if (lines.Length == 0) return;
@@ -242,7 +251,76 @@ namespace TestRunner
         }
 
 
-        private static string GetFullAssemblyPath(string path)
+        static string FormatException(Exception e)
+        {
+            if (e == null) return "";
+            var sb = new StringBuilder();
+            sb.AppendLine(e.Message);
+            sb.AppendLine("Type: " + e.GetType().FullName);
+            if (e.Data != null)
+            {
+                foreach (var key in e.Data.Keys)
+                {
+                    sb.AppendLine(string.Format(
+                        "Data.{0}: {1}",
+                        key.ToString(),
+                        e.Data[key].ToString()));
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(e.Source))
+            {
+                sb.AppendLine("Source: " + e.Source);
+            }
+            if (!string.IsNullOrWhiteSpace(e.HelpLink))
+            {
+                sb.AppendLine("HelpLink: " + e.HelpLink);
+            }
+            if (!string.IsNullOrWhiteSpace(e.StackTrace))
+            {
+                sb.AppendLine("StackTrace:");
+                sb.AppendLine(Indent(FormatStackTrace(e.StackTrace)));
+            }
+            if (e.InnerException != null)
+            {
+                sb.AppendLine("InnerException:");
+                sb.AppendLine(Indent(FormatException(e.InnerException)));
+            }
+            return sb.ToString();
+        }
+
+
+        static string FormatStackTrace(string stackTrace)
+        {
+            return string.Join(
+                Environment.NewLine,
+                SplitLines(stackTrace)
+                    .Select(line => line.Trim())
+                    .SelectMany(line => {
+                        var i = line.IndexOf(" in ");
+                        if (i <= 0) return new[] {line};
+                        var inPart = line.Substring(i + 1);
+                        var atPart = line.Substring(0, i);
+                        return new[] {atPart, Indent(inPart)};
+                        }));
+        }
+
+
+        static string Indent(string theString)
+        {
+            if (theString == null) throw new ArgumentNullException(nameof(theString));
+            var lines = SplitLines(theString);
+            var indentedLines = lines.Select(s => "  " + s);
+            return string.Join(Environment.NewLine, indentedLines);
+        }
+
+
+        static string[] SplitLines(string theString)
+        {
+            return theString.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
+        }
+
+
+        static string GetFullAssemblyPath(string path)
         {
             if (!Path.IsPathRooted(path))
             {
