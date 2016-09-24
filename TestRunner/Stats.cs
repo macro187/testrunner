@@ -88,20 +88,15 @@ namespace TestRunner
 
         public string GetFinalResult()
         {
-            StringBuilder result = new StringBuilder();
             localTime.Stop();
             globalTime.Stop();
 
-            result.AppendFormat("{0} test(s) executed", globalCount);
-            result.Append(Environment.NewLine);
-            result.AppendFormat("{0} passed and {1} failed", 
-                globalPassCount,
-                globalFailCount);
-            result.Append(Environment.NewLine);
-            result.AppendFormat("Total time elapsed: {0} s",
-                GlobalTime.TotalSeconds);
-
-            return result.ToString();
+            var sb = new StringBuilder();
+            sb.AppendLine("Ran:     " + globalCount.ToString() + " tests");
+            sb.AppendLine("Passed:  " + globalPassCount.ToString() + " tests");
+            sb.AppendLine("Failed:  " + globalFailCount.ToString() + " tests");
+            sb.AppendLine("Elapsed: " + GlobalTime.TotalSeconds + " seconds");
+            return sb.ToString();
         }
     }
 }

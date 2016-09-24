@@ -136,15 +136,18 @@ namespace TestRunner
         /// </summary>
         public static bool RunTests(Assembly assembly)
         {
+            if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+
+            Console.WriteLine();
+            Console.WriteLine("Test Assembly:");
+            Console.WriteLine(assembly.Location);
+
             try
             {
                 // Get test classes.
                 var classes = assembly.GetTypes()
                     .Where(t => t.GetCustomAttributes(typeof(TestClassAttribute), false).Count() != 0)
                     .OrderBy(t => t.Name);
-
-                if (!classes.Any())
-                    return true;
 
                 // Get test methods for each class.
                 Stats stats = new Stats();
@@ -161,8 +164,7 @@ namespace TestRunner
                         if (!methods.Any())
                             continue;
 
-                        string title = String.Format("{0}: {1} test(s)", current.FullName, methods.Count());
-                        WriteSubheading(title);
+                        WriteSubheading("[TestClass]", current.FullName);
 
                         object instance = assembly.CreateInstance(current.FullName);
 
@@ -182,7 +184,8 @@ namespace TestRunner
                             {
                                 stats.AddGlobalCount();
                                 Console.WriteLine();
-                                Console.WriteLine("Running test: {0}", method.Name);
+                                Console.WriteLine("[TestMethod]");
+                                Console.WriteLine(method.Name + "()");
                                 stats.StartLocalTime();
                                 method.Invoke(instance, null);
                                 Console.WriteLine("  Passed ({0} s)", stats.LocalTime.TotalSeconds);
