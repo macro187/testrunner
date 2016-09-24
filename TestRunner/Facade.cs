@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text;
 
-namespace Brick.MSTestRunner
+namespace TestRunner
 {
     /// <summary>
     /// Facade for the test runner application.
@@ -22,15 +22,15 @@ namespace Brick.MSTestRunner
         {
             if (args.Count() != 1)
             {
-                WriterHeader("Brick.MSTestRunner alpha 0.21 for .NET 4.0");
+                WriterHeader("TestRunner alpha 0.21 for .NET 4.0");
                 Console.WriteLine("This tool executes unit tests created with the MSTest framework.");
-                Console.WriteLine("Usage: Brick.MSTestRunner.exe [AssemblyName(.dll)]");
+                Console.WriteLine("Usage: TestRunner.exe [AssemblyName(.dll)]");
                 Console.WriteLine("       AssemblyName - name of the assembly containing the unit tests.");
                 Console.WriteLine("                      The assembly must be in the same directory.");
                 Console.WriteLine();
                 Console.WriteLine("Examples:");
-                Console.WriteLine("Brick.MSTestRunner.exe Brick.DemoTest.UnitTest");
-                Console.WriteLine("Brick.MSTestRunner.exe Brick.DemoTest.UnitTest.dll");
+                Console.WriteLine("TestRunner.exe Your.Test.Assembly");
+                Console.WriteLine("TestRunner.exe Your.Test.Assembly.dll");
                 return false;
             }
 
@@ -50,7 +50,7 @@ namespace Brick.MSTestRunner
         /// <param name="assemblyName">Name of the assembly.</param>
         public bool RunTests(string assemblyName)
         {
-            WriterHeader("Brick.MSTestRunner alpha 0.2 for .NET 4.0");
+            WriterHeader("TestRunner alpha 0.21 for .NET 4.0");
             Console.WriteLine();
 
             try

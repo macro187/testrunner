@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Brick.MSTestRunner
+namespace TestRunner
 {
     class Program
     {
