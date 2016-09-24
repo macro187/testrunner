@@ -95,7 +95,7 @@ namespace TestRunner
             sb.AppendLine("Ran:     " + globalCount.ToString() + " tests");
             sb.AppendLine("Passed:  " + globalPassCount.ToString() + " tests");
             sb.AppendLine("Failed:  " + globalFailCount.ToString() + " tests");
-            sb.AppendLine("Elapsed: " + GlobalTime.TotalSeconds + " seconds");
+            sb.AppendLine("Elapsed: " + GlobalTime.TotalMilliseconds.ToString("N0") + " ms");
             return sb.ToString();
         }
     }
