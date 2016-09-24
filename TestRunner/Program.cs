@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -40,8 +42,14 @@ namespace TestRunner
         /// </summary>
         private static void Banner()
         {
-            WriterHeader("TestRunner alpha 0.21 for .NET 4.0");
-            Console.WriteLine();
+            WriteHeading(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0} v{1}.{2}",
+                    FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName,
+                    FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart,
+                    FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart),
+                FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright);
         }
 
 
@@ -50,19 +58,23 @@ namespace TestRunner
         /// </summary>
         private static void Usage()
         {
-            Console.WriteLine("This tool executes unit tests created with the MSTest framework.");
+            var description = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).Comments;
+            var fileName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+
+            Console.WriteLine();
+            Console.WriteLine(description);
             Console.WriteLine();
             Console.WriteLine("Usage");
             Console.WriteLine();
-            Console.WriteLine("  TestRunner.exe <assemblypath>");
+            Console.WriteLine("    {0} <assemblypath>", fileName);
             Console.WriteLine();
-            Console.WriteLine("       assemblypath - Path to an assembly containing MSTest unit tests");
+            Console.WriteLine("        assemblypath - Path to an assembly containing MSTest unit tests");
             Console.WriteLine();
             Console.WriteLine("Examples");
             Console.WriteLine();
-            Console.WriteLine("  TestRunner.exe MyTestAssembly.dll");
+            Console.WriteLine("    {0} MyTestAssembly.dll", fileName);
             Console.WriteLine();
-            Console.WriteLine("  TestRunner.exe C:\\foo\\MyTestAssembly.dll");
+            Console.WriteLine("    {0} C:\\foo\\MyTestAssembly.dll", fileName);
         }
 
 
@@ -101,8 +113,7 @@ namespace TestRunner
                             continue;
 
                         string title = String.Format("{0}: {1} test(s)", current.FullName, methods.Count());
-                        WriterHeader(title);
-                        Console.WriteLine();
+                        WriteSubheading(title);
 
                         object instance = assembly.CreateInstance(current.FullName);
 
@@ -121,6 +132,7 @@ namespace TestRunner
                             try
                             {
                                 stats.AddGlobalCount();
+                                Console.WriteLine();
                                 Console.WriteLine("Running test: {0}", method.Name);
                                 stats.StartLocalTime();
                                 method.Invoke(instance, null);
@@ -198,15 +210,33 @@ namespace TestRunner
         }
 
 
-        private static void WriterHeader(string title)
+        private static void WriteHeading(params string[] lines)
         {
-            Console.WriteLine(title);
-            StringBuilder sb = new StringBuilder();
-            int i = 0;
-            while (++i < title.Length + 1)
-                sb.Append("-");
+            WriteHeading('=', lines);
+        }
 
-            Console.WriteLine(sb);
+
+        private static void WriteSubheading(params string[] lines)
+        {
+            WriteHeading('-', lines);
+        }
+
+
+        private static void WriteHeading(char ruleCharacter, params string[] lines)
+        {
+            if (lines == null) return;
+            if (lines.Length == 0) return;
+
+            var longestLine = lines.Max(line => line.Length);
+            var rule = new string(ruleCharacter, longestLine);
+
+            Console.WriteLine();
+            Console.WriteLine(rule);
+            foreach (var line in lines)
+            {
+                Console.WriteLine(line);
+            }
+            Console.WriteLine(rule);
         }
 
 

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("TestRunner")]
-[assembly: AssemblyCopyright("Copyright © 2012-2016")]
+[assembly: AssemblyCopyright("Copyright (c) 2012-2016 Rickenberg, Ron MacNeil")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
