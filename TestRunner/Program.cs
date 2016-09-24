@@ -12,47 +12,40 @@ namespace TestRunner
     {
 
         [STAThread]
-        static void Main(string[] args)
-        {
-            if (!ValidateArgs(args))
-            {
-                Environment.Exit(1);
-            }
-
-            var isAllPassed = RunTests(args[0]);
-            Environment.Exit(isAllPassed ? 0 : 1);
-        }
-
-
-        /// <summary>
-        /// Validates the command-line args.
-        /// </summary>
-        /// <param name="args">The args.</param>
-        /// <returns></returns>
-        public static bool ValidateArgs(string[] args)
+        static int Main(string[] args)
         {
             if (args.Count() != 1)
             {
-                WriterHeader("TestRunner alpha 0.21 for .NET 4.0");
-                Console.WriteLine("This tool executes unit tests created with the MSTest framework.");
-                Console.WriteLine("Usage: TestRunner.exe [AssemblyName(.dll)]");
-                Console.WriteLine("       AssemblyName - name of the assembly containing the unit tests.");
-                Console.WriteLine("                      The assembly must be in the same directory.");
-                Console.WriteLine();
-                Console.WriteLine("Examples:");
-                Console.WriteLine("TestRunner.exe Your.Test.Assembly");
-                Console.WriteLine("TestRunner.exe Your.Test.Assembly.dll");
-                return false;
+                Usage();
+                return 1;
             }
 
             string assemblyPath = GetFullAssemblyPath(args[0]);
             if (!File.Exists(assemblyPath))
             {
                 Console.WriteLine("The specified assembly could not be found at '{0}'.", assemblyPath);
-                return false;
+                return 1;
             }
 
-            return true;
+            var isAllPassed = RunTests(args[0]);
+            return isAllPassed ? 0 : 1;
+        }
+
+
+        /// <summary>
+        /// Print usage information
+        /// </summary>
+        private static void Usage()
+        {
+            WriterHeader("TestRunner alpha 0.21 for .NET 4.0");
+            Console.WriteLine("This tool executes unit tests created with the MSTest framework.");
+            Console.WriteLine("Usage: TestRunner.exe [AssemblyName(.dll)]");
+            Console.WriteLine("       AssemblyName - name of the assembly containing the unit tests.");
+            Console.WriteLine("                      The assembly must be in the same directory.");
+            Console.WriteLine();
+            Console.WriteLine("Examples:");
+            Console.WriteLine("TestRunner.exe Your.Test.Assembly");
+            Console.WriteLine("TestRunner.exe Your.Test.Assembly.dll");
         }
 
 
