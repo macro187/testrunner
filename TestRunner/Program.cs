@@ -167,95 +167,87 @@ namespace TestRunner
             Console.WriteLine("Test Assembly:");
             Console.WriteLine(assembly.Location);
 
-            try
-            {
-                // Get test classes.
-                var classes = assembly.GetTypes()
-                    .Where(t => t.GetCustomAttributes(typeof(TestClassAttribute), false).Count() != 0)
-                    .OrderBy(t => t.Name);
+            Stats stats = new Stats();
 
-                // Get test methods for each class.
-                Stats stats = new Stats();
-                List<MethodInfo> methods = null;
-                foreach (var current in classes)
+            var testClasses = assembly.GetTypes()
+                .Where(t => t.GetCustomAttributes(typeof(TestClassAttribute), false).Count() != 0)
+                .OrderBy(t => t.Name);
+
+            foreach (var testClass in testClasses)
+            {
+                WriteSubheading("[TestClass]", testClass.FullName);
+
+                //
+                // Construct an instance of the test class
+                //
+                var testInstance = assembly.CreateInstance(testClass.FullName);
+
+                //
+                // Find and run [TestInitialize] method
+                //
+                var initializeMethod = testClass.GetMethods()
+                    .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestInitializeAttribute), false).Any());
+
+                if (initializeMethod != null)
                 {
+                    Console.WriteLine();
+                    Console.WriteLine("[TestInitialize]");
+                    Console.WriteLine(initializeMethod.Name + "()");
                     try
                     {
-                        methods = current.GetMethods()
-                            .Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), false).Count() != 0)
-                            .OrderBy(m => m.Name)
-                            .ToList();
-
-                        if (!methods.Any())
-                            continue;
-
-                        WriteSubheading("[TestClass]", current.FullName);
-
-                        object instance = assembly.CreateInstance(current.FullName);
-
-                        // Run test initialize.
-                        var initializeMethod = current.GetMethods()
-                            .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestInitializeAttribute), false).Any());
-
-                        if (initializeMethod != null)
-                        {
-                            initializeMethod.Invoke(instance, null);
-                        }
-
-                        // Run test methods.
-                        foreach (var method in methods)
-                        {
-                            try
-                            {
-                                stats.AddGlobalCount();
-                                Console.WriteLine();
-                                Console.WriteLine("[TestMethod]");
-                                Console.WriteLine(method.Name + "()");
-                                stats.StartLocalTime();
-                                method.Invoke(instance, null);
-                                Console.WriteLine("  Passed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                                stats.AddGlobalPassCount();
-                            }
-                            catch (Exception ex)
-                            {
-                                stats.AddGlobalFailCount();
-                                Console.WriteLine();
-                                Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
-                                Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                                continue;
-                            }
-                            finally
-                            {
-                                stats.ResetLocalTime();
-                            }
-                        }
-                        Console.WriteLine();
-                        Console.WriteLine(stats.GetFinalResult());
+                        stats.StartLocalTime();
+                        initializeMethod.Invoke(testInstance, null);
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("  An unexpected error occured:");
-                        Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
                         Console.WriteLine();
-                        if (methods != null)
-                        {
-                            foreach (var method in methods)
-                            {
-                                stats.AddGlobalFailCount();
-                            }
-                        }
+                        Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
+                        Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                    }
+                    finally
+                    {
+                        stats.ResetLocalTime();
+                    }
+                }
+
+                //
+                // Find and run [TestMethod]s
+                //
+                var testMethods = testClass.GetMethods()
+                    .Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), false).Count() != 0)
+                    .OrderBy(m => m.Name)
+                    .ToList();
+
+                foreach (var testMethod in testMethods)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("[TestMethod]");
+                    Console.WriteLine(testMethod.Name + "()");
+                    stats.AddGlobalCount();
+                    stats.StartLocalTime();
+                    try
+                    {
+                        testMethod.Invoke(testInstance, null);
+                        Console.WriteLine("  Passed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                        stats.AddGlobalPassCount();
+                    }
+                    catch (Exception ex)
+                    {
+                        stats.AddGlobalFailCount();
+                        Console.WriteLine();
+                        Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
+                        Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                    }
+                    finally
+                    {
+                        stats.ResetLocalTime();
                     }
                 }
                 Console.WriteLine();
+                Console.WriteLine(stats.GetFinalResult());
+            }
 
-                return stats.GlobalFailCount == 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("  An unexpected error occured:");
-                Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
-                return false;
-            }
+            return stats.GlobalFailCount == 0;
         }
 
 
