@@ -185,7 +185,7 @@ namespace TestRunner
                                 Console.WriteLine("Running test: {0}", method.Name);
                                 stats.StartLocalTime();
                                 method.Invoke(instance, null);
-                                Console.WriteLine("  Passed ({0} s).", stats.LocalTime.TotalSeconds);
+                                Console.WriteLine("  Passed ({0} s)", stats.LocalTime.TotalSeconds);
                                 stats.AddGlobalPassCount();
                             }
                             catch (Exception ex)
@@ -193,7 +193,7 @@ namespace TestRunner
                                 stats.AddGlobalFailCount();
                                 Console.WriteLine();
                                 Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
-                                Console.WriteLine("  Failed ({0} s).", stats.LocalTime.TotalSeconds);
+                                Console.WriteLine("  Failed ({0} s)", stats.LocalTime.TotalSeconds);
                                 continue;
                             }
                             finally
