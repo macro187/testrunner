@@ -189,6 +189,8 @@ namespace TestRunner
 
             WriteHeading("Class: " + testClass.FullName);
 
+            bool ignore = testClass.GetCustomAttributes(typeof(IgnoreAttribute), false).Any();
+
             //
             // Locate methods
             //
@@ -211,44 +213,85 @@ namespace TestRunner
             //
             // Run tests
             //
+            int ran = 0;
+            int passed = 0;
             int failed = 0;
-            foreach (var testMethod in testMethods)
+            int ignored = 0;
+            if (!ignore)
             {
-                if (!RunTest(testMethod, testInitializeMethod, testCleanupMethod, testInstance))
+                foreach (var testMethod in testMethods)
                 {
-                    failed++;
+                    switch(RunTest(testMethod, testInitializeMethod, testCleanupMethod, testInstance))
+                    {
+                        case TestResult.Passed:
+                            passed++;
+                            ran++;
+                            break;
+                        case TestResult.Failed:
+                            failed++;
+                            ran++;
+                            break;
+                        case TestResult.Ignored:
+                            ignored++;
+                            break;
+                    }
                 }
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine("Ignoring all tests because class is decorated with [Ignore]");
+                ignored = testMethods.Count;
             }
 
             //
             // Print results
             //
             Console.WriteLine();
-            Console.WriteLine("Ran:    " + testMethods.Count.ToString() + " tests");
-            Console.WriteLine("Passed: " + (testMethods.Count - failed).ToString() + " tests");
-            Console.WriteLine("Failed: " + failed.ToString() + " tests");
+            Console.WriteLine("Ran:     " + ran.ToString() + " tests");
+            Console.WriteLine("Passed:  " + passed.ToString() + " tests");
+            Console.WriteLine("Failed:  " + failed.ToString() + " tests");
+            Console.WriteLine("Ignored: " + ignored.ToString() + " tests");
 
             return (failed == 0);
         }
 
 
         /// <summary>
-        /// Run a test method plus its intialize and cleanup methods, if present
+        /// Run a test method plus its intialize and cleanup methods, if present, unless decorated with [Ignore]
         /// </summary>
         /// <returns>
-        /// Whether the test method and its intialize and cleanup methods, if present, were all successful
+        /// The results of the test
         /// </returns>
-        static bool RunTest(
+        static TestResult RunTest(
             MethodInfo testMethod,
             MethodInfo testInitializeMethod,
             MethodInfo testCleanupMethod,
             object testInstance)
         {
             WriteSubheading("Test: " + testMethod.Name.Replace("_", " "));
-            return
+
+            bool ignore = testMethod.GetCustomAttributes(typeof(IgnoreAttribute), false).Any();
+            if (ignore)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Test ignored because method is decorated with [Ignore]");
+                return TestResult.Ignored;
+            }
+
+            if (
                 RunInstanceMethod(testInitializeMethod, testInstance, "[TestInitialize]") &&
                 RunInstanceMethod(testMethod, testInstance, "[TestMethod]") &&
-                RunInstanceMethod(testCleanupMethod, testInstance, "[TestCleanup]");
+                RunInstanceMethod(testCleanupMethod, testInstance, "[TestCleanup]"))
+            {
+                Console.WriteLine();
+                Console.WriteLine("Test passed");
+                return TestResult.Passed;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Test FAILED");
+            return TestResult.Failed;
         }
 
 

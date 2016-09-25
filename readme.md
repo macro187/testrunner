@@ -30,6 +30,8 @@ Supports [\[TestInitialize\]](https://msdn.microsoft.com/en-us/library/microsoft
 
 Supports [\[TestCleanup\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcleanupattribute.aspx)
 
+Supports [\[Ignore\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.ignoreattribute.aspx)
+
 
 Usage
 -----
