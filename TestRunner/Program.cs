@@ -150,97 +150,125 @@ namespace TestRunner
 
 
         /// <summary>
-        /// Run tests in an assembly
+        /// Run tests in a test assembly
         /// </summary>
-        public static bool RunTests(Assembly assembly)
+        public static bool RunTests(Assembly testAssembly)
         {
-            if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+            if (testAssembly == null) throw new ArgumentNullException(nameof(testAssembly));
 
             Console.WriteLine();
             Console.WriteLine("Test Assembly:");
-            Console.WriteLine(assembly.Location);
+            Console.WriteLine(testAssembly.Location);
 
             Stats stats = new Stats();
 
-            var testClasses = assembly.GetTypes()
-                .Where(t => t.GetCustomAttributes(typeof(TestClassAttribute), false).Count() != 0)
-                .OrderBy(t => t.Name);
+            var testClasses =
+                testAssembly.GetTypes()
+                    .Where(t => t.GetCustomAttributes(typeof(TestClassAttribute), false).Any())
+                    .OrderBy(t => t.Name);
 
             foreach (var testClass in testClasses)
             {
-                WriteSubheading("[TestClass]", testClass.FullName);
-
-                //
-                // Construct an instance of the test class
-                //
-                var testInstance = assembly.CreateInstance(testClass.FullName);
-
-                //
-                // Find and run [TestInitialize] method
-                //
-                var initializeMethod = testClass.GetMethods()
-                    .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestInitializeAttribute), false).Any());
-
-                if (initializeMethod != null)
-                {
-                    Console.WriteLine();
-                    Console.WriteLine("[TestInitialize]");
-                    Console.WriteLine(initializeMethod.Name + "()");
-                    try
-                    {
-                        stats.StartLocalTime();
-                        initializeMethod.Invoke(testInstance, null);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
-                        Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                    }
-                    finally
-                    {
-                        stats.ResetLocalTime();
-                    }
-                }
-
-                //
-                // Find and run [TestMethod]s
-                //
-                var testMethods = testClass.GetMethods()
-                    .Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), false).Count() != 0)
-                    .OrderBy(m => m.Name)
-                    .ToList();
-
-                foreach (var testMethod in testMethods)
-                {
-                    Console.WriteLine();
-                    Console.WriteLine("[TestMethod]");
-                    Console.WriteLine(testMethod.Name + "()");
-                    stats.AddGlobalCount();
-                    stats.StartLocalTime();
-                    try
-                    {
-                        testMethod.Invoke(testInstance, null);
-                        Console.WriteLine("  Passed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                        stats.AddGlobalPassCount();
-                    }
-                    catch (Exception ex)
-                    {
-                        stats.AddGlobalFailCount();
-                        Console.WriteLine();
-                        Console.WriteLine(Indent(FormatException(UnwrapTargetInvocationException(ex))));
-                        Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                    }
-                    finally
-                    {
-                        stats.ResetLocalTime();
-                    }
-                }
-                Console.WriteLine();
-                Console.WriteLine(stats.GetFinalResult());
+                RunTests(testClass, stats);
             }
 
-            return stats.GlobalFailCount == 0;
+            return (stats.GlobalFailCount == 0);
+        }
+
+
+        /// <summary>
+        /// Run tests in a [TestClass]
+        /// </summary>
+        static void RunTests(Type testClass, Stats stats)
+        {
+            if (testClass == null) throw new ArgumentNullException(nameof(testClass));
+            if (stats == null) throw new ArgumentNullException(nameof(stats));
+
+            WriteSubheading("[TestClass]", testClass.FullName);
+
+            //
+            // Construct an instance of the test class
+            //
+            var testInstance = Activator.CreateInstance(testClass);
+
+            //
+            // Find and run [TestInitialize] method
+            //
+            var initializeMethod = testClass.GetMethods()
+                .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestInitializeAttribute), false).Any());
+
+            if (initializeMethod != null)
+            {
+                Console.WriteLine();
+                Console.WriteLine("[TestInitialize]");
+                Console.WriteLine(initializeMethod.Name + "()");
+                try
+                {
+                    stats.StartLocalTime();
+                    initializeMethod.Invoke(testInstance, null);
+                }
+                catch (Exception ex)
+                {
+                    ex = UnwrapTargetInvocationException(ex);
+                    Console.WriteLine();
+                    Console.WriteLine(Indent(FormatException(ex)));
+                    Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                }
+                finally
+                {
+                    stats.ResetLocalTime();
+                }
+            }
+
+            //
+            // Find and run [TestMethod]s
+            //
+            var testMethods = testClass.GetMethods()
+                .Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), false).Count() != 0)
+                .OrderBy(m => m.Name)
+                .ToList();
+
+            foreach (var testMethod in testMethods)
+            {
+                RunTest(testMethod, testInstance, stats);
+            }
+            Console.WriteLine();
+            Console.WriteLine(stats.GetFinalResult());
+        }
+
+
+        /// <summary>
+        /// Run a [TestMethod]
+        /// </summary>
+        static void RunTest(MethodInfo testMethod, object testInstance, Stats stats)
+        {
+            if (testMethod == null) throw new ArgumentNullException(nameof(testMethod));
+            if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
+            if (stats == null) throw new ArgumentNullException(nameof(stats));
+
+            Console.WriteLine();
+            Console.WriteLine("[TestMethod]");
+            Console.WriteLine(testMethod.Name + "()");
+            stats.AddGlobalCount();
+            stats.StartLocalTime();
+            try
+            {
+                testMethod.Invoke(testInstance, null);
+                Console.WriteLine("  Passed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                stats.AddGlobalPassCount();
+            }
+            catch (Exception ex)
+            {
+                ex = UnwrapTargetInvocationException(ex);
+                stats.AddGlobalFailCount();
+                Console.WriteLine();
+                Console.WriteLine(Indent(FormatException(ex)));
+                Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+            }
+            finally
+            {
+                stats.ResetLocalTime();
+            }
         }
 
 
