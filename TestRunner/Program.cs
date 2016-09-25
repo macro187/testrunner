@@ -133,26 +133,19 @@ namespace TestRunner
 
         static string GetFullAssemblyPath(string path)
         {
-            if (!Path.IsPathRooted(path))
-            {
-                path = Path.Combine(
-                    Environment.CurrentDirectory,
-                    path);
-            }
-
-            return path;
+            return Path.IsPathRooted(path)
+                ? path
+                : Path.Combine(Environment.CurrentDirectory, path);
         }
 
 
         static void UseConfigFile(Assembly assembly)
         {
             string configPath = assembly.Location + ".config";
-            if (File.Exists(configPath))
-            {
-                AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
-                Console.WriteLine();
-                Console.WriteLine(string.Format("Using configuration file: '{0}'", configPath));
-            }
+            if (!File.Exists(configPath)) return;
+            AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
+            Console.WriteLine();
+            Console.WriteLine(string.Format("Using configuration file: '{0}'", configPath));
         }
 
 
