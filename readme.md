@@ -42,11 +42,11 @@ Usage
 Returns
 -------
 
-Exit code 0 if all test, initialization, and cleanup methods executed successfully
+Exit code 0 if all test, initialization, and cleanup methods were successful
 
 *- OR -*
 
-A non-zero exit code if anything doesn't work
+A non-zero exit code if anything failed
 
 
 License
