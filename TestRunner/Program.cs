@@ -159,29 +159,33 @@ namespace TestRunner
             Console.WriteLine();
             Console.WriteLine(testAssembly.Location);
 
-            Stats stats = new Stats();
-
             var testClasses =
                 testAssembly.GetTypes()
                     .Where(t => t.GetCustomAttributes(typeof(TestClassAttribute), false).Any())
                     .OrderBy(t => t.Name);
 
+            int failed = 0;
             foreach (var testClass in testClasses)
             {
-                RunTestClass(testClass, stats);
+                if (!RunTestClass(testClass))
+                {
+                    failed++;
+                }
             }
 
-            return (stats.GlobalFailCount == 0);
+            return (failed == 0);
         }
 
 
         /// <summary>
         /// Run tests in a [TestClass]
         /// </summary>
-        static void RunTestClass(Type testClass, Stats stats)
+        /// <returns>
+        /// Whether everything in <paramref name="testClass"/> succeeded
+        /// </returns>
+        static bool RunTestClass(Type testClass)
         {
             if (testClass == null) throw new ArgumentNullException(nameof(testClass));
-            if (stats == null) throw new ArgumentNullException(nameof(stats));
 
             WriteHeading("Class: " + testClass.FullName);
 
@@ -207,16 +211,24 @@ namespace TestRunner
             //
             // Run tests
             //
+            int failed = 0;
             foreach (var testMethod in testMethods)
             {
-                RunTest(testMethod, testInitializeMethod, testCleanupMethod, testInstance, stats);
+                if (!RunTest(testMethod, testInitializeMethod, testCleanupMethod, testInstance))
+                {
+                    failed++;
+                }
             }
 
             //
             // Print results
             //
             Console.WriteLine();
-            Console.WriteLine(stats.GetFinalResult());
+            Console.WriteLine("Ran:    " + testMethods.Count.ToString() + " tests");
+            Console.WriteLine("Passed: " + (testMethods.Count - failed).ToString() + " tests");
+            Console.WriteLine("Failed: " + failed.ToString() + " tests");
+
+            return (failed == 0);
         }
 
 
@@ -230,127 +242,51 @@ namespace TestRunner
             MethodInfo testMethod,
             MethodInfo testInitializeMethod,
             MethodInfo testCleanupMethod,
-            object testInstance,
-            Stats stats)
+            object testInstance)
         {
             WriteSubheading("Test: " + testMethod.Name.Replace("_", " "));
             return
-                RunTestInitializeMethod(testInitializeMethod, testInstance, stats) &&
-                RunTestMethod(testMethod, testInstance, stats) &&
-                RunTestCleanupMethod(testCleanupMethod, testInstance, stats);
+                RunInstanceMethod(testInitializeMethod, testInstance, "[TestInitialize]") &&
+                RunInstanceMethod(testMethod, testInstance, "[TestMethod]") &&
+                RunInstanceMethod(testCleanupMethod, testInstance, "[TestCleanup]");
         }
 
 
         /// <summary>
-        /// Run a [TestInitialize] method
+        /// Run an instance method
         /// </summary>
         /// <returns>
         /// Whether the method ran successfully
         /// </returns>
-        static bool RunTestInitializeMethod(MethodInfo testInitializeMethod, object testInstance, Stats stats)
+        static bool RunInstanceMethod(MethodInfo method, object testInstance, string prefix)
         {
             if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
-            if (stats == null) throw new ArgumentNullException(nameof(stats));
+            prefix = prefix ?? "";
 
-            if (testInitializeMethod == null) return true;
+            if (method == null) return true;
 
             Console.WriteLine();
-            Console.WriteLine("[TestInitialize] " + testInitializeMethod.Name + "()");
+            Console.WriteLine(prefix + (prefix != "" ? " " : "") + method.Name + "()");
+
+            var watch = new Stopwatch();
+            watch.Start();
+            bool success = false;
             try
             {
-                stats.StartLocalTime();
-                testInitializeMethod.Invoke(testInstance, null);
-                Console.WriteLine("  Succeeded ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                return true;
+                method.Invoke(testInstance, null);
+                watch.Stop();
+                success = true;
             }
             catch (Exception ex)
             {
+                watch.Stop();
                 ex = UnwrapTargetInvocationException(ex);
-                Console.WriteLine();
                 Console.WriteLine(Indent(FormatException(ex)));
-                Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                return false;
             }
-            finally
-            {
-                stats.ResetLocalTime();
-            }
-        }
 
+            Console.WriteLine("  {0} ({1:N0} ms)", success ? "Succeeded" : "Failed", watch.ElapsedMilliseconds);
 
-        /// <summary>
-        /// Run a [TestCleanup] method
-        /// </summary>
-        /// <returns>
-        /// Whether the method ran successfully
-        /// </returns>
-        static bool RunTestCleanupMethod(MethodInfo testCleanupMethod, object testInstance, Stats stats)
-        {
-            if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
-            if (stats == null) throw new ArgumentNullException(nameof(stats));
-
-            if (testCleanupMethod == null) return true;
-
-            Console.WriteLine();
-            Console.WriteLine("[TestCleanup] " + testCleanupMethod.Name + "()");
-            try
-            {
-                stats.StartLocalTime();
-                testCleanupMethod.Invoke(testInstance, null);
-                Console.WriteLine("  Succeeded ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ex = UnwrapTargetInvocationException(ex);
-                Console.WriteLine();
-                Console.WriteLine(Indent(FormatException(ex)));
-                Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                return false;
-            }
-            finally
-            {
-                stats.ResetLocalTime();
-            }
-        }
-
-
-        /// <summary>
-        /// Run a [TestMethod]
-        /// </summary>
-        /// <returns>
-        /// Whether the method ran successfully
-        /// </returns>
-        static bool RunTestMethod(MethodInfo testMethod, object testInstance, Stats stats)
-        {
-            if (testMethod == null) throw new ArgumentNullException(nameof(testMethod));
-            if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
-            if (stats == null) throw new ArgumentNullException(nameof(stats));
-
-            Console.WriteLine();
-            Console.WriteLine("[TestMethod] " + testMethod.Name + "()");
-            stats.AddGlobalCount();
-            stats.StartLocalTime();
-            try
-            {
-                testMethod.Invoke(testInstance, null);
-                Console.WriteLine("  Passed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                stats.AddGlobalPassCount();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ex = UnwrapTargetInvocationException(ex);
-                stats.AddGlobalFailCount();
-                Console.WriteLine();
-                Console.WriteLine(Indent(FormatException(ex)));
-                Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
-                return false;
-            }
-            finally
-            {
-                stats.ResetLocalTime();
-            }
+            return success;
         }
 
 
