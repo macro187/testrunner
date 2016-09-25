@@ -192,6 +192,9 @@ namespace TestRunner
             var testInitializeMethod = testClass.GetMethods()
                 .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestInitializeAttribute), false).Any());
 
+            var testCleanupMethod = testClass.GetMethods()
+                .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestCleanupAttribute), false).Any());
+
             var testMethods = testClass.GetMethods()
                 .Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), false).Count() != 0)
                 .OrderBy(m => m.Name)
@@ -207,11 +210,9 @@ namespace TestRunner
             //
             foreach (var testMethod in testMethods)
             {
-                if (testInitializeMethod != null)
-                {
-                    RunTestInitializeMethod(testInitializeMethod, testInstance, stats);
-                }
+                RunTestInitializeMethod(testInitializeMethod, testInstance, stats);
                 RunTestMethod(testMethod, testInstance, stats);
+                RunTestCleanupMethod(testCleanupMethod, testInstance, stats);
             }
 
             //
@@ -227,9 +228,10 @@ namespace TestRunner
         /// </summary>
         static void RunTestInitializeMethod(MethodInfo testInitializeMethod, object testInstance, Stats stats)
         {
-            if (testInitializeMethod == null) throw new ArgumentNullException(nameof(testInitializeMethod));
             if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
             if (stats == null) throw new ArgumentNullException(nameof(stats));
+
+            if (testInitializeMethod == null) return;
 
             Console.WriteLine();
             Console.WriteLine("[TestInitialize]");
@@ -238,6 +240,38 @@ namespace TestRunner
             {
                 stats.StartLocalTime();
                 testInitializeMethod.Invoke(testInstance, null);
+            }
+            catch (Exception ex)
+            {
+                ex = UnwrapTargetInvocationException(ex);
+                Console.WriteLine();
+                Console.WriteLine(Indent(FormatException(ex)));
+                Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+            }
+            finally
+            {
+                stats.ResetLocalTime();
+            }
+        }
+
+
+        /// <summary>
+        /// Run a [TestCleanup] method
+        /// </summary>
+        static void RunTestCleanupMethod(MethodInfo testCleanupMethod, object testInstance, Stats stats)
+        {
+            if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
+            if (stats == null) throw new ArgumentNullException(nameof(stats));
+
+            if (testCleanupMethod == null) return;
+
+            Console.WriteLine();
+            Console.WriteLine("[TestCleanup]");
+            Console.WriteLine(testCleanupMethod.Name + "()");
+            try
+            {
+                stats.StartLocalTime();
+                testCleanupMethod.Invoke(testInstance, null);
             }
             catch (Exception ex)
             {
