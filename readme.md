@@ -1,17 +1,58 @@
 TestRunner
 ==========
 
-A console MSTest runner.
+A console MSTest runner
 
-Supports the following MSTest features:
 
--   [\[TestClass\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testclassattribute.aspx)
+Requirements
+------------
 
--   [\[TestMethod\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testmethodattribute.aspx)
+None
 
--   [\[TestInitialize\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testinitializeattribute.aspx)
 
--   [\[TestCleanup\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcleanupattribute.aspx)
+Features
+--------
+
+Lightweight, stand-alone, no external dependencies.
+
+Includes test timing information.
+
+Includes detailed exception information in the case of failures.
+
+Includes [System.Diagnostics.Trace](https://msdn.microsoft.com/en-us/library/system.diagnostics.trace\(v=vs.110\).aspx)
+output.
+
+Supports [\[TestClass\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testclassattribute.aspx)
+
+Supports [\[TestMethod\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testmethodattribute.aspx)
+
+Supports [\[TestInitialize\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testinitializeattribute.aspx)
+
+Supports [\[TestCleanup\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcleanupattribute.aspx)
+
+
+Usage
+-----
+
+`TestRunner.exe` *`<testassembly>`*
+
+*`testassembly`* - Path to an assembly containing MSTest tests
+
+
+Returns
+-------
+
+Exit code 0 if all test, initialization, and cleanup methods executed successfully
+
+*- OR -*
+
+A non-zero exit code if anything doesn't work
+
+
+License
+-------
+
+[MS-PL](https://opensource.org/licenses/MS-PL)
 
 
 History
