@@ -157,7 +157,6 @@ namespace TestRunner
             if (testAssembly == null) throw new ArgumentNullException(nameof(testAssembly));
 
             Console.WriteLine();
-            Console.WriteLine("Test Assembly:");
             Console.WriteLine(testAssembly.Location);
 
             Stats stats = new Stats();
@@ -184,7 +183,7 @@ namespace TestRunner
             if (testClass == null) throw new ArgumentNullException(nameof(testClass));
             if (stats == null) throw new ArgumentNullException(nameof(stats));
 
-            WriteSubheading("[TestClass]", testClass.FullName);
+            WriteHeading("Class: " + testClass.FullName);
 
             //
             // Locate methods
@@ -206,13 +205,11 @@ namespace TestRunner
             var testInstance = Activator.CreateInstance(testClass);
 
             //
-            // Invoke methods
+            // Run tests
             //
             foreach (var testMethod in testMethods)
             {
-                RunTestInitializeMethod(testInitializeMethod, testInstance, stats);
-                RunTestMethod(testMethod, testInstance, stats);
-                RunTestCleanupMethod(testCleanupMethod, testInstance, stats);
+                RunTest(testMethod, testInitializeMethod, testCleanupMethod, testInstance, stats);
             }
 
             //
@@ -224,23 +221,47 @@ namespace TestRunner
 
 
         /// <summary>
+        /// Run a test method plus its intialize and cleanup methods, if present
+        /// </summary>
+        /// <returns>
+        /// Whether the test method and its intialize and cleanup methods, if present, were all successful
+        /// </returns>
+        static bool RunTest(
+            MethodInfo testMethod,
+            MethodInfo testInitializeMethod,
+            MethodInfo testCleanupMethod,
+            object testInstance,
+            Stats stats)
+        {
+            WriteSubheading("Test: " + testMethod.Name.Replace("_", " "));
+            return
+                RunTestInitializeMethod(testInitializeMethod, testInstance, stats) &&
+                RunTestMethod(testMethod, testInstance, stats) &&
+                RunTestCleanupMethod(testCleanupMethod, testInstance, stats);
+        }
+
+
+        /// <summary>
         /// Run a [TestInitialize] method
         /// </summary>
-        static void RunTestInitializeMethod(MethodInfo testInitializeMethod, object testInstance, Stats stats)
+        /// <returns>
+        /// Whether the method ran successfully
+        /// </returns>
+        static bool RunTestInitializeMethod(MethodInfo testInitializeMethod, object testInstance, Stats stats)
         {
             if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
             if (stats == null) throw new ArgumentNullException(nameof(stats));
 
-            if (testInitializeMethod == null) return;
+            if (testInitializeMethod == null) return true;
 
             Console.WriteLine();
-            Console.WriteLine("[TestInitialize]");
-            Console.WriteLine(testInitializeMethod.Name + "()");
+            Console.WriteLine("[TestInitialize] " + testInitializeMethod.Name + "()");
             try
             {
                 stats.StartLocalTime();
                 testInitializeMethod.Invoke(testInstance, null);
                 Console.WriteLine("  Succeeded ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                return true;
             }
             catch (Exception ex)
             {
@@ -248,6 +269,7 @@ namespace TestRunner
                 Console.WriteLine();
                 Console.WriteLine(Indent(FormatException(ex)));
                 Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                return false;
             }
             finally
             {
@@ -259,21 +281,24 @@ namespace TestRunner
         /// <summary>
         /// Run a [TestCleanup] method
         /// </summary>
-        static void RunTestCleanupMethod(MethodInfo testCleanupMethod, object testInstance, Stats stats)
+        /// <returns>
+        /// Whether the method ran successfully
+        /// </returns>
+        static bool RunTestCleanupMethod(MethodInfo testCleanupMethod, object testInstance, Stats stats)
         {
             if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
             if (stats == null) throw new ArgumentNullException(nameof(stats));
 
-            if (testCleanupMethod == null) return;
+            if (testCleanupMethod == null) return true;
 
             Console.WriteLine();
-            Console.WriteLine("[TestCleanup]");
-            Console.WriteLine(testCleanupMethod.Name + "()");
+            Console.WriteLine("[TestCleanup] " + testCleanupMethod.Name + "()");
             try
             {
                 stats.StartLocalTime();
                 testCleanupMethod.Invoke(testInstance, null);
                 Console.WriteLine("  Succeeded ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                return true;
             }
             catch (Exception ex)
             {
@@ -281,6 +306,7 @@ namespace TestRunner
                 Console.WriteLine();
                 Console.WriteLine(Indent(FormatException(ex)));
                 Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                return false;
             }
             finally
             {
@@ -292,15 +318,17 @@ namespace TestRunner
         /// <summary>
         /// Run a [TestMethod]
         /// </summary>
-        static void RunTestMethod(MethodInfo testMethod, object testInstance, Stats stats)
+        /// <returns>
+        /// Whether the method ran successfully
+        /// </returns>
+        static bool RunTestMethod(MethodInfo testMethod, object testInstance, Stats stats)
         {
             if (testMethod == null) throw new ArgumentNullException(nameof(testMethod));
             if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
             if (stats == null) throw new ArgumentNullException(nameof(stats));
 
             Console.WriteLine();
-            Console.WriteLine("[TestMethod]");
-            Console.WriteLine(testMethod.Name + "()");
+            Console.WriteLine("[TestMethod] " + testMethod.Name + "()");
             stats.AddGlobalCount();
             stats.StartLocalTime();
             try
@@ -308,6 +336,7 @@ namespace TestRunner
                 testMethod.Invoke(testInstance, null);
                 Console.WriteLine("  Passed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
                 stats.AddGlobalPassCount();
+                return true;
             }
             catch (Exception ex)
             {
@@ -316,6 +345,7 @@ namespace TestRunner
                 Console.WriteLine();
                 Console.WriteLine(Indent(FormatException(ex)));
                 Console.WriteLine("  Failed ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
+                return false;
             }
             finally
             {
