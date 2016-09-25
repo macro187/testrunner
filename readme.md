@@ -44,7 +44,7 @@ Usage
 Returns
 -------
 
-Exit code 0 if all test, initialization, and cleanup methods were successful
+Exit code 0 if all test, initialization, and cleanup methods succeeded
 
 *- OR -*
 
