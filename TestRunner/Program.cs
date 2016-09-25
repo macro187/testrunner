@@ -457,7 +457,12 @@ namespace TestRunner
 
         static string[] SplitLines(string theString)
         {
-            return theString.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
+            theString = theString.Replace("\r\n", "\n").Replace("\r", "\n");
+            if (theString.EndsWith("\n"))
+            {
+                theString = theString.Substring(0, theString.Length-1);
+            }
+            return theString.Split('\n');
         }
 
 
