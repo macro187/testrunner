@@ -240,6 +240,7 @@ namespace TestRunner
             {
                 stats.StartLocalTime();
                 testInitializeMethod.Invoke(testInstance, null);
+                Console.WriteLine("  Succeeded ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
             }
             catch (Exception ex)
             {
@@ -272,6 +273,7 @@ namespace TestRunner
             {
                 stats.StartLocalTime();
                 testCleanupMethod.Invoke(testInstance, null);
+                Console.WriteLine("  Succeeded ({0:N0} ms)", stats.LocalTime.TotalMilliseconds);
             }
             catch (Exception ex)
             {
