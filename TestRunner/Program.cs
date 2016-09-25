@@ -13,6 +13,12 @@ namespace TestRunner
     static class Program
     {
 
+        static string assemblyPath;
+
+
+        /// <summary>
+        /// Program entry point
+        /// </summary>
         [STAThread]
         static int Main(string[] args)
         {
@@ -79,17 +85,6 @@ namespace TestRunner
         }
 
 
-        static string assemblyPath;
-
-
-        static bool ParseArgs(string[] args)
-        {
-            if (args.Length != 1) return false;
-            assemblyPath = args[0];
-            return true;
-        }
-
-
         /// <summary>
         /// Print program information
         /// </summary>
@@ -103,6 +98,20 @@ namespace TestRunner
                     FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart,
                     FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart),
                 FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright);
+        }
+
+
+        /// <summary>
+        /// Parse command line arguments
+        /// </summary>
+        /// <returns>
+        /// Whether the command line arguments were all valid
+        /// </returns>
+        static bool ParseArgs(string[] args)
+        {
+            if (args.Length != 1) return false;
+            assemblyPath = args[0];
+            return true;
         }
 
 
@@ -131,6 +140,9 @@ namespace TestRunner
         }
 
 
+        /// <summary>
+        /// Resolve full path to test assembly
+        /// </summary>
         static string GetFullAssemblyPath(string path)
         {
             return Path.IsPathRooted(path)
@@ -139,6 +151,9 @@ namespace TestRunner
         }
 
 
+        /// <summary>
+        /// Activate the test assembly's .config file, if one is present
+        /// </summary>
         static void UseConfigFile(Assembly assembly)
         {
             string configPath = assembly.Location + ".config";
@@ -258,8 +273,11 @@ namespace TestRunner
 
 
         /// <summary>
-        /// Run a test method plus its intialize and cleanup methods, if present, unless decorated with [Ignore]
+        /// Run a test method (plus its intialize and cleanup methods, if present)
         /// </summary>
+        /// <remarks>
+        /// If the test method is decorated with [Ignore], nothing is run
+        /// </remarks>
         /// <returns>
         /// The results of the test
         /// </returns>
