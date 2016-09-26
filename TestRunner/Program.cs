@@ -12,9 +12,6 @@ namespace TestRunner
     static class Program
     {
 
-        static string assemblyPath;
-
-
         /// <summary>
         /// Program entry point
         /// </summary>
@@ -36,19 +33,25 @@ namespace TestRunner
                 //
                 // Parse arguments
                 //
-                if (!ParseArgs(args))
+                var argumentParser = new ArgumentParser(args);
+                if (!argumentParser.Success)
                 {
-                    Usage();
+                    Console.WriteLine();
+                    Console.WriteLine(argumentParser.Usage);
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine(argumentParser.ErrorMessage);
                     return 1;
                 }
 
                 //
                 // Resolve full path to test assembly
                 //
-                string fullAssemblyPath = GetFullAssemblyPath(assemblyPath);
+                string fullAssemblyPath = GetFullAssemblyPath(argumentParser.AssemblyPath);
                 if (!File.Exists(fullAssemblyPath))
                 {
-                    Console.WriteLine("The test assembly '{0}' could not be found", fullAssemblyPath);
+                    Console.WriteLine();
+                    Console.WriteLine("Assembly '{0}' not found", fullAssemblyPath);
                     return 1;
                 }
 
@@ -89,53 +92,15 @@ namespace TestRunner
         /// </summary>
         static void Banner()
         {
-            WriteHeading(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0} v{1}.{2}",
-                    FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName,
-                    FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart,
-                    FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart),
-                FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright);
-        }
-
-
-        /// <summary>
-        /// Parse command line arguments
-        /// </summary>
-        /// <returns>
-        /// Whether the command line arguments were all valid
-        /// </returns>
-        static bool ParseArgs(string[] args)
-        {
-            if (args.Length != 1) return false;
-            assemblyPath = args[0];
-            return true;
-        }
-
-
-        /// <summary>
-        /// Print usage information
-        /// </summary>
-        static void Usage()
-        {
+            var name = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName;
+            var major = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart;
+            var minor = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart;
+            var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
             var description = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).Comments;
-            var fileName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-
-            Console.WriteLine();
-            Console.WriteLine(description);
-            Console.WriteLine();
-            Console.WriteLine("Usage");
-            Console.WriteLine();
-            Console.WriteLine("    {0} <assemblypath>", fileName);
-            Console.WriteLine();
-            Console.WriteLine("        assemblypath - Path to an assembly containing MSTest unit tests");
-            Console.WriteLine();
-            Console.WriteLine("Examples");
-            Console.WriteLine();
-            Console.WriteLine("    {0} MyTestAssembly.dll", fileName);
-            Console.WriteLine();
-            Console.WriteLine("    {0} C:\\foo\\MyTestAssembly.dll", fileName);
+            WriteHeading(
+                $"{name} - {description}",
+                $"Version {major}.{minor}",
+                copyright);
         }
 
 
