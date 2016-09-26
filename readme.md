@@ -47,13 +47,13 @@ Try `xbuild /toolsversion:4.0 /property:LangVersion=default`.
 Synopsis
 --------
 
-`TestRunner.exe` *`<testassembly>`*
+    TestRunner.exe <testassembly>
 
 
 Options
 -------
 
-*`testassembly`* - Path to an assembly containing MSTest tests
+`<testassembly>` - Path to an assembly containing MSTest tests
 
 
 Exit Status
