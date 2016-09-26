@@ -40,8 +40,8 @@ Building
 
 Use Visual Studio, MSBuild, or [XBuild](http://www.mono-project.com/docs/tools+libraries/tools/xbuild/).
 
-Older versions of XBuild may not understand the tools and language versions in the project file(s).  Try `xbuild
-/toolsversion:4.0 /property:LangVersion=default`.
+Older versions of XBuild may not understand the tools and language versions in the project file(s).
+Try `xbuild /toolsversion:4.0 /property:LangVersion=default`.
 
 
 Synopsis
@@ -66,14 +66,14 @@ Copyright
 ---------
 
 Copyright (c) 2012-2016  
-Rickenberg <https://www.codeplex.com/site/users/view/Rickenberg>  
-Ron MacNeil <macro@hotmail.com>  
+Rickenberg \<<https://www.codeplex.com/site/users/view/Rickenberg>\>  
+Ron MacNeil \<<macro@hotmail.com>\>  
 
 
 License
 -------
 
-MS-PL, see [license.txt](blob/master/license.txt).
+MS-PL, see [license.txt](license.txt).
 
 
 History
