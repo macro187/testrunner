@@ -15,6 +15,11 @@ namespace TestRunner
         /// <summary>
         /// Program entry point
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Reliability",
+            "CA2001:AvoidCallingProblematicMethods",
+            MessageId = "System.Reflection.Assembly.LoadFrom",
+            Justification = "Need to load assemblies in order to run tests")]
         [STAThread]
         static int Main(string[] args)
         {
@@ -36,11 +41,11 @@ namespace TestRunner
                 var argumentParser = new ArgumentParser(args);
                 if (!argumentParser.Success)
                 {
-                    Console.WriteLine();
-                    Console.WriteLine(argumentParser.Usage);
-                    Console.WriteLine();
-                    Console.WriteLine();
-                    Console.WriteLine(argumentParser.ErrorMessage);
+                    Console.Out.WriteLine();
+                    Console.Out.WriteLine(ArgumentParser.Usage);
+                    Console.Out.WriteLine();
+                    Console.Out.WriteLine();
+                    Console.Out.WriteLine(argumentParser.ErrorMessage);
                     return 1;
                 }
 
@@ -50,8 +55,8 @@ namespace TestRunner
                 string fullAssemblyPath = GetFullAssemblyPath(argumentParser.AssemblyPath);
                 if (!File.Exists(fullAssemblyPath))
                 {
-                    Console.WriteLine();
-                    Console.WriteLine("Assembly '{0}' not found", fullAssemblyPath);
+                    Console.Out.WriteLine();
+                    Console.Out.WriteLine("Assembly '{0}' not found", fullAssemblyPath);
                     return 1;
                 }
 
@@ -77,11 +82,11 @@ namespace TestRunner
             //
             catch (Exception e)
             {
-                Console.WriteLine();
-                Console.WriteLine(
+                Console.Out.WriteLine();
+                Console.Out.WriteLine(
                     "An internal error occurred in {0}:",
                     Path.GetFileName(Assembly.GetExecutingAssembly().Location));
-                Console.WriteLine(FormatException(e));
+                Console.Out.WriteLine(FormatException(e));
                 return 1;
             }
         }
@@ -98,8 +103,8 @@ namespace TestRunner
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
             var description = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).Comments;
             WriteHeading(
-                $"{name} - {description}",
-                $"Version {major}.{minor}",
+                string.Format(CultureInfo.InvariantCulture, "{0} - {1}", name, description),
+                string.Format(CultureInfo.InvariantCulture, "Version {0}.{1}", major, minor),
                 copyright);
         }
 
@@ -123,8 +128,8 @@ namespace TestRunner
             string configPath = assembly.Location + ".config";
             if (!File.Exists(configPath)) return;
             AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
-            Console.WriteLine();
-            Console.WriteLine(string.Format("Using configuration file: '{0}'", configPath));
+            Console.Out.WriteLine();
+            Console.Out.WriteLine("Using configuration file: '{0}'", configPath);
         }
 
 
@@ -133,10 +138,10 @@ namespace TestRunner
         /// </summary>
         public static bool RunTestAssembly(Assembly testAssembly)
         {
-            if (testAssembly == null) throw new ArgumentNullException(nameof(testAssembly));
+            if (testAssembly == null) throw new ArgumentNullException("testAssembly");
 
-            Console.WriteLine();
-            Console.WriteLine(testAssembly.Location);
+            Console.Out.WriteLine();
+            Console.Out.WriteLine(testAssembly.Location);
 
             var testClasses =
                 testAssembly.GetTypes()
@@ -164,9 +169,9 @@ namespace TestRunner
         /// </returns>
         static bool RunTestClass(Type testClass)
         {
-            if (testClass == null) throw new ArgumentNullException(nameof(testClass));
+            if (testClass == null) throw new ArgumentNullException("testClass");
 
-            Console.WriteLine();
+            Console.Out.WriteLine();
             WriteHeading(testClass.FullName);
 
             bool ignore = testClass.GetCustomAttributes(typeof(IgnoreAttribute), false).Any();
@@ -219,8 +224,8 @@ namespace TestRunner
             }
             else
             {
-                Console.WriteLine();
-                Console.WriteLine("Ignoring all tests because class is decorated with [Ignore]");
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("Ignoring all tests because class is decorated with [Ignore]");
                 ignored = testMethods.Count;
             }
 
@@ -228,12 +233,12 @@ namespace TestRunner
             // Print results
             //
             WriteSubheading("Summary");
-            Console.WriteLine();
-            Console.WriteLine("Total:   " + testMethods.Count.ToString() + " tests");
-            Console.WriteLine("Ran:     " + ran.ToString() + " tests");
-            Console.WriteLine("Ignored: " + ignored.ToString() + " tests");
-            Console.WriteLine("Passed:  " + passed.ToString() + " tests");
-            Console.WriteLine("Failed:  " + failed.ToString() + " tests");
+            Console.Out.WriteLine();
+            Console.Out.WriteLine("Total:   {0} tests", testMethods.Count);
+            Console.Out.WriteLine("Ran:     {0} tests", ran);
+            Console.Out.WriteLine("Ignored: {0} tests", ignored);
+            Console.Out.WriteLine("Passed:  {0} tests", passed);
+            Console.Out.WriteLine("Failed:  {0} tests", failed);
 
             return (failed == 0);
         }
@@ -259,8 +264,8 @@ namespace TestRunner
             bool ignore = testMethod.GetCustomAttributes(typeof(IgnoreAttribute), false).Any();
             if (ignore)
             {
-                Console.WriteLine();
-                Console.WriteLine("Ignored because method is decorated with [Ignore]");
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("Ignored because method is decorated with [Ignore]");
                 return TestResult.Ignored;
             }
 
@@ -269,13 +274,13 @@ namespace TestRunner
                 RunInstanceMethod(testMethod, testInstance, "[TestMethod]") &&
                 RunInstanceMethod(testCleanupMethod, testInstance, "[TestCleanup]"))
             {
-                Console.WriteLine();
-                Console.WriteLine("Passed");
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("Passed");
                 return TestResult.Passed;
             }
 
-            Console.WriteLine();
-            Console.WriteLine("FAILED");
+            Console.Out.WriteLine();
+            Console.Out.WriteLine("FAILED");
             return TestResult.Failed;
         }
 
@@ -288,13 +293,13 @@ namespace TestRunner
         /// </returns>
         static bool RunInstanceMethod(MethodInfo method, object testInstance, string prefix)
         {
-            if (testInstance == null) throw new ArgumentNullException(nameof(testInstance));
+            if (testInstance == null) throw new ArgumentNullException("testInstance");
             prefix = prefix ?? "";
 
             if (method == null) return true;
 
-            Console.WriteLine();
-            Console.WriteLine(prefix + (prefix != "" ? " " : "") + method.Name + "()");
+            Console.Out.WriteLine();
+            Console.Out.WriteLine(prefix + (string.IsNullOrEmpty(prefix) ? "" : " ") + method.Name + "()");
 
             var watch = new Stopwatch();
             watch.Start();
@@ -305,24 +310,15 @@ namespace TestRunner
                 watch.Stop();
                 success = true;
             }
-            catch (Exception ex)
+            catch (TargetInvocationException tie)
             {
                 watch.Stop();
-                ex = UnwrapTargetInvocationException(ex);
-                Console.WriteLine(Indent(FormatException(ex)));
+                Console.Out.WriteLine(Indent(FormatException(tie.InnerException)));
             }
 
-            Console.WriteLine("  {0} ({1:N0} ms)", success ? "Succeeded" : "Failed", watch.ElapsedMilliseconds);
+            Console.Out.WriteLine("  {0} ({1:N0} ms)", success ? "Succeeded" : "Failed", watch.ElapsedMilliseconds);
 
             return success;
-        }
-
-
-        static Exception UnwrapTargetInvocationException(Exception ex)
-        {
-            var tie = ex as TargetInvocationException;
-            if (tie == null) return ex;
-            return tie.InnerException;
         }
 
 
@@ -346,13 +342,13 @@ namespace TestRunner
             var longestLine = lines.Max(line => line.Length);
             var rule = new string(ruleCharacter, longestLine);
 
-            Console.WriteLine();
-            Console.WriteLine(rule);
+            Console.Out.WriteLine();
+            Console.Out.WriteLine(rule);
             foreach (var line in lines)
             {
-                Console.WriteLine(line);
+                Console.Out.WriteLine(line);
             }
-            Console.WriteLine(rule);
+            Console.Out.WriteLine(rule);
         }
 
 
@@ -367,6 +363,7 @@ namespace TestRunner
                 foreach (var key in e.Data.Keys)
                 {
                     sb.AppendLine(string.Format(
+                        CultureInfo.InvariantCulture,
                         "Data.{0}: {1}",
                         key.ToString(),
                         e.Data[key].ToString()));
@@ -401,7 +398,7 @@ namespace TestRunner
                 SplitLines(stackTrace)
                     .Select(line => line.Trim())
                     .SelectMany(line => {
-                        var i = line.IndexOf(" in ");
+                        var i = line.IndexOf(" in ", StringComparison.Ordinal);
                         if (i <= 0) return new[] {line};
                         var inPart = line.Substring(i + 1);
                         var atPart = line.Substring(0, i);
@@ -412,7 +409,7 @@ namespace TestRunner
 
         static string Indent(string theString)
         {
-            if (theString == null) throw new ArgumentNullException(nameof(theString));
+            if (theString == null) throw new ArgumentNullException("theString");
             var lines = SplitLines(theString);
             var indentedLines = lines.Select(s => "  " + s);
             return string.Join(Environment.NewLine, indentedLines);
@@ -422,7 +419,7 @@ namespace TestRunner
         static string[] SplitLines(string theString)
         {
             theString = theString.Replace("\r\n", "\n").Replace("\r", "\n");
-            if (theString.EndsWith("\n"))
+            if (theString.EndsWith("\n", StringComparison.Ordinal))
             {
                 theString = theString.Substring(0, theString.Length-1);
             }

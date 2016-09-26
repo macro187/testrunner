@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -25,7 +26,7 @@ namespace TestRunner
         /// <summary>
         /// User-facing command line usage information
         /// </summary>
-        public string Usage
+        public static string Usage
         {
             get
             {
@@ -40,24 +41,30 @@ namespace TestRunner
                         ? "/path/to/"
                         : "C:\\path\\to\\";
 
-                return string.Join(
-                    Environment.NewLine,
-                    new[] {
-                        $"SYNOPSIS",
-                        $"",
-                        $"    {fileName} <assemblypath>",
-                        $"",
-                        $"OPTIONS",
-                        $"",
-                        $"    <assemblypath>",
-                        $"        Path to an assembly containing MSTest unit tests",
-                        $"",
-                        $"EXAMPLES",
-                        $"",
-                        $"    {shellPrefix} {fileName} MyTestAssembly.dll",
-                        $"",
-                        $"    {shellPrefix} {fileName} {examplePath}MyTestAssembly.dll"
-                        });
+                return
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        string.Join(
+                            Environment.NewLine,
+                            new[] {
+                                "SYNOPSIS",
+                                "",
+                                "    {0} <assemblypath>",
+                                "",
+                                "OPTIONS",
+                                "",
+                                "    <assemblypath>",
+                                "        Path to an assembly containing MSTest unit tests",
+                                "",
+                                "EXAMPLES",
+                                "",
+                                "    {1} {0} MyTestAssembly.dll",
+                                "",
+                                "    {1} {0} {2}MyTestAssembly.dll",
+                                }),
+                        fileName,
+                        shellPrefix,
+                        examplePath);
             }
         }
 
