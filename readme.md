@@ -4,14 +4,8 @@ TestRunner
 A console MSTest runner
 
 
-Requirements
-------------
-
-Microsoft .NET Framework v4.0 or newer, or [Mono](http://www.mono-project.com/) v2.10 or newer.
-
-
-Features
---------
+Description
+-----------
 
 Lightweight, stand-alone, no external dependencies.
 
@@ -35,28 +29,51 @@ Supports [\[TestCleanup\]](https://msdn.microsoft.com/en-us/library/microsoft.vi
 Supports [\[Ignore\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.ignoreattribute.aspx)
 
 
-Usage
------
+Requirements
+------------
+
+Microsoft .NET Framework v4.0 or newer, or [Mono](http://www.mono-project.com/) v2.10 or newer.
+
+
+Building
+--------
+
+Use Visual Studio, MSBuild, or [XBuild](http://www.mono-project.com/docs/tools+libraries/tools/xbuild/).
+
+Older versions of XBuild may not understand the tools and language versions in the project file(s).  Try `xbuild
+/toolsversion:4.0 /property:LangVersion=default`.
+
+
+Synopsis
+--------
 
 `TestRunner.exe` *`<testassembly>`*
+
+
+Options
+-------
 
 *`testassembly`* - Path to an assembly containing MSTest tests
 
 
-Returns
--------
+Exit Status
+-----------
 
-Exit code 0 if all test, initialization, and cleanup methods succeeded
+0 if all test, initialization, and cleanup methods succeeded.  Otherwise, non-zero.
 
-*- OR -*
 
-A non-zero exit code if anything failed
+Copyright
+---------
+
+Copyright (c) 2012-2016  
+Rickenberg <https://www.codeplex.com/site/users/view/Rickenberg>  
+Ron MacNeil <macro@hotmail.com>  
 
 
 License
 -------
 
-[MS-PL](https://opensource.org/licenses/MS-PL)
+MS-PL, see [license.txt](blob/master/license.txt).
 
 
 History
