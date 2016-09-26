@@ -201,7 +201,8 @@ namespace TestRunner
         {
             if (testClass == null) throw new ArgumentNullException(nameof(testClass));
 
-            WriteHeading("Class: " + testClass.FullName);
+            Console.WriteLine();
+            WriteHeading(testClass.FullName);
 
             bool ignore = testClass.GetCustomAttributes(typeof(IgnoreAttribute), false).Any();
 
@@ -261,11 +262,13 @@ namespace TestRunner
             //
             // Print results
             //
+            WriteSubheading("Summary");
             Console.WriteLine();
+            Console.WriteLine("Total:   " + testMethods.Count.ToString() + " tests");
             Console.WriteLine("Ran:     " + ran.ToString() + " tests");
+            Console.WriteLine("Ignored: " + ignored.ToString() + " tests");
             Console.WriteLine("Passed:  " + passed.ToString() + " tests");
             Console.WriteLine("Failed:  " + failed.ToString() + " tests");
-            Console.WriteLine("Ignored: " + ignored.ToString() + " tests");
 
             return (failed == 0);
         }
@@ -286,13 +289,13 @@ namespace TestRunner
             MethodInfo testCleanupMethod,
             object testInstance)
         {
-            WriteSubheading("Test: " + testMethod.Name.Replace("_", " "));
+            WriteSubheading(testMethod.Name.Replace("_", " "));
 
             bool ignore = testMethod.GetCustomAttributes(typeof(IgnoreAttribute), false).Any();
             if (ignore)
             {
                 Console.WriteLine();
-                Console.WriteLine("Test ignored because method is decorated with [Ignore]");
+                Console.WriteLine("Ignored because method is decorated with [Ignore]");
                 return TestResult.Ignored;
             }
 
@@ -302,12 +305,12 @@ namespace TestRunner
                 RunInstanceMethod(testCleanupMethod, testInstance, "[TestCleanup]"))
             {
                 Console.WriteLine();
-                Console.WriteLine("Test passed");
+                Console.WriteLine("Passed");
                 return TestResult.Passed;
             }
 
             Console.WriteLine();
-            Console.WriteLine("Test FAILED");
+            Console.WriteLine("FAILED");
             return TestResult.Failed;
         }
 
