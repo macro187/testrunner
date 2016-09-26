@@ -15,6 +15,8 @@ Features
 
 Lightweight, stand-alone, no external dependencies.
 
+Cross-platform, works on Microsoft .NET, Mono, Windows, Linux, and Mac OSX.
+
 Includes test timing information.
 
 Includes detailed exception information in the case of failures.
