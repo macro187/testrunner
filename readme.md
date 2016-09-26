@@ -7,7 +7,7 @@ A console MSTest runner
 Requirements
 ------------
 
-Microsoft .NET Framework 4.0 or newer, or equivalent [Mono](http://www.mono-project.com/).
+Microsoft .NET Framework v4.0 or newer, or [Mono](http://www.mono-project.com/) v2.10 or newer.
 
 
 Features
