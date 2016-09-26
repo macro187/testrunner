@@ -30,7 +30,6 @@ namespace TestRunner
             get
             {
                 var fileName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-                var programName = Path.GetFileNameWithoutExtension(fileName);
                 bool isUnix = new[] { PlatformID.Unix, PlatformID.MacOSX }.Contains(Environment.OSVersion.Platform);
                 var shellPrefix =
                     isUnix
