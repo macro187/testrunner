@@ -33,15 +33,6 @@ Requirements
 Microsoft .NET Framework v4.0 or newer, or [Mono](http://www.mono-project.com/) v2.10 or newer.
 
 
-Building
---------
-
-Use Visual Studio, MSBuild, or [XBuild](http://www.mono-project.com/docs/tools+libraries/tools/xbuild/).
-
-Older versions of XBuild may not understand the tools and language versions in the project file(s).
-Try `xbuild /toolsversion:4.0 /property:LangVersion=default`.
-
-
 Synopsis
 --------
 
@@ -60,18 +51,37 @@ Exit Status
 0 if all test, initialization, and cleanup methods succeeded.  Otherwise, non-zero.
 
 
-Copyright
----------
+Building
+--------
 
-Copyright (c) 2012-2016  
-Rickenberg \<<https://www.codeplex.com/site/users/view/Rickenberg>\>  
-Ron MacNeil \<<macro@hotmail.com>\>  
+Use Visual Studio, MSBuild, or [XBuild](http://www.mono-project.com/docs/tools+libraries/tools/xbuild/).
+
+Older versions of XBuild may not understand the tools and language versions in the project file(s).
+Try `xbuild /toolsversion:4.0 /property:LangVersion=default`.
+
+
+Projects
+--------
+
+[TestRunner](TestRunner) - The `TestRunner.exe` program
+
+[TestRunner.TestSuite](TestRunner.TestSuite) - A unit test suite that exercises MSTest functionality
+
+[TestRunner.Tests](TestRunner.Tests) - A unit test that runs the test suite using `TestRunner.exe`
 
 
 License
 -------
 
 MS-PL, see [license.txt](license.txt).
+
+
+Copyright
+---------
+
+Copyright (c) 2012-2016  
+Rickenberg \<<https://www.codeplex.com/site/users/view/Rickenberg>\>  
+Ron MacNeil \<<macro@hotmail.com>\>  
 
 
 History
