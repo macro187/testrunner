@@ -56,7 +56,7 @@ namespace TestRunner
                 if (!File.Exists(fullAssemblyPath))
                 {
                     Console.Out.WriteLine();
-                    Console.Out.WriteLine("Assembly '{0}' not found", fullAssemblyPath);
+                    Console.Out.WriteLine("Test assembly not found: {0}", fullAssemblyPath);
                     return 1;
                 }
 
@@ -64,6 +64,10 @@ namespace TestRunner
                 // Load test assembly
                 //
                 var assembly = Assembly.LoadFrom(fullAssemblyPath);
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("Test Assembly:");
+                Console.Out.WriteLine(assembly.Location);
+
 
                 //
                 // Pull in test assembly .config file if present
@@ -129,7 +133,8 @@ namespace TestRunner
             if (!File.Exists(configPath)) return;
             AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
             Console.Out.WriteLine();
-            Console.Out.WriteLine("Using configuration file: '{0}'", configPath);
+            Console.Out.WriteLine("Configuration File:");
+            Console.Out.WriteLine(configPath);
         }
 
 
@@ -139,9 +144,6 @@ namespace TestRunner
         public static bool RunTestAssembly(Assembly testAssembly)
         {
             if (testAssembly == null) throw new ArgumentNullException("testAssembly");
-
-            Console.Out.WriteLine();
-            Console.Out.WriteLine(testAssembly.Location);
 
             var testClasses =
                 testAssembly.GetTypes()
