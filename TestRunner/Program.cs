@@ -171,6 +171,13 @@ namespace TestRunner
             Console.Out.WriteLine();
             Console.Out.WriteLine("Configuration File:");
             Console.Out.WriteLine(configPath);
+
+            if (Type.GetType("Mono.Runtime") != null)
+            {
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("WARNING: Running on Mono, configuration file will probably not take effect");
+                Console.Out.WriteLine("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
+            }
         }
 
 
