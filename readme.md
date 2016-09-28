@@ -86,7 +86,7 @@ Copyright
 
 Copyright (c) 2012-2016  
 Rickenberg \<<https://www.codeplex.com/site/users/view/Rickenberg>\>  
-Ron MacNeil \<<macro@hotmail.com>\>  
+Ron MacNeil \<<https://github.com/macro187>\>  
 
 
 History
