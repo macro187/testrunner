@@ -3,8 +3,28 @@
 # Generate a .nuspec file for building a TestRunner NuGet package
 #
 # .DESCRIPTION
-# Populates as much information as possible from TestRunner.exe metadata
+# Populates as much information as possible from TestRunner.exe metadata.
 #
+
+
+#
+# Deploying NuGet Package
+#
+# 1. Increment version numbers in TestRunner\Properties\AssemblyInfo.cs
+#
+# 2. Rebuild the solution
+#
+# 3. Run the unit test suite
+#
+# 4. powershell -file Generate-Nuspec.ps1
+#
+# 5. Review / edit .nuspec, especially $releaseNotes
+#
+# 6. nuget.exe pack .nuspec
+#
+# 7. nuget.exe push TestRunner.<version>.nupkg <apikey> -Source https://www.nuget.org/api/v2/package
+#
+
 
 #
 # Read metadata from TestRunner.exe
