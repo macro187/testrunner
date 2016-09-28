@@ -193,11 +193,6 @@ namespace TestRunner
                 .ToList();
 
             //
-            // Construct an instance of the test class
-            //
-            var testInstance = Activator.CreateInstance(testClass);
-
-            //
             // Run tests
             //
             int ran = 0;
@@ -208,7 +203,7 @@ namespace TestRunner
             {
                 foreach (var testMethod in testMethods)
                 {
-                    switch(RunTest(testMethod, testInitializeMethod, testCleanupMethod, testInstance))
+                    switch(RunTest(testMethod, testInitializeMethod, testCleanupMethod))
                     {
                         case TestResult.Passed:
                             passed++;
@@ -258,8 +253,7 @@ namespace TestRunner
         static TestResult RunTest(
             MethodInfo testMethod,
             MethodInfo testInitializeMethod,
-            MethodInfo testCleanupMethod,
-            object testInstance)
+            MethodInfo testCleanupMethod)
         {
             WriteSubheading(testMethod.Name.Replace("_", " "));
 
@@ -270,6 +264,12 @@ namespace TestRunner
                 Console.Out.WriteLine("Ignored because method is decorated with [Ignore]");
                 return TestResult.Ignored;
             }
+
+            //
+            // Construct an instance of the test class
+            //
+            var testClass = testMethod.DeclaringType;
+            var testInstance = Activator.CreateInstance(testClass);
 
             if (
                 RunInstanceMethod(testInitializeMethod, testInstance, "[TestInitialize]") &&
