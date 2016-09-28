@@ -10,7 +10,7 @@
 #
 # Deploying NuGet Package
 #
-# 1. Increment version numbers in TestRunner\Properties\AssemblyInfo.cs
+# 1. Increment version numbers in TestRunner\Properties\AssemblyInfo.cs and commit
 #
 # 2. Rebuild the solution
 #
@@ -23,6 +23,10 @@
 # 6. nuget.exe pack .nuspec
 #
 # 7. nuget.exe push TestRunner.<version>.nupkg <apikey> -Source https://www.nuget.org/api/v2/package
+#
+# 8. git branch -f nuget
+#
+# 9. git push --all
 #
 
 
