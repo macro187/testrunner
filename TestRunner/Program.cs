@@ -466,7 +466,7 @@ namespace TestRunner
                 if (expected)
                 {
                     success = true;
-                    Console.Out.WriteLine("  Expected {0} occurred:", expectedException.FullName);
+                    Console.Out.WriteLine("  [ExpectedException] {0} occurred:", expectedException.FullName);
                 }
                 Console.Out.WriteLine(Indent(FormatException(ex)));
             }
