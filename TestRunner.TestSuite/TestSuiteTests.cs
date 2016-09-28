@@ -110,7 +110,8 @@ namespace TestRunner.TestSuite
         public void TestCleanup()
         {
             //
-            // No way to test that [TestCleanup] gets run, so print a message so it can be confirmed manually
+            // No way to directly test that [TestCleanup] runs, so print a message so it can be confirmed by examining
+            // the output
             //
             Console.WriteLine("[TestCleanup] is running");
         }
@@ -120,7 +121,8 @@ namespace TestRunner.TestSuite
         public static void ClassCleanup()
         {
             //
-            // No way to test that [ClassCleanup] gets run, so print a message so it can be confirmed manually
+            // No way to directly test that [ClassCleanup] runs, so print a message so it can be confirmed by examining
+            // the output
             //
             Console.WriteLine("[ClassCleanup] is running");
         }
@@ -130,7 +132,8 @@ namespace TestRunner.TestSuite
         public static void AssemblyCleanup()
         {
             //
-            // No way to test that [AssemblyCleanup] gets run, so print a message so it can be confirmed manually
+            // No way to directly test that [AssemblyCleanup] runs, so print a message so it can be confirmed by
+            // examining the output
             //
             Console.WriteLine("[AssemblyCleanup] is running");
         }
