@@ -9,6 +9,11 @@ namespace TestRunner.TestSuite
     public class TestSuiteTests
     {
 
+        public static readonly string TestCleanupMessage = "[TestCleanup] is running";
+        public static readonly string ClassCleanupMessage = "[ClassCleanup] is running";
+        public static readonly string AssemblyCleanupMessage = "[AssemblyCleanup] is running";
+
+
         static bool assemblyInitializeRan = false;
         static bool classInitializeRan = false;
         bool testInitializeRan = false;
@@ -113,7 +118,7 @@ namespace TestRunner.TestSuite
             // No way to directly test that [TestCleanup] runs, so print a message so it can be confirmed by examining
             // the output
             //
-            Console.WriteLine("[TestCleanup] is running");
+            Console.WriteLine(TestCleanupMessage);
         }
 
 
@@ -124,7 +129,7 @@ namespace TestRunner.TestSuite
             // No way to directly test that [ClassCleanup] runs, so print a message so it can be confirmed by examining
             // the output
             //
-            Console.WriteLine("[ClassCleanup] is running");
+            Console.WriteLine(ClassCleanupMessage);
         }
 
 
@@ -135,7 +140,7 @@ namespace TestRunner.TestSuite
             // No way to directly test that [AssemblyCleanup] runs, so print a message so it can be confirmed by
             // examining the output
             //
-            Console.WriteLine("[AssemblyCleanup] is running");
+            Console.WriteLine(AssemblyCleanupMessage);
         }
 
     }
