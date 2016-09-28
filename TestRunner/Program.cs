@@ -145,21 +145,58 @@ namespace TestRunner
         {
             if (testAssembly == null) throw new ArgumentNullException("testAssembly");
 
+            //
+            // Locate [TestClass]es
+            //
             var testClasses =
                 testAssembly.GetTypes()
                     .Where(t => t.GetCustomAttributes(typeof(TestClassAttribute), false).Any())
                     .OrderBy(t => t.Name);
 
+            //
+            // Locate [AssemblyInitialize] and [AssemblyCleanup] methods
+            //
+            var assemblyInitializeMethod =
+                testClasses.SelectMany(testClass =>
+                    testClass.GetMethods()
+                    .Where(m => m.GetCustomAttributes(typeof(AssemblyInitializeAttribute), false).Any()))
+                .SingleOrDefault();
+
+            var assemblyCleanupMethod =
+                testClasses.SelectMany(testClass =>
+                    testClass.GetMethods()
+                    .Where(m => m.GetCustomAttributes(typeof(AssemblyCleanupAttribute), false).Any()))
+                .SingleOrDefault();
+
+            //
+            // Run [AssemblyInitialize] method
+            //
+            var assemblyInitializeSucceeded = RunMethod(assemblyInitializeMethod, null, true, "[AssemblyInitialize]");
+
+            //
+            // Run tests in each [TestClass]
+            //
             int failed = 0;
-            foreach (var testClass in testClasses)
+            if (assemblyInitializeSucceeded)
             {
-                if (!RunTestClass(testClass))
+                foreach (var testClass in testClasses)
                 {
-                    failed++;
+                    if (!RunTestClass(testClass))
+                    {
+                        failed++;
+                    }
                 }
             }
 
-            return (failed == 0);
+            //
+            // Run [AssemblyCleanup] method
+            //
+            var assemblyCleanupSucceeded = RunMethod(assemblyCleanupMethod, null, false, "[AssemblyCleanup]");
+
+            return
+                assemblyInitializeSucceeded &&
+                failed == 0 &&
+                assemblyCleanupSucceeded;
         }
 
 
