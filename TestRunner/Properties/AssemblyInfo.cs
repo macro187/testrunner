@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("TestRunner")]
 [assembly: AssemblyDescription("A console MSTest runner")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Rickenberg, Ron MacNeil")]
+[assembly: AssemblyCompany("Ron MacNeil, Rickenberg")]
 [assembly: AssemblyProduct("TestRunner")]
 [assembly: AssemblyCopyright("Copyright (c) 2012-2016")]
 [assembly: AssemblyTrademark("")]
