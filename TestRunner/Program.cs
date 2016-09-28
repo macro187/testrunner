@@ -288,7 +288,7 @@ namespace TestRunner
             {
                 foreach (var testMethod in testMethods)
                 {
-                    switch(RunTest(testMethod, testInitializeMethod, testCleanupMethod))
+                    switch(RunTest(testMethod, testInitializeMethod, testCleanupMethod, testClass))
                     {
                         case TestResult.Passed:
                             passed++;
@@ -355,7 +355,8 @@ namespace TestRunner
         static TestResult RunTest(
             MethodInfo testMethod,
             MethodInfo testInitializeMethod,
-            MethodInfo testCleanupMethod)
+            MethodInfo testCleanupMethod,
+            Type testClass)
         {
             WriteSubheading(testMethod.Name.Replace("_", " "));
 
@@ -391,7 +392,6 @@ namespace TestRunner
             //
             // Construct an instance of the test class
             //
-            var testClass = testMethod.DeclaringType;
             var testInstance = Activator.CreateInstance(testClass);
 
             //
