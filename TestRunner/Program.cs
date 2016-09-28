@@ -140,20 +140,33 @@ namespace TestRunner
             //
             // See http://stackoverflow.com/questions/6150644/change-default-app-config-at-runtime/6151688#6151688
             //
-            typeof(ConfigurationManager)
-               .GetField("s_initState", BindingFlags.NonPublic | BindingFlags.Static)                                                                                   
-               .SetValue(null, 0);
+            var initStateField =
+                typeof(ConfigurationManager).GetField("s_initState", BindingFlags.NonPublic | BindingFlags.Static);
+            if (initStateField != null)
+            {
+                initStateField.SetValue(null, 0);
+            }
 
-            typeof(ConfigurationManager)
-               .GetField("s_configSystem", BindingFlags.NonPublic | BindingFlags.Static)
-               .SetValue(null, null);
+            var configSystemField =
+                typeof(ConfigurationManager).GetField("s_configSystem", BindingFlags.NonPublic | BindingFlags.Static);
+            if (configSystemField != null)
+            {
+                configSystemField.SetValue(null, null);
+            }
 
-            typeof(ConfigurationManager)
-               .Assembly.GetTypes()
-               .Where(x => x.FullName == "System.Configuration.ClientConfigPaths")
-               .First()
-               .GetField("s_current", BindingFlags.NonPublic | BindingFlags.Static)
-               .SetValue(null, null);
+            var clientConfigPathsType =
+                typeof(ConfigurationManager)
+                    .Assembly
+                    .GetTypes()
+                    .FirstOrDefault(x => x.FullName == "System.Configuration.ClientConfigPaths");
+            var currentField =
+                clientConfigPathsType != null
+                    ? clientConfigPathsType.GetField("s_current", BindingFlags.NonPublic | BindingFlags.Static)
+                    : null;
+            if (currentField != null)
+            {
+                currentField.SetValue(null, null);
+            }
 
             Console.Out.WriteLine();
             Console.Out.WriteLine("Configuration File:");
