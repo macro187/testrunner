@@ -193,7 +193,12 @@ namespace TestRunner
             //
             // Run [AssemblyInitialize] method
             //
-            var assemblyInitializeSucceeded = RunMethod(assemblyInitializeMethod, null, true, "[AssemblyInitialize]");
+            var assemblyInitializeSucceeded =
+                RunMethod(
+                    assemblyInitializeMethod, null,
+                    true,
+                    null, false,
+                    "[AssemblyInitialize]");
 
             //
             // Run tests in each [TestClass]
@@ -213,7 +218,12 @@ namespace TestRunner
             //
             // Run [AssemblyCleanup] method
             //
-            var assemblyCleanupSucceeded = RunMethod(assemblyCleanupMethod, null, false, "[AssemblyCleanup]");
+            var assemblyCleanupSucceeded =
+                RunMethod(
+                    assemblyCleanupMethod, null,
+                    false,
+                    null, false,
+                    "[AssemblyCleanup]");
 
             return
                 assemblyInitializeSucceeded &&
@@ -260,7 +270,12 @@ namespace TestRunner
             //
             // Run [ClassInitialize] method
             //
-            var classInitializeSucceeded = RunMethod(classInitializeMethod, null, true, "[ClassInitialize]");
+            var classInitializeSucceeded =
+                RunMethod(
+                    classInitializeMethod, null,
+                    true,
+                    null, false,
+                    "[ClassInitialize]");
 
             //
             // Run [TestMethod]s
@@ -299,7 +314,12 @@ namespace TestRunner
             //
             // Run [ClassCleanup] method
             //
-            var classCleanupSucceeded = RunMethod(classCleanupMethod, null, false, "[ClassCleanup]");
+            var classCleanupSucceeded =
+                RunMethod(
+                    classCleanupMethod, null,
+                    false,
+                    null, false,
+                    "[ClassCleanup]");
 
             //
             // Print results
@@ -339,6 +359,9 @@ namespace TestRunner
         {
             WriteSubheading(testMethod.Name.Replace("_", " "));
 
+            //
+            // Locate [Ignore]
+            //
             bool ignore = testMethod.GetCustomAttributes(typeof(IgnoreAttribute), false).Any();
             if (ignore)
             {
@@ -348,24 +371,53 @@ namespace TestRunner
             }
 
             //
+            // Locate [ExpectedException]
+            //
+            var expectedExceptionAttribute =
+                testMethod.GetCustomAttributes(typeof(ExpectedExceptionAttribute), false)
+                    .Cast<ExpectedExceptionAttribute>()
+                    .SingleOrDefault();
+            
+            Type expectedException =
+                expectedExceptionAttribute != null
+                    ? expectedExceptionAttribute.ExceptionType
+                    : null;
+
+            bool expectedExceptionAllowDerived =
+                expectedExceptionAttribute != null
+                    ? expectedExceptionAttribute.AllowDerivedTypes
+                    : false;
+
+            //
             // Construct an instance of the test class
             //
             var testClass = testMethod.DeclaringType;
             var testInstance = Activator.CreateInstance(testClass);
 
-            if (
-                RunMethod(testInitializeMethod, testInstance, false, "[TestInitialize]") &&
-                RunMethod(testMethod, testInstance, false, "[TestMethod]") &&
-                RunMethod(testCleanupMethod, testInstance, false, "[TestCleanup]"))
-            {
-                Console.Out.WriteLine();
-                Console.Out.WriteLine("Passed");
-                return TestResult.Passed;
-            }
+            //
+            // Invoke [TestInitialize], [TestMethod], and [TestCleanup]
+            //
+            bool success =
+                RunMethod(
+                    testInitializeMethod, testInstance,
+                    false,
+                    null, false,
+                    "[TestInitialize]") &&
+                RunMethod(
+                    testMethod, testInstance,
+                    false,
+                    expectedException, expectedExceptionAllowDerived,
+                    "[TestMethod]") &&
+                RunMethod(
+                    testCleanupMethod, testInstance,
+                    false,
+                    null, false,
+                    "[TestCleanup]");
 
             Console.Out.WriteLine();
-            Console.Out.WriteLine("FAILED");
-            return TestResult.Failed;
+            Console.Out.WriteLine(success ? "Passed" : "FAILED");
+
+            return success ? TestResult.Passed : TestResult.Failed;
         }
 
 
@@ -375,7 +427,13 @@ namespace TestRunner
         /// <returns>
         /// Whether the method ran successfully
         /// </returns>
-        static bool RunMethod(MethodInfo method, object instance, bool takesContext, string prefix)
+        static bool RunMethod(
+            MethodInfo method,
+            object instance,
+            bool takesTestContext,
+            Type expectedException,
+            bool expectedExceptionAllowDerived,
+            string prefix)
         {
             prefix = prefix ?? "";
 
@@ -387,7 +445,7 @@ namespace TestRunner
             var watch = new Stopwatch();
             watch.Start();
             bool success = false;
-            var parameters = takesContext ? new object[] {null} : null;
+            var parameters = takesTestContext ? new object[] {null} : null;
             try
             {
                 method.Invoke(instance, parameters);
@@ -397,7 +455,20 @@ namespace TestRunner
             catch (TargetInvocationException tie)
             {
                 watch.Stop();
-                Console.Out.WriteLine(Indent(FormatException(tie.InnerException)));
+                var ex = tie.InnerException;
+                bool expected = 
+                    expectedException != null &&
+                    (
+                        ex.GetType() == expectedException ||
+                        (expectedExceptionAllowDerived && ex.GetType().IsSubclassOf(expectedException))
+                    );
+                    
+                if (expected)
+                {
+                    success = true;
+                    Console.Out.WriteLine("Expected {0} occurred:", expectedException.FullName);
+                }
+                Console.Out.WriteLine(Indent(FormatException(ex)));
             }
 
             Console.Out.WriteLine("  {0} ({1:N0} ms)", success ? "Succeeded" : "Failed", watch.ElapsedMilliseconds);
