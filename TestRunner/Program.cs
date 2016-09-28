@@ -181,6 +181,12 @@ namespace TestRunner
             //
             // Locate methods
             //
+            var classInitializeMethod = testClass.GetMethods()
+                .FirstOrDefault(m => m.GetCustomAttributes(typeof(ClassInitializeAttribute), false).Any());
+
+            var classCleanupMethod = testClass.GetMethods()
+                .FirstOrDefault(m => m.GetCustomAttributes(typeof(ClassCleanupAttribute), false).Any());
+
             var testInitializeMethod = testClass.GetMethods()
                 .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestInitializeAttribute), false).Any());
 
@@ -193,13 +199,18 @@ namespace TestRunner
                 .ToList();
 
             //
-            // Run tests
+            // Run [ClassInitialize] method
+            //
+            var classInitializeSucceeded = RunMethod(classInitializeMethod, null, true, "[ClassInitialize]");
+
+            //
+            // Run [TestMethod]s
             //
             int ran = 0;
             int passed = 0;
             int failed = 0;
             int ignored = 0;
-            if (!ignore)
+            if (classInitializeSucceeded && !ignore)
             {
                 foreach (var testMethod in testMethods)
                 {
@@ -227,17 +238,29 @@ namespace TestRunner
             }
 
             //
+            // Run [ClassCleanup] method
+            //
+            var classCleanupSucceeded = RunMethod(classCleanupMethod, null, false, "[ClassCleanup]");
+
+            //
             // Print results
             //
             WriteSubheading("Summary");
             Console.Out.WriteLine();
-            Console.Out.WriteLine("Total:   {0} tests", testMethods.Count);
-            Console.Out.WriteLine("Ran:     {0} tests", ran);
-            Console.Out.WriteLine("Ignored: {0} tests", ignored);
-            Console.Out.WriteLine("Passed:  {0} tests", passed);
-            Console.Out.WriteLine("Failed:  {0} tests", failed);
+            Console.Out.WriteLine("ClassInitialize: {0}",
+                classInitializeMethod == null ? "Not present" : classInitializeSucceeded ? "Succeeded" : "Failed");
+            Console.Out.WriteLine("Total:           {0} tests", testMethods.Count);
+            Console.Out.WriteLine("Ran:             {0} tests", ran);
+            Console.Out.WriteLine("Ignored:         {0} tests", ignored);
+            Console.Out.WriteLine("Passed:          {0} tests", passed);
+            Console.Out.WriteLine("Failed:          {0} tests", failed);
+            Console.Out.WriteLine("ClassCleanup:    {0}",
+                classCleanupMethod == null ? "Not present" : classCleanupSucceeded ? "Succeeded" : "Failed");
 
-            return (failed == 0);
+            return
+                classInitializeSucceeded &&
+                failed == 0 &&
+                classCleanupSucceeded;
         }
 
 
@@ -272,9 +295,9 @@ namespace TestRunner
             var testInstance = Activator.CreateInstance(testClass);
 
             if (
-                RunInstanceMethod(testInitializeMethod, testInstance, "[TestInitialize]") &&
-                RunInstanceMethod(testMethod, testInstance, "[TestMethod]") &&
-                RunInstanceMethod(testCleanupMethod, testInstance, "[TestCleanup]"))
+                RunMethod(testInitializeMethod, testInstance, false, "[TestInitialize]") &&
+                RunMethod(testMethod, testInstance, false, "[TestMethod]") &&
+                RunMethod(testCleanupMethod, testInstance, false, "[TestCleanup]"))
             {
                 Console.Out.WriteLine();
                 Console.Out.WriteLine("Passed");
@@ -288,14 +311,13 @@ namespace TestRunner
 
 
         /// <summary>
-        /// Run an instance method
+        /// Run a test-related method using reflection
         /// </summary>
         /// <returns>
         /// Whether the method ran successfully
         /// </returns>
-        static bool RunInstanceMethod(MethodInfo method, object testInstance, string prefix)
+        static bool RunMethod(MethodInfo method, object instance, bool takesContext, string prefix)
         {
-            if (testInstance == null) throw new ArgumentNullException("testInstance");
             prefix = prefix ?? "";
 
             if (method == null) return true;
@@ -306,9 +328,10 @@ namespace TestRunner
             var watch = new Stopwatch();
             watch.Start();
             bool success = false;
+            var parameters = takesContext ? new object[] {null} : null;
             try
             {
-                method.Invoke(testInstance, null);
+                method.Invoke(instance, parameters);
                 watch.Stop();
                 success = true;
             }
