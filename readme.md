@@ -35,6 +35,9 @@ Supports
 and
 [\[Ignore\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.ignoreattribute.aspx).
 
+Supports test assembly `.config` files (but not on Mono yet due to a
+[bug](https://bugzilla.xamarin.com/show_bug.cgi?id=15741))
+
 
 Requirements
 ------------
