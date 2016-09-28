@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -68,11 +69,10 @@ namespace TestRunner
                 Console.Out.WriteLine("Test Assembly:");
                 Console.Out.WriteLine(assembly.Location);
 
-
                 //
-                // Pull in test assembly .config file if present
+                // Use the test assembly's .config file if present
                 //
-                UseConfigFile(assembly);
+                UseConfigFile(fullAssemblyPath);
 
                 //
                 // Run tests in assembly
@@ -125,13 +125,35 @@ namespace TestRunner
 
 
         /// <summary>
-        /// Activate the test assembly's .config file, if one is present
+        /// Use the test assembly's .config file, if one is present
         /// </summary>
-        static void UseConfigFile(Assembly assembly)
+        static void UseConfigFile(string assemblyPath)
         {
-            string configPath = assembly.Location + ".config";
+            string configPath = assemblyPath + ".config";
             if (!File.Exists(configPath)) return;
+
             AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
+
+            //
+            // The following hackery forces the new config file to take effect
+            //
+            // See http://stackoverflow.com/questions/6150644/change-default-app-config-at-runtime/6151688#6151688
+            //
+            typeof(ConfigurationManager)
+               .GetField("s_initState", BindingFlags.NonPublic | BindingFlags.Static)                                                                                   
+               .SetValue(null, 0);
+
+            typeof(ConfigurationManager)
+               .GetField("s_configSystem", BindingFlags.NonPublic | BindingFlags.Static)
+               .SetValue(null, null);
+
+            typeof(ConfigurationManager)
+               .Assembly.GetTypes()
+               .Where(x => x.FullName == "System.Configuration.ClientConfigPaths")
+               .First()
+               .GetField("s_current", BindingFlags.NonPublic | BindingFlags.Static)
+               .SetValue(null, null);
+
             Console.Out.WriteLine();
             Console.Out.WriteLine("Configuration File:");
             Console.Out.WriteLine(configPath);

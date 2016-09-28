@@ -89,7 +89,7 @@ namespace TestRunner.TestSuite
 
 
         [TestMethod]
-        public void TestAssembly_Config_File_Gets_Activated()
+        public void TestAssembly_Config_File_Is_Used()
         {
             Assert.AreEqual(
                 "ConfigFileValue",
