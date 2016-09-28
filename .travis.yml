@@ -1,0 +1,8 @@
+language: csharp
+solution: testrunner.sln
+install:
+  - nuget install TestRunner -OutputDirectory packages
+script:
+  - xbuild /p:Configuration=Debug testrunner.sln
+  - mono ./packages/TestRunner.*/tools/TestRunner.exe ./TestRunner.Tests/bin/Debug/TestRunner.Tests.dll
+
