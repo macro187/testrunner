@@ -9,10 +9,18 @@ namespace TestRunner.TestSuite
     public class TestSuiteTests
     {
 
+        static bool assemblyInitializeRan = false;
         static bool classInitializeRan = false;
         bool testInitializeRan = false;
         bool isInstanceNew  = true;
         object isInstanceNewLock = new object();
+
+
+        [AssemblyInitialize]
+        public static void AssemblyInitialize(TestContext testContext)
+        {
+            assemblyInitializeRan = true;
+        }
 
 
         [ClassInitialize]
@@ -21,10 +29,18 @@ namespace TestRunner.TestSuite
             classInitializeRan = true;
         }
 
+
         [TestInitialize]
         public void TestInitialize()
         {
             testInitializeRan = true;
+        }
+
+
+        [TestMethod]
+        public void AssemblyInitialize_Runs()
+        {
+            Assert.IsTrue(assemblyInitializeRan, "[AssemblyInitialize] method did not run");
         }
 
 
@@ -107,6 +123,16 @@ namespace TestRunner.TestSuite
             // No way to test that [ClassCleanup] gets run, so print a message so it can be confirmed manually
             //
             Console.WriteLine("[ClassCleanup] is running");
+        }
+
+
+        [AssemblyCleanup]
+        public static void AssemblyCleanup()
+        {
+            //
+            // No way to test that [AssemblyCleanup] gets run, so print a message so it can be confirmed manually
+            //
+            Console.WriteLine("[AssemblyCleanup] is running");
         }
 
     }
