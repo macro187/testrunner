@@ -62,8 +62,8 @@ namespace TestRunner.TestSuite
         public void TestAssembly_Config_File_Gets_Activated()
         {
             Assert.AreEqual(
-                "ConfigFileSetting",
-                ConfigurationManager.AppSettings["ConfigFileSetting"]);
+                "ConfigFileValue",
+                ConfigurationManager.AppSettings["ConfigFileKey"]);
         }
         
 
