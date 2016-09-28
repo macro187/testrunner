@@ -194,7 +194,7 @@ namespace TestRunner
                 .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestCleanupAttribute), false).Any());
 
             var testMethods = testClass.GetMethods()
-                .Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), false).Count() != 0)
+                .Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), false).Any())
                 .OrderBy(m => m.Name)
                 .ToList();
 
