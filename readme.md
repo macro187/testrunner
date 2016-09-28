@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/macro187/testrunner.svg?branch=master)](https://travis-ci.org/macro187/testrunner)
+
+
+
 TestRunner
 ==========
 
