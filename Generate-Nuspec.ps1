@@ -56,7 +56,7 @@ $licenseUrl = "$projectUrl/blob/master/license.txt"
 
 $releaseNotes =
 @"
-Initial release
+TODO
 "@
 
 $files = @(
