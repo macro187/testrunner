@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EBC500D3-F6EA-43E4-83F9-FDE7EC31BAA5}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		Generate-Nuspec.ps1 = Generate-Nuspec.ps1
 		license.txt = license.txt
 		readme.md = readme.md
 	EndProjectSection
