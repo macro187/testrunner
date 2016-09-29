@@ -98,8 +98,8 @@ Copyright
 ---------
 
 Copyright (c) 2012-2016  
-Rickenberg \<<https://www.codeplex.com/site/users/view/Rickenberg>\>  
 Ron MacNeil \<<https://github.com/macro187>\>  
+Rickenberg \<<https://www.codeplex.com/site/users/view/Rickenberg>\>  
 
 
 History
