@@ -5,7 +5,7 @@
 TestRunner
 ==========
 
-A console MSTest runner.
+A console MSTest runner
 
 
 Description
@@ -61,6 +61,12 @@ Exit Status
 -----------
 
 0 if all test, initialization, and cleanup methods succeeded.  Otherwise, non-zero.
+
+
+NuGet Package
+-------------
+
+Available as a NuGet package named [TestRunner](https://www.nuget.org/packages/TestRunner/).
 
 
 Building
