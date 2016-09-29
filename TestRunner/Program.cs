@@ -211,40 +211,46 @@ namespace TestRunner
                     .Where(m => m.GetCustomAttributes(typeof(AssemblyCleanupAttribute), false).Any()))
                 .SingleOrDefault();
 
+            bool assemblyInitializeSucceeded = false;
+            int failed = 0;
+            bool assemblyCleanupSucceeded = false;
+
             //
             // Run [AssemblyInitialize] method
             //
-            var assemblyInitializeSucceeded =
+            assemblyInitializeSucceeded =
                 RunMethod(
                     assemblyInitializeMethod, null,
                     true,
                     null, false,
                     "[AssemblyInitialize]");
 
-            //
-            // Run tests in each [TestClass]
-            //
-            int failed = 0;
             if (assemblyInitializeSucceeded)
             {
-                foreach (var testClass in testClasses)
+                //
+                // Run tests in each [TestClass]
+                //
+                if (assemblyInitializeSucceeded)
                 {
-                    if (!RunTestClass(testClass))
+                    foreach (var testClass in testClasses)
                     {
-                        failed++;
+                        if (!RunTestClass(testClass))
+                        {
+                            failed++;
+                        }
                     }
                 }
-            }
 
-            //
-            // Run [AssemblyCleanup] method
-            //
-            var assemblyCleanupSucceeded =
-                RunMethod(
-                    assemblyCleanupMethod, null,
-                    false,
-                    null, false,
-                    "[AssemblyCleanup]");
+                //
+                // Run [AssemblyCleanup] method
+                //
+                assemblyCleanupSucceeded =
+                    RunMethod(
+                        assemblyCleanupMethod, null,
+                        false,
+                        null, false,
+                        "[AssemblyCleanup]");
+            }
 
             return
                 assemblyInitializeSucceeded &&
@@ -288,59 +294,65 @@ namespace TestRunner
                 .OrderBy(m => m.Name)
                 .ToList();
 
-            //
-            // Run [ClassInitialize] method
-            //
-            var classInitializeSucceeded =
-                RunMethod(
-                    classInitializeMethod, null,
-                    true,
-                    null, false,
-                    "[ClassInitialize]");
-
-            //
-            // Run [TestMethod]s
-            //
+            bool classInitializeSucceeded = false;
             int ran = 0;
             int passed = 0;
             int failed = 0;
             int ignored = 0;
-            if (classInitializeSucceeded && !ignore)
-            {
-                foreach (var testMethod in testMethods)
-                {
-                    switch(RunTest(testMethod, testInitializeMethod, testCleanupMethod, testClass))
-                    {
-                        case TestResult.Passed:
-                            passed++;
-                            ran++;
-                            break;
-                        case TestResult.Failed:
-                            failed++;
-                            ran++;
-                            break;
-                        case TestResult.Ignored:
-                            ignored++;
-                            break;
-                    }
-                }
-            }
-            else
+            bool classCleanupSucceeded = false;
+
+            if (ignore)
             {
                 Console.Out.WriteLine();
                 Console.Out.WriteLine("Ignoring all tests because class is decorated with [Ignore]");
                 ignored = testMethods.Count;
             }
+            else
+            {
+                //
+                // Run [ClassInitialize] method
+                //
+                classInitializeSucceeded =
+                    RunMethod(
+                        classInitializeMethod, null,
+                        true,
+                        null, false,
+                        "[ClassInitialize]");
 
-            //
-            // Run [ClassCleanup] method
-            //
-            var classCleanupSucceeded =
-                RunMethod(
-                    classCleanupMethod, null,
-                    false,
-                    null, false,
-                    "[ClassCleanup]");
+                if (classInitializeSucceeded)
+                {
+                    //
+                    // Run [TestMethod]s
+                    //
+                    foreach (var testMethod in testMethods)
+                    {
+                        switch(RunTest(testMethod, testInitializeMethod, testCleanupMethod, testClass))
+                        {
+                            case TestResult.Passed:
+                                passed++;
+                                ran++;
+                                break;
+                            case TestResult.Failed:
+                                failed++;
+                                ran++;
+                                break;
+                            case TestResult.Ignored:
+                                ignored++;
+                                break;
+                        }
+                    }
+
+                    //
+                    // Run [ClassCleanup] method
+                    //
+                    classCleanupSucceeded =
+                        RunMethod(
+                            classCleanupMethod, null,
+                            false,
+                            null, false,
+                            "[ClassCleanup]");
+                }
+            }
 
             //
             // Print results
@@ -418,27 +430,40 @@ namespace TestRunner
             //
             // Invoke [TestInitialize], [TestMethod], and [TestCleanup]
             //
-            bool success =
+            bool testInitializeSucceeded = false;
+            bool testMethodSucceeded = false;
+            bool testCleanupSucceeded = false;
+
+            testInitializeSucceeded =
                 RunMethod(
                     testInitializeMethod, testInstance,
                     false,
                     null, false,
-                    "[TestInitialize]") &&
-                RunMethod(
-                    testMethod, testInstance,
-                    false,
-                    expectedException, expectedExceptionAllowDerived,
-                    "[TestMethod]") &&
-                RunMethod(
-                    testCleanupMethod, testInstance,
-                    false,
-                    null, false,
-                    "[TestCleanup]");
+                    "[TestInitialize]");
+
+            if (testInitializeSucceeded)
+            {
+                testMethodSucceeded =
+                    RunMethod(
+                        testMethod, testInstance,
+                        false,
+                        expectedException, expectedExceptionAllowDerived,
+                        "[TestMethod]");
+
+                testCleanupSucceeded =
+                    RunMethod(
+                        testCleanupMethod, testInstance,
+                        false,
+                        null, false,
+                        "[TestCleanup]");
+            }
+
+            bool passed = testInitializeSucceeded && testMethodSucceeded && testCleanupSucceeded;
 
             Console.Out.WriteLine();
-            Console.Out.WriteLine(success ? "Passed" : "FAILED");
+            Console.Out.WriteLine(passed ? "Passed" : "FAILED");
 
-            return success ? TestResult.Passed : TestResult.Failed;
+            return passed ? TestResult.Passed : TestResult.Failed;
         }
 
 
