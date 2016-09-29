@@ -63,6 +63,19 @@ Exit Status
 0 if all test, initialization, and cleanup methods succeeded.  Otherwise, non-zero.
 
 
+Examples
+--------
+
+### Windows
+
+    C:\> TestRunner.exe C:\Path\To\TestAssembly.dll
+
+
+### Unix or Mac
+
+    $ mono --debug TestRunner.exe /path/to/TestAssembly.dll
+
+
 NuGet Package
 -------------
 
