@@ -94,17 +94,19 @@ Try `xbuild /toolsversion:4.0 /property:LangVersion=default`.
 Projects
 --------
 
-[TestRunner](TestRunner) - The `TestRunner.exe` program
+[TestRunner](https://github.com/macro187/testrunner/tree/master/TestRunner) - The `TestRunner.exe` program
 
-[TestRunner.TestSuite](TestRunner.TestSuite) - A unit test suite that exercises MSTest functionality
+[TestRunner.TestSuite](https://github.com/macro187/testrunner/tree/master/TestRunner.TestSuite) - A unit test suite that
+exercises MSTest functionality
 
-[TestRunner.Tests](TestRunner.Tests) - A unit test that runs the test suite using `TestRunner.exe`
+[TestRunner.Tests](https://github.com/macro187/testrunner/tree/master/TestRunner.Tests) - A unit test that runs the test
+suite using `TestRunner.exe`
 
 
 License
 -------
 
-MS-PL, see [license.txt](license.txt).
+[MS-PL](https://github.com/macro187/testrunner/blob/master/license.txt)
 
 
 Copyright
