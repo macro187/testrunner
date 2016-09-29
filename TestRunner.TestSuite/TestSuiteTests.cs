@@ -13,6 +13,7 @@ namespace TestRunner.TestSuite
         public static readonly string ClassCleanupMessage = "[ClassCleanup] is running";
         public static readonly string AssemblyCleanupMessage = "[AssemblyCleanup] is running";
         public static readonly string IgnoredTestMessage = "[Ignore]d test method is running";
+        public static readonly string TraceTestMessage = "Trace test message";
 
 
         static bool assemblyInitializeRan = false;
@@ -61,6 +62,13 @@ namespace TestRunner.TestSuite
         public void TestInitialize_Runs()
         {
             Assert.IsTrue(testInitializeRan, "[TestInitialize] method did not run");
+        }
+
+
+        [TestMethod]
+        public void Print_Trace_Test_Message()
+        {
+            System.Diagnostics.Trace.WriteLine(TraceTestMessage);
         }
 
 

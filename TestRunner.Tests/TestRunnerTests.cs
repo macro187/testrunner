@@ -73,6 +73,10 @@ namespace TestRunner.Tests
                 output.Contains(TestSuite.TestSuiteTests.AssemblyCleanupMessage),
                 "[AssemblyCleanup] method did not run");
 
+            Assert.IsTrue(
+                output.Contains(TestSuite.TestSuiteTests.TraceTestMessage),
+                "System.Diagnostics.Trace test message was not printed");
+
             Assert.IsFalse(
                 output.Contains(TestSuite.TestSuiteTests.IgnoredTestMessage),
                 "An [Ignore]d test method ran");
