@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TestRunner.TestReferencedAssembly;
 
 namespace TestRunner.TestSuite
 {
@@ -132,6 +133,13 @@ namespace TestRunner.TestSuite
                 Assert.IsTrue(isInstanceNew, "Not a new [TestClass] instance");
                 isInstanceNew = false;
             }
+        }
+
+
+        [TestMethod]
+        public void Use_Referenced_Assembly()
+        {
+            Console.WriteLine(TestReferencedClass.TestReferencedMethod());
         }
 
 

@@ -62,6 +62,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TestRunner.TestReferencedAssembly\TestRunner.TestReferencedAssembly.csproj">
+      <Project>{58d33818-f656-40f0-8a65-702c5dcf50e4}</Project>
+      <Name>TestRunner.TestReferencedAssembly</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
