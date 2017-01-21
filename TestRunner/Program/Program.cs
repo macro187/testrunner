@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Configuration;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TestRunner.Infrastructure;
+using TestRunner.Proxies;
 
-namespace TestRunner
+namespace TestRunner.Program
 {
     static class Program
     {
@@ -65,6 +64,13 @@ namespace TestRunner
                 // Load test assembly
                 //
                 var assembly = Assembly.LoadFrom(fullAssemblyPath);
+                var testAssembly = TestAssembly.TryCreate(assembly);
+                if (testAssembly == null)
+                {
+                    Console.Out.WriteLine();
+                    Console.Out.WriteLine("Not a test assembly: {0}", fullAssemblyPath);
+                    return 1;
+                }
                 Console.Out.WriteLine();
                 Console.Out.WriteLine("Test Assembly:");
                 Console.Out.WriteLine(assembly.Location);
@@ -77,8 +83,18 @@ namespace TestRunner
                 //
                 // Run tests in assembly
                 //
-                var success = RunTestAssembly(assembly);
+                var success = RunTestAssembly(testAssembly);
                 return success ? 0 : 1;
+            }
+
+            //
+            // Handle user-facing errors
+            //
+            catch (UserException ue)
+            {
+                Console.Out.WriteLine();
+                Console.Out.WriteLine(ue.Message);
+                return 1;
             }
 
             //
@@ -90,7 +106,7 @@ namespace TestRunner
                 Console.Out.WriteLine(
                     "An internal error occurred in {0}:",
                     Path.GetFileName(Assembly.GetExecutingAssembly().Location));
-                Console.Out.WriteLine(FormatException(e));
+                Console.Out.WriteLine(ExceptionExtensions.FormatException(e));
                 return 1;
             }
         }
@@ -108,9 +124,9 @@ namespace TestRunner
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
             var authors = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).CompanyName;
             WriteHeading(
-                string.Format(CultureInfo.InvariantCulture, "{0} - {1}", name, description),
-                string.Format(CultureInfo.InvariantCulture, "Version {0}.{1}", major, minor),
-                string.Format(CultureInfo.InvariantCulture, "{0} {1}", copyright, authors));
+                StringExtensions.FormatInvariant("{0} - {1}", name, description),
+                StringExtensions.FormatInvariant("Version {0}.{1}", major, minor),
+                StringExtensions.FormatInvariant("{0} {1}", copyright, authors));
         }
 
 
@@ -184,32 +200,9 @@ namespace TestRunner
         /// <summary>
         /// Run tests in a test assembly
         /// </summary>
-        public static bool RunTestAssembly(Assembly testAssembly)
+        public static bool RunTestAssembly(TestAssembly testAssembly)
         {
-            if (testAssembly == null) throw new ArgumentNullException("testAssembly");
-
-            //
-            // Locate [TestClass]es
-            //
-            var testClasses =
-                testAssembly.GetTypes()
-                    .Where(t => t.GetCustomAttributes(typeof(TestClassAttribute), false).Any())
-                    .OrderBy(t => t.Name);
-
-            //
-            // Locate [AssemblyInitialize] and [AssemblyCleanup] methods
-            //
-            var assemblyInitializeMethod =
-                testClasses.SelectMany(testClass =>
-                    testClass.GetMethods()
-                    .Where(m => m.GetCustomAttributes(typeof(AssemblyInitializeAttribute), false).Any()))
-                .SingleOrDefault();
-
-            var assemblyCleanupMethod =
-                testClasses.SelectMany(testClass =>
-                    testClass.GetMethods()
-                    .Where(m => m.GetCustomAttributes(typeof(AssemblyCleanupAttribute), false).Any()))
-                .SingleOrDefault();
+            Guard.NotNull(testAssembly, "testAssembly");
 
             bool assemblyInitializeSucceeded = false;
             int failed = 0;
@@ -220,7 +213,7 @@ namespace TestRunner
             //
             assemblyInitializeSucceeded =
                 RunMethod(
-                    assemblyInitializeMethod, null,
+                    testAssembly.AssemblyInitializeMethod, null,
                     true,
                     null, false,
                     "[AssemblyInitialize]");
@@ -232,7 +225,7 @@ namespace TestRunner
                 //
                 if (assemblyInitializeSucceeded)
                 {
-                    foreach (var testClass in testClasses)
+                    foreach (var testClass in testAssembly.TestClasses)
                     {
                         if (!RunTestClass(testClass))
                         {
@@ -246,7 +239,7 @@ namespace TestRunner
                 //
                 assemblyCleanupSucceeded =
                     RunMethod(
-                        assemblyCleanupMethod, null,
+                        testAssembly.AssemblyCleanupMethod, null,
                         false,
                         null, false,
                         "[AssemblyCleanup]");
@@ -265,34 +258,12 @@ namespace TestRunner
         /// <returns>
         /// Whether everything in <paramref name="testClass"/> succeeded
         /// </returns>
-        static bool RunTestClass(Type testClass)
+        static bool RunTestClass(TestClass testClass)
         {
-            if (testClass == null) throw new ArgumentNullException("testClass");
+            Guard.NotNull(testClass, "testClass");
 
             Console.Out.WriteLine();
             WriteHeading(testClass.FullName);
-
-            bool ignore = testClass.GetCustomAttributes(typeof(IgnoreAttribute), false).Any();
-
-            //
-            // Locate methods
-            //
-            var classInitializeMethod = testClass.GetMethods()
-                .FirstOrDefault(m => m.GetCustomAttributes(typeof(ClassInitializeAttribute), false).Any());
-
-            var classCleanupMethod = testClass.GetMethods()
-                .FirstOrDefault(m => m.GetCustomAttributes(typeof(ClassCleanupAttribute), false).Any());
-
-            var testInitializeMethod = testClass.GetMethods()
-                .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestInitializeAttribute), false).Any());
-
-            var testCleanupMethod = testClass.GetMethods()
-                .FirstOrDefault(m => m.GetCustomAttributes(typeof(TestCleanupAttribute), false).Any());
-
-            var testMethods = testClass.GetMethods()
-                .Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), false).Any())
-                .OrderBy(m => m.Name)
-                .ToList();
 
             bool classInitializeSucceeded = false;
             int ran = 0;
@@ -301,11 +272,11 @@ namespace TestRunner
             int ignored = 0;
             bool classCleanupSucceeded = false;
 
-            if (ignore)
+            if (testClass.IsIgnored)
             {
                 Console.Out.WriteLine();
                 Console.Out.WriteLine("Ignoring all tests because class is decorated with [Ignore]");
-                ignored = testMethods.Count;
+                ignored = testClass.TestMethods.Count;
             }
             else
             {
@@ -314,7 +285,7 @@ namespace TestRunner
                 //
                 classInitializeSucceeded =
                     RunMethod(
-                        classInitializeMethod, null,
+                        testClass.ClassInitializeMethod, null,
                         true,
                         null, false,
                         "[ClassInitialize]");
@@ -324,9 +295,14 @@ namespace TestRunner
                     //
                     // Run [TestMethod]s
                     //
-                    foreach (var testMethod in testMethods)
+                    foreach (var testMethod in testClass.TestMethods)
                     {
-                        switch(RunTest(testMethod, testInitializeMethod, testCleanupMethod, testClass))
+                        switch(
+                            RunTest(
+                                testMethod,
+                                testClass.TestInitializeMethod,
+                                testClass.TestCleanupMethod,
+                                testClass))
                         {
                             case TestResult.Passed:
                                 passed++;
@@ -347,7 +323,7 @@ namespace TestRunner
                     //
                     classCleanupSucceeded =
                         RunMethod(
-                            classCleanupMethod, null,
+                            testClass.ClassCleanupMethod, null,
                             false,
                             null, false,
                             "[ClassCleanup]");
@@ -360,14 +336,22 @@ namespace TestRunner
             WriteSubheading("Summary");
             Console.Out.WriteLine();
             Console.Out.WriteLine("ClassInitialize: {0}",
-                classInitializeMethod == null ? "Not present" : classInitializeSucceeded ? "Succeeded" : "Failed");
-            Console.Out.WriteLine("Total:           {0} tests", testMethods.Count);
+                testClass.ClassInitializeMethod == null
+                    ? "Not present"
+                    : classInitializeSucceeded
+                        ? "Succeeded"
+                        : "Failed");
+            Console.Out.WriteLine("Total:           {0} tests", testClass.TestMethods.Count);
             Console.Out.WriteLine("Ran:             {0} tests", ran);
             Console.Out.WriteLine("Ignored:         {0} tests", ignored);
             Console.Out.WriteLine("Passed:          {0} tests", passed);
             Console.Out.WriteLine("Failed:          {0} tests", failed);
             Console.Out.WriteLine("ClassCleanup:    {0}",
-                classCleanupMethod == null ? "Not present" : classCleanupSucceeded ? "Succeeded" : "Failed");
+                testClass.ClassCleanupMethod == null
+                    ? "Not present"
+                    : classCleanupSucceeded
+                        ? "Succeeded"
+                        : "Failed");
 
             return
                 classInitializeSucceeded &&
@@ -386,18 +370,14 @@ namespace TestRunner
         /// The results of the test
         /// </returns>
         static TestResult RunTest(
-            MethodInfo testMethod,
+            TestMethod testMethod,
             MethodInfo testInitializeMethod,
             MethodInfo testCleanupMethod,
-            Type testClass)
+            TestClass testClass)
         {
             WriteSubheading(testMethod.Name.Replace("_", " "));
 
-            //
-            // Locate [Ignore]
-            //
-            bool ignore = testMethod.GetCustomAttributes(typeof(IgnoreAttribute), false).Any();
-            if (ignore)
+            if (testMethod.IsIgnored)
             {
                 Console.Out.WriteLine();
                 Console.Out.WriteLine("Ignored because method is decorated with [Ignore]");
@@ -405,27 +385,9 @@ namespace TestRunner
             }
 
             //
-            // Locate [ExpectedException]
-            //
-            var expectedExceptionAttribute =
-                testMethod.GetCustomAttributes(typeof(ExpectedExceptionAttribute), false)
-                    .Cast<ExpectedExceptionAttribute>()
-                    .SingleOrDefault();
-            
-            Type expectedException =
-                expectedExceptionAttribute != null
-                    ? expectedExceptionAttribute.ExceptionType
-                    : null;
-
-            bool expectedExceptionAllowDerived =
-                expectedExceptionAttribute != null
-                    ? expectedExceptionAttribute.AllowDerivedTypes
-                    : false;
-
-            //
             // Construct an instance of the test class
             //
-            var testInstance = Activator.CreateInstance(testClass);
+            var testInstance = Activator.CreateInstance(testClass.Type);
 
             //
             // Invoke [TestInitialize], [TestMethod], and [TestCleanup]
@@ -445,9 +407,9 @@ namespace TestRunner
             {
                 testMethodSucceeded =
                     RunMethod(
-                        testMethod, testInstance,
+                        testMethod.MethodInfo, testInstance,
                         false,
-                        expectedException, expectedExceptionAllowDerived,
+                        testMethod.ExpectedException, testMethod.AllowDerivedExpectedExceptionTypes,
                         "[TestMethod]");
 
                 testCleanupSucceeded =
@@ -514,7 +476,7 @@ namespace TestRunner
                     success = true;
                     Console.Out.WriteLine("  [ExpectedException] {0} occurred:", expectedException.FullName);
                 }
-                Console.Out.WriteLine(Indent(FormatException(ex)));
+                Console.Out.WriteLine(StringExtensions.Indent(ExceptionExtensions.FormatException(ex)));
             }
 
             Console.Out.WriteLine("  {0} ({1:N0} ms)", success ? "Succeeded" : "Failed", watch.ElapsedMilliseconds);
@@ -550,81 +512,6 @@ namespace TestRunner
                 Console.Out.WriteLine(line);
             }
             Console.Out.WriteLine(rule);
-        }
-
-
-        static string FormatException(Exception e)
-        {
-            if (e == null) return "";
-            var sb = new StringBuilder();
-            sb.AppendLine(e.Message);
-            sb.AppendLine("Type: " + e.GetType().FullName);
-            if (e.Data != null)
-            {
-                foreach (var key in e.Data.Keys)
-                {
-                    sb.AppendLine(string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Data.{0}: {1}",
-                        key.ToString(),
-                        e.Data[key].ToString()));
-                }
-            }
-            if (!string.IsNullOrWhiteSpace(e.Source))
-            {
-                sb.AppendLine("Source: " + e.Source);
-            }
-            if (!string.IsNullOrWhiteSpace(e.HelpLink))
-            {
-                sb.AppendLine("HelpLink: " + e.HelpLink);
-            }
-            if (!string.IsNullOrWhiteSpace(e.StackTrace))
-            {
-                sb.AppendLine("StackTrace:");
-                sb.AppendLine(Indent(FormatStackTrace(e.StackTrace)));
-            }
-            if (e.InnerException != null)
-            {
-                sb.AppendLine("InnerException:");
-                sb.AppendLine(Indent(FormatException(e.InnerException)));
-            }
-            return sb.ToString();
-        }
-
-
-        static string FormatStackTrace(string stackTrace)
-        {
-            return string.Join(
-                Environment.NewLine,
-                SplitLines(stackTrace)
-                    .Select(line => line.Trim())
-                    .SelectMany(line => {
-                        var i = line.IndexOf(" in ", StringComparison.Ordinal);
-                        if (i <= 0) return new[] {line};
-                        var inPart = line.Substring(i + 1);
-                        var atPart = line.Substring(0, i);
-                        return new[] {atPart, Indent(inPart)};
-                        }));
-        }
-
-
-        static string Indent(string theString)
-        {
-            if (theString == null) throw new ArgumentNullException("theString");
-            var lines = SplitLines(theString);
-            var indentedLines = lines.Select(s => "  " + s);
-            return string.Join(Environment.NewLine, indentedLines);
-        }
-
-
-        static string[] SplitLines(string theString)
-        {
-            theString = theString.Replace("\r\n", "\n").Replace("\r", "\n");
-            if (theString.EndsWith("\n", StringComparison.Ordinal))
-            {
-                theString = theString.Substring(0, theString.Length-1);
-            }
-            return theString.Split('\n');
         }
 
 

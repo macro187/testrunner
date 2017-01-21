@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using TestRunner.Infrastructure;
 
-namespace TestRunner
+namespace TestRunner.Program
 {
 
     /// <summary>
@@ -42,8 +41,7 @@ namespace TestRunner
                         : "C:\\path\\to\\";
 
                 return
-                    string.Format(
-                        CultureInfo.InvariantCulture,
+                    StringExtensions.FormatInvariant(
                         string.Join(
                             Environment.NewLine,
                             new[] {

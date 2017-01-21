@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Dictionary>
+    <Words>
+        <Recognized>
+            <Word>testclass</Word>
+            <Word>testassembly</Word>
+            <Word>testinitialize</Word>
+            <Word>classinitialize</Word>
+            <Word>classcleanup</Word>
+            <Word>assemblyinitialize</Word>
+            <Word>assemblycleanup</Word>
+        </Recognized>
+        <Compound>
+            <Term CompoundAlternate="TestClass">testclass</Term>
+            <Term CompoundAlternate="TestAssembly">testassembly</Term>
+            <Term CompoundAlternate="TestInitialize">testinitialize</Term>
+            <Term CompoundAlternate="ClassInitialize">classinitialize</Term>
+            <Term CompoundAlternate="ClassCleanup">classcleanup</Term>
+            <Term CompoundAlternate="AssemblyInitialize">assemblyinitialize</Term>
+            <Term CompoundAlternate="AssemblyCleanup">assemblycleanup</Term>
+        </Compound>
+      </Words>
+</Dictionary>

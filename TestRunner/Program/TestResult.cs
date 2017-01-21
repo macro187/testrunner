@@ -1,4 +1,4 @@
-﻿namespace TestRunner
+﻿namespace TestRunner.Program
 {
     public enum TestResult
     {
