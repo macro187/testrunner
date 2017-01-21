@@ -108,7 +108,7 @@ License
 Copyright
 ---------
 
-Copyright (c) 2012-2016  
+Copyright (c) 2012-2017  
 Ron MacNeil \<<https://github.com/macro187>\>  
 Rickenberg \<<https://www.codeplex.com/site/users/view/Rickenberg>\>  
 

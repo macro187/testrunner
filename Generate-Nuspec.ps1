@@ -69,8 +69,7 @@ $files = @(
     )
 
 $toolsFiles = @(
-    "TestRunner\bin\Debug\TestRunner.exe",
-    "TestRunner\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll"
+    "TestRunner\bin\Debug\TestRunner.exe"
     )
 
 
