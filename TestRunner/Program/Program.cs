@@ -21,7 +21,7 @@ namespace TestRunner.Program
             MessageId = "System.Reflection.Assembly.LoadFrom",
             Justification = "Need to load assemblies in order to run tests")]
         [STAThread]
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace TestRunner.Program
                     Console.Out.WriteLine();
                     Console.Out.WriteLine();
                     Console.Out.WriteLine(argumentParser.ErrorMessage);
-                    return 1;
+                    Environment.Exit(1);
                 }
 
                 //
@@ -57,21 +57,21 @@ namespace TestRunner.Program
                 {
                     Console.Out.WriteLine();
                     Console.Out.WriteLine("Test assembly not found: {0}", fullAssemblyPath);
-                    return 1;
-                }
+					Environment.Exit(1);
+				}
 
-                //
-                // Load test assembly
-                //
-                var assembly = Assembly.LoadFrom(fullAssemblyPath);
+				//
+				// Load test assembly
+				//
+				var assembly = Assembly.LoadFrom(fullAssemblyPath);
                 var testAssembly = TestAssembly.TryCreate(assembly);
                 if (testAssembly == null)
                 {
                     Console.Out.WriteLine();
                     Console.Out.WriteLine("Not a test assembly: {0}", fullAssemblyPath);
-                    return 1;
-                }
-                Console.Out.WriteLine();
+					Environment.Exit(1);
+				}
+				Console.Out.WriteLine();
                 Console.Out.WriteLine("Test Assembly:");
                 Console.Out.WriteLine(assembly.Location);
 
@@ -84,7 +84,7 @@ namespace TestRunner.Program
                 // Run tests in assembly
                 //
                 var success = RunTestAssembly(testAssembly);
-                return success ? 0 : 1;
+				Environment.Exit(success ? 0 : 1);
             }
 
             //
@@ -94,22 +94,22 @@ namespace TestRunner.Program
             {
                 Console.Out.WriteLine();
                 Console.Out.WriteLine(ue.Message);
-                return 1;
-            }
+				Environment.Exit(1);
+			}
 
-            //
-            // Handle internal errors
-            //
-            catch (Exception e)
+			//
+			// Handle internal errors
+			//
+			catch (Exception e)
             {
                 Console.Out.WriteLine();
                 Console.Out.WriteLine(
                     "An internal error occurred in {0}:",
                     Path.GetFileName(Assembly.GetExecutingAssembly().Location));
                 Console.Out.WriteLine(ExceptionExtensions.FormatException(e));
-                return 1;
-            }
-        }
+				Environment.Exit(1);
+			}
+		}
 
 
         /// <summary>
