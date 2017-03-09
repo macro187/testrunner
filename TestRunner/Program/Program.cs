@@ -15,13 +15,19 @@ namespace TestRunner.Program
         /// <summary>
         /// Program entry point
         /// </summary>
+        [STAThread]
+        static void Main(string[] args)
+        {
+            Environment.Exit(Main2(args));
+        }
+
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
             "Microsoft.Reliability",
             "CA2001:AvoidCallingProblematicMethods",
             MessageId = "System.Reflection.Assembly.LoadFrom",
             Justification = "Need to load assemblies in order to run tests")]
-        [STAThread]
-        static int Main(string[] args)
+        static int Main2(string[] args)
         {
             try
             {
