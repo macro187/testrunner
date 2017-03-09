@@ -111,6 +111,7 @@ Copyright
 Copyright (c) 2012-2017  
 Ron MacNeil \<<https://github.com/macro187>\>  
 Rickenberg \<<https://www.codeplex.com/site/users/view/Rickenberg>\>  
+JDeltorp \<<https://github.com/JDeltorp>\>  
 
 
 History
