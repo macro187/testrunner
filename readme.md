@@ -56,7 +56,15 @@ Options
 Exit Status
 -----------
 
-0 if all test, initialization, and cleanup methods succeeded.  Otherwise, non-zero.
+0 if all test, initialization, and cleanup methods in `<testassembly>` succeeded.
+
+0 if `<testassembly>` contained no tests.
+
+0 if `<testassembly>` was not a .NET assembly.
+
+1 if any of the test, initialization, or cleanup methods in `<testassembly>` failed.
+
+1 if `<testassembly>` was not found.
 
 
 Examples
