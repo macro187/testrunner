@@ -27,6 +27,10 @@ namespace TestRunner.Program
             "CA2001:AvoidCallingProblematicMethods",
             MessageId = "System.Reflection.Assembly.LoadFrom",
             Justification = "Need to load assemblies in order to run tests")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Design",
+            "CA1031:DoNotCatchGeneralExceptionTypes",
+            Justification = "Required to handle unexpected exceptions")]
         static int Main2(string[] args)
         {
             try
