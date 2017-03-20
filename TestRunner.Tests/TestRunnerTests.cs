@@ -18,7 +18,7 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
-        public void MSTest_Suite()
+        public void MSTest_Suite_Passes()
         {
             //
             // Run TestRunner against the test suite dll
@@ -55,7 +55,7 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
-        public void Two_Assemblies()
+        public void Multiple_Passing_Assemblies_Yields_ExitCode_0()
         {
             //
             // Use TestRunner to run the test suite twice in the same invocation
@@ -72,7 +72,7 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
-        public void Two_Assemblies_Different_Config_Files()
+        public void Assemblies_With_Different_Config_Files_Pass()
         {
             //
             // Use TestRunner to run the test suite twice in the same invocation
@@ -91,7 +91,7 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
-        public void Non_DotNet_Dll_Yields_Exit_Code_0()
+        public void Non_DotNet_Dll_Yields_ExitCode_0()
         {
             //
             // Use TestRunner to run the test suite twice in the same invocation
