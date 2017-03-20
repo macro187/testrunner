@@ -15,6 +15,7 @@ namespace TestRunner.Tests
         static string msTestTests = Path.Combine(here, "TestRunner.Tests.MSTest.dll");
         static string differentConfigTests = Path.Combine(here, "TestRunner.Tests.DifferentConfigValue.dll");
         static string fakeDll = Path.Combine(here, "FakeDll.dll");
+        static string referencedAssembly = Path.Combine(here, "TestRunner.Tests.ReferencedAssembly.dll");
 
 
         [TestMethod]
@@ -80,6 +81,23 @@ namespace TestRunner.Tests
             var results = ProcessExtensions.Execute(
                 testRunner,
                 string.Format("\"{0}\" \"{1}\"", msTestTests, differentConfigTests));
+
+            //
+            // Check stuff
+            //
+            Assert.AreEqual(
+                0, results.ExitCode,
+                "TestRunner.exe returned non-zero exit code");
+        }
+
+
+        [TestMethod]
+        public void Non_Test_Assembly_Yields_ExitCode_0()
+        {
+            //
+            // Use TestRunner to run the test suite twice in the same invocation
+            //
+            var results = ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", referencedAssembly));
 
             //
             // Check stuff
