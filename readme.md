@@ -44,27 +44,27 @@ Microsoft .NET Framework v4.0 or newer, or [Mono](http://www.mono-project.com/) 
 Synopsis
 --------
 
-    TestRunner.exe <testassembly>
+    TestRunner.exe <testassembly> [<testassembly> [...]]
 
 
 Options
 -------
 
-`<testassembly>` - Path to an assembly containing MSTest tests
+    <testassembly> - Path to an assembly containing MSTest tests
 
 
 Exit Status
 -----------
 
-0 if all test, initialization, and cleanup methods in `<testassembly>` succeeded.
+`0` if all test, initialization, and cleanup methods in `<testassembly>` succeeded.
 
-0 if `<testassembly>` contained no tests.
+`0` if `<testassembly>` contained no tests.
 
-0 if `<testassembly>` was not a .NET assembly.
+`0` if `<testassembly>` was not a .NET assembly.
 
-1 if any of the test, initialization, or cleanup methods in `<testassembly>` failed.
+`1` if any of the test, initialization, or cleanup methods in `<testassembly>` failed.
 
-1 if `<testassembly>` was not found.
+`1` if `<testassembly>` was not found.
 
 
 Examples
@@ -72,12 +72,12 @@ Examples
 
 ### Windows
 
-    C:\> TestRunner.exe C:\Path\To\TestAssembly.dll
+    C:\> TestRunner.exe C:\Path\To\TestAssembly.dll C:\Path\To\AnotherTestAssembly.dll
 
 
 ### Unix or Mac
 
-    $ mono --debug TestRunner.exe /path/to/TestAssembly.dll
+    $ mono --debug TestRunner.exe /path/to/TestAssembly.dll /path/to/AnotherTestAssembly.dll
 
 
 NuGet Package
@@ -93,18 +93,6 @@ Use Visual Studio, MSBuild, or [XBuild](http://www.mono-project.com/docs/tools+l
 
 Older versions of XBuild may not understand the tools and language versions in the project file(s).
 Try `xbuild /toolsversion:4.0 /property:LangVersion=default`.
-
-
-Projects
---------
-
-[TestRunner](https://github.com/macro187/testrunner/tree/master/TestRunner) - The `TestRunner.exe` program
-
-[TestRunner.TestSuite](https://github.com/macro187/testrunner/tree/master/TestRunner.TestSuite) - A unit test suite that
-exercises MSTest functionality
-
-[TestRunner.Tests](https://github.com/macro187/testrunner/tree/master/TestRunner.Tests) - A unit test that runs the test
-suite using `TestRunner.exe`
 
 
 License
