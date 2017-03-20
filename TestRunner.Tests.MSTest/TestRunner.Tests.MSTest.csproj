@@ -6,8 +6,8 @@
     <ProjectGuid>{9895BF65-0F44-440A-9A62-796908BA0741}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestRunner.TestSuite</RootNamespace>
-    <AssemblyName>TestRunner.TestSuite</AssemblyName>
+    <RootNamespace>TestRunner.Tests.MSTest</RootNamespace>
+    <AssemblyName>TestRunner.Tests.MSTest</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -54,16 +54,16 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="TestSuiteTests.cs" />
+    <Compile Include="MSTestTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestRunner.TestSuite.dll.config">
+    <Content Include="TestRunner.Tests.MSTest.dll.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestRunner.TestReferencedAssembly\TestRunner.TestReferencedAssembly.csproj">
+    <ProjectReference Include="..\TestRunner.Tests.ReferencedAssembly\TestRunner.Tests.ReferencedAssembly.csproj">
       <Project>{58d33818-f656-40f0-8a65-702c5dcf50e4}</Project>
       <Name>TestRunner.TestReferencedAssembly</Name>
     </ProjectReference>

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TestRunner.TestReferencedAssembly;
+using TestRunner.Tests.ReferencedAssembly;
 
-namespace TestRunner.TestSuite
+namespace TestRunner.Tests.MSTest
 {
 
     [TestClass]
-    public class TestSuiteTests
+    public class MSTestTests
     {
 
         public static readonly string TestCleanupMessage = "[TestCleanup] is running";

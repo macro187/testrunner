@@ -56,7 +56,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestRunner.TestSuite\TestRunner.TestSuite.csproj">
+    <ProjectReference Include="..\TestRunner.Tests.MSTest\TestRunner.Tests.MSTest.csproj">
       <Project>{9895bf65-0f44-440a-9a62-796908ba0741}</Project>
       <Name>TestRunner.TestSuite</Name>
     </ProjectReference>
