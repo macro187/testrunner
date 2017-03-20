@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestRunner.Infrastructure;
 
@@ -20,59 +21,57 @@ namespace TestRunner.Tests
         static string referencedAssembly = Path.Combine(here, "TestRunner.Tests.ReferencedAssembly.dll");
 
 
+        static string Quote(params string[] arguments)
+        {
+            return string.Join(" ", arguments.Select(arg => "\"" + arg + "\""));
+        }
+
+
         [TestMethod]
         public void Pass_Yields_ExitCode_0()
         {
-            Assert.AreEqual<int>(
+            Assert.AreEqual(
                 0,
-                ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", passTests)).ExitCode,
-                "ExitCode");
+                ProcessExtensions.Execute(testRunner, Quote(passTests)).ExitCode);
         }
 
 
         [TestMethod]
         public void Fail_Yields_ExitCode_1()
         {
-            Assert.AreEqual<int>(
+            Assert.AreEqual(
                 1,
-                ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", failTests)).ExitCode,
-                "ExitCode");
+                ProcessExtensions.Execute(testRunner, Quote(failTests)).ExitCode);
         }
 
 
         [TestMethod]
         public void MSTest_Suite_Passes()
         {
-            //
-            // Run TestRunner against the test suite dll
-            //
-            var results = ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", msTestTests));
+            var results = ProcessExtensions.Execute(testRunner, Quote(msTestTests));
 
-            //
-            // Check stuff
-            //
             Assert.AreEqual(
                 0, results.ExitCode,
                 "TestRunner.exe returned non-zero exit code");
 
             Assert.IsTrue(
-                results.Output.Contains(Tests.MSTest.MSTestTests.TestCleanupMessage),
+                results.Output.Contains(MSTest.MSTestTests.TestCleanupMessage),
                 "[TestCleanup] method did not run");
 
             Assert.IsTrue(
-                results.Output.Contains(Tests.MSTest.MSTestTests.ClassCleanupMessage),
+                results.Output.Contains(MSTest.MSTestTests.ClassCleanupMessage),
                 "[ClassCleanup] method did not run");
 
             Assert.IsTrue(
-                results.Output.Contains(Tests.MSTest.MSTestTests.AssemblyCleanupMessage),
+                results.Output.Contains(MSTest.MSTestTests.AssemblyCleanupMessage),
                 "[AssemblyCleanup] method did not run");
 
             Assert.IsTrue(
-                results.Output.Contains(Tests.MSTest.MSTestTests.TraceTestMessage),
+                results.Output.Contains(MSTest.MSTestTests.TraceTestMessage),
                 "System.Diagnostics.Trace test message was not printed");
 
             Assert.IsFalse(
-                results.Output.Contains(Tests.MSTest.MSTestTests.IgnoredTestMessage),
+                results.Output.Contains(MSTest.MSTestTests.IgnoredTestMessage),
                 "An [Ignore]d test method ran");
         }
 
@@ -80,70 +79,36 @@ namespace TestRunner.Tests
         [TestMethod]
         public void Multiple_Passing_Assemblies_Yields_ExitCode_0()
         {
-            //
-            // Use TestRunner to run the test suite twice in the same invocation
-            //
-            var results = ProcessExtensions.Execute(testRunner, string.Format("\"{0}\" \"{0}\"", msTestTests));
-
-            //
-            // Check stuff
-            //
             Assert.AreEqual(
-                0, results.ExitCode,
-                "TestRunner.exe returned non-zero exit code");
+                0,
+                ProcessExtensions.Execute(testRunner, Quote(passTests, passTests)).ExitCode);
         }
 
 
         [TestMethod]
         public void Assemblies_With_Different_Config_Files_Pass()
         {
-            //
-            // Use TestRunner to run the test suite twice in the same invocation
-            //
-            var results = ProcessExtensions.Execute(
-                testRunner,
-                string.Format("\"{0}\" \"{1}\"", msTestTests, differentConfigTests));
-
-            //
-            // Check stuff
-            //
             Assert.AreEqual(
-                0, results.ExitCode,
-                "TestRunner.exe returned non-zero exit code");
+                0,
+                ProcessExtensions.Execute(testRunner, Quote(msTestTests, differentConfigTests)).ExitCode);
         }
 
 
         [TestMethod]
         public void Non_Test_Assembly_Yields_ExitCode_0()
         {
-            //
-            // Use TestRunner to run the test suite twice in the same invocation
-            //
-            var results = ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", referencedAssembly));
-
-            //
-            // Check stuff
-            //
             Assert.AreEqual(
-                0, results.ExitCode,
-                "TestRunner.exe returned non-zero exit code");
+                0,
+                ProcessExtensions.Execute(testRunner, Quote(referencedAssembly)).ExitCode);
         }
 
 
         [TestMethod]
         public void Non_DotNet_Dll_Yields_ExitCode_0()
         {
-            //
-            // Use TestRunner to run the test suite twice in the same invocation
-            //
-            var results = ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", fakeDll));
-
-            //
-            // Check stuff
-            //
             Assert.AreEqual(
-                0, results.ExitCode,
-                "TestRunner.exe returned non-zero exit code");
+                0,
+                ProcessExtensions.Execute(testRunner, Quote(fakeDll)).ExitCode);
         }
 
     }
