@@ -86,6 +86,15 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
+        public void Failing_Assembly_In_Multiple_Yields_ExitCode_1()
+        {
+            Assert.AreEqual(
+                1,
+                ProcessExtensions.Execute(testRunner, Quote(failTests, passTests)).ExitCode);
+        }
+
+
+        [TestMethod]
         public void Assemblies_With_Different_Config_Files_Pass()
         {
             Assert.AreEqual(
