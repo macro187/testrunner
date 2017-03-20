@@ -159,7 +159,17 @@ namespace TestRunner.Program
             //
             // Load test assembly
             //
-            var assembly = Assembly.LoadFrom(fullAssemblyPath);
+            Assembly assembly;
+            try
+            {
+                assembly = Assembly.LoadFrom(fullAssemblyPath);
+            }
+            catch (BadImageFormatException)
+            {
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("Not a .NET assembly: {0}", fullAssemblyPath);
+                return true;
+            }
             var testAssembly = TestAssembly.TryCreate(assembly);
             if (testAssembly == null)
             {
