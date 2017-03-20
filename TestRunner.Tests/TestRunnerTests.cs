@@ -46,6 +46,15 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
+        public void Non_Existent_File_Yields_ExitCode_1()
+        {
+            Assert.AreEqual(
+                1,
+                ProcessExtensions.Execute(testRunner, Quote("no-such.dll")).ExitCode);
+        }
+
+
+        [TestMethod]
         public void MSTest_Suite_Passes()
         {
             var results = ProcessExtensions.Execute(testRunner, Quote(msTestTests));
