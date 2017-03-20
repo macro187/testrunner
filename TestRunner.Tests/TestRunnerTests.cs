@@ -9,21 +9,20 @@ namespace TestRunner.Tests
     [TestClass]
     public class TestRunnerTests
     {
+        
+        static string here = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        static string testRunner = Path.Combine(here, "TestRunner.exe");
+        static string msTestTests = Path.Combine(here, "TestRunner.Tests.MSTest.dll");
+        static string differentConfigTests = Path.Combine(here, "TestRunner.Tests.DifferentConfigValue.dll");
+
 
         [TestMethod]
-        public void Run_TestSuite_With_TestRunner()
+        public void MSTest_Suite()
         {
-            //
-            // Locate the TestRunner program and the test suite dll
-            //
-            var here = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var testRunner = Path.Combine(here, "TestRunner.exe");
-            var testSuite = Path.Combine(here, "TestRunner.Tests.MSTest.dll");
-
             //
             // Run TestRunner against the test suite dll
             //
-            var results = ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", testSuite));
+            var results = ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", msTestTests));
 
             //
             // Check stuff
@@ -51,6 +50,42 @@ namespace TestRunner.Tests
             Assert.IsFalse(
                 results.Output.Contains(Tests.MSTest.MSTestTests.IgnoredTestMessage),
                 "An [Ignore]d test method ran");
+        }
+
+
+        [TestMethod]
+        public void Two_Assemblies()
+        {
+            //
+            // Use TestRunner to run the test suite twice in the same invocation
+            //
+            var results = ProcessExtensions.Execute(testRunner, string.Format("\"{0}\" \"{0}\"", msTestTests));
+
+            //
+            // Check stuff
+            //
+            Assert.AreEqual(
+                0, results.ExitCode,
+                "TestRunner.exe returned non-zero exit code");
+        }
+
+
+        [TestMethod]
+        public void Two_Assemblies_Different_Config_Files()
+        {
+            //
+            // Use TestRunner to run the test suite twice in the same invocation
+            //
+            var results = ProcessExtensions.Execute(
+                testRunner,
+                string.Format("\"{0}\" \"{1}\"", msTestTests, differentConfigTests));
+
+            //
+            // Check stuff
+            //
+            Assert.AreEqual(
+                0, results.ExitCode,
+                "TestRunner.exe returned non-zero exit code");
         }
 
     }

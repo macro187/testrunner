@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6E939476-0B62-4549-8E3E-7B3F034FE8E5}</ProjectGuid>
+    <ProjectGuid>{F8F20587-522C-46B2-8A8A-BCD51A241A5E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestRunner.Tests</RootNamespace>
-    <AssemblyName>TestRunner.Tests</AssemblyName>
+    <RootNamespace>TestRunner.Tests.DifferentConfigValue</RootNamespace>
+    <AssemblyName>TestRunner.Tests.DifferentConfigValue</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -26,7 +26,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,11 +36,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\bin\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -49,25 +45,20 @@
         <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
       </ItemGroup>
     </When>
-    <Otherwise />
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="TestRunnerTests.cs" />
+    <Compile Include="DifferentConfigValueTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestRunner.Tests.DifferentConfigValue\TestRunner.Tests.DifferentConfigValue.csproj">
-      <Project>{f8f20587-522c-46b2-8a8a-bcd51a241a5e}</Project>
-      <Name>TestRunner.Tests.DifferentConfigValue</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestRunner.Tests.MSTest\TestRunner.Tests.MSTest.csproj">
-      <Project>{9895bf65-0f44-440a-9a62-796908ba0741}</Project>
-      <Name>TestRunner.TestSuite</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestRunner\TestRunner.csproj">
-      <Project>{3dae3693-dd85-45b9-8a9e-8f99240eee6a}</Project>
-      <Name>TestRunner</Name>
-    </ProjectReference>
+    <Content Include="TestRunner.Tests.DifferentConfigValue.dll.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
