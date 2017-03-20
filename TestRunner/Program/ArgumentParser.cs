@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,8 +19,9 @@ namespace TestRunner.Program
         {
             Success = false;
             ErrorMessage = "";
-            AssemblyPath = "";
-            Parse(args);
+            InProc = false;
+            _assemblyPaths = new List<string>();
+            Parse(new Queue<string>(args));
         }
 
 
@@ -47,18 +50,18 @@ namespace TestRunner.Program
                             new[] {
                                 "SYNOPSIS",
                                 "",
-                                "    {0} <assemblypath>",
+                                "    {0} <assemblypath> [<assemblypath> [...]]",
                                 "",
                                 "OPTIONS",
                                 "",
                                 "    <assemblypath>",
-                                "        Path to an assembly containing MSTest unit tests",
+                                "        Path to a file that may be an assembly containing MSTest unit tests",
                                 "",
                                 "EXAMPLES",
                                 "",
-                                "    {1} {0} MyTestAssembly.dll",
+                                "    {1} {0} TestAssembly.dll AnotherTestAssembly.dll",
                                 "",
-                                "    {1} {0} {2}MyTestAssembly.dll",
+                                "    {1} {0} {2}TestAssembly.dll {2}AnotherTestAssembly.dll",
                                 }),
                         fileName,
                         shellPrefix,
@@ -67,14 +70,41 @@ namespace TestRunner.Program
         }
 
 
-        void Parse(string[] args)
+        void Parse(Queue<string> args)
         {
-            if (args.Length != 1)
+            for (;;)
             {
-                ErrorMessage = "No <assemblypath> specified";
+                if (args.Count == 0) break;
+                if (!args.Peek().StartsWith("--", StringComparison.Ordinal)) break;
+                var s = args.Dequeue();
+                switch (s)
+                {
+                    case "--inproc":
+                        InProc = true;
+                        break;
+                    default:
+                        ErrorMessage = "Unrecognised switch " + s;
+                        return;
+                }
+            }
+
+            while (args.Count > 0)
+            {
+                _assemblyPaths.Add(args.Dequeue());
+            }
+
+            if (AssemblyPaths.Count == 0)
+            {
+                ErrorMessage = "No <assemblypath>s specified";
                 return;
             }
-            AssemblyPath = args[0];
+
+            if (InProc && AssemblyPaths.Count > 1)
+            {
+                ErrorMessage = "Only one <assemblypath> allowed when --inproc";
+                return;
+            }
+
             Success = true;
         }
 
@@ -99,14 +129,25 @@ namespace TestRunner.Program
         }
 
 
-        /// <summary>
-        /// The value of the &lt;assemblypath&gt; argument
-        /// </summary>
-        public string AssemblyPath
+        public bool InProc
         {
             get;
             private set;
         }
+
+
+        /// <summary>
+        /// Path(s) to test assemblies listed on the command line
+        /// </summary>
+        public IList<string> AssemblyPaths
+        {
+            get
+            {
+                return new ReadOnlyCollection<string>(_assemblyPaths);
+            }
+        }
+
+        List<string> _assemblyPaths;
 
     }
 }

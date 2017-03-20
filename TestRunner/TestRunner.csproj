@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Infrastructure\ExceptionExtensions.cs" />
     <Compile Include="Infrastructure\Guard.cs" />
+    <Compile Include="Infrastructure\ProcessExtensions.cs" />
     <Compile Include="Infrastructure\StringExtensions.cs" />
     <Compile Include="Infrastructure\MemberInfoExtensions.cs" />
     <Compile Include="Infrastructure\UserException.cs" />

@@ -23,11 +23,6 @@ namespace TestRunner.Program
 
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
-            "Microsoft.Reliability",
-            "CA2001:AvoidCallingProblematicMethods",
-            MessageId = "System.Reflection.Assembly.LoadFrom",
-            Justification = "Need to load assemblies in order to run tests")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage(
             "Microsoft.Design",
             "CA1031:DoNotCatchGeneralExceptionTypes",
             Justification = "Required to handle unexpected exceptions")]
@@ -39,11 +34,6 @@ namespace TestRunner.Program
                 // Route trace output to stdout
                 //
                 Trace.Listeners.Add(new ConsoleTraceListener());
-
-                //
-                // Print program banner
-                //
-                Banner();
 
                 //
                 // Parse arguments
@@ -60,40 +50,26 @@ namespace TestRunner.Program
                 }
 
                 //
-                // Resolve full path to test assembly
+                // If --inproc <testassembly>, run tests in <testassembly>
                 //
-                string fullAssemblyPath = GetFullAssemblyPath(argumentParser.AssemblyPath);
-                if (!File.Exists(fullAssemblyPath))
+                if (argumentParser.InProc)
                 {
-                    Console.Out.WriteLine();
-                    Console.Out.WriteLine("Test assembly not found: {0}", fullAssemblyPath);
-                    return 1;
+                    return RunTestAssembly(argumentParser.AssemblyPaths[0]) ? 0 : 1;
                 }
 
                 //
-                // Load test assembly
+                // Print program banner
                 //
-                var assembly = Assembly.LoadFrom(fullAssemblyPath);
-                var testAssembly = TestAssembly.TryCreate(assembly);
-                if (testAssembly == null)
+                Banner();
+
+                //
+                // Reinvoke TestRunner --inproc for each <testassembly> on command line
+                //
+                bool success = true;
+                foreach (var assemblyPath in argumentParser.AssemblyPaths)
                 {
-                    Console.Out.WriteLine();
-                    Console.Out.WriteLine("Not a test assembly: {0}", fullAssemblyPath);
-                    return 1;
+                    if (ExecuteInNewProcess(assemblyPath) != 0) success = false;
                 }
-                Console.Out.WriteLine();
-                Console.Out.WriteLine("Test Assembly:");
-                Console.Out.WriteLine(assembly.Location);
-
-                //
-                // Use the test assembly's .config file if present
-                //
-                UseConfigFile(fullAssemblyPath);
-
-                //
-                // Run tests in assembly
-                //
-                var success = RunTestAssembly(testAssembly);
                 return success ? 0 : 1;
             }
 
@@ -137,6 +113,114 @@ namespace TestRunner.Program
                 StringExtensions.FormatInvariant("{0} - {1}", name, description),
                 StringExtensions.FormatInvariant("Version {0}.{1}", major, minor),
                 StringExtensions.FormatInvariant("{0} {1}", copyright, authors));
+        }
+
+
+        /// <summary>
+        /// Reinvoke TestRunner to run tests in a test assembly in a separate process
+        /// </summary>
+        static int ExecuteInNewProcess(string assemblyPath)
+        {
+            //
+            // TODO
+            // Teach how to reinvoke using mono.exe if that's how the initial invocation was done
+            //
+            var testRunner = Assembly.GetExecutingAssembly().Location;
+            return ProcessExtensions.Execute(testRunner, "--inproc \"" + assemblyPath + "\"").ExitCode;
+        }
+
+
+        /// <summary>
+        /// Run tests in a test assembly
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Reliability",
+            "CA2001:AvoidCallingProblematicMethods",
+            MessageId = "System.Reflection.Assembly.LoadFrom",
+            Justification = "Need to load assemblies in order to run tests")]
+        static bool RunTestAssembly(string assemblyPath)
+        {
+            Guard.NotNull(assemblyPath, "assemblyPath");
+
+            Console.Out.WriteLine();
+            WriteHeading("Assembly: " + assemblyPath);
+
+            //
+            // Resolve full path to test assembly
+            //
+            string fullAssemblyPath = GetFullAssemblyPath(assemblyPath);
+            if (!File.Exists(fullAssemblyPath))
+            {
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("Test assembly not found: {0}", fullAssemblyPath);
+                return false;
+            }
+
+            //
+            // Load test assembly
+            //
+            var assembly = Assembly.LoadFrom(fullAssemblyPath);
+            var testAssembly = TestAssembly.TryCreate(assembly);
+            if (testAssembly == null)
+            {
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("Not a test assembly: {0}", fullAssemblyPath);
+                return true;
+            }
+            Console.Out.WriteLine();
+            Console.Out.WriteLine("Test Assembly:");
+            Console.Out.WriteLine(assembly.Location);
+
+            //
+            // Use the test assembly's .config file if present
+            //
+            UseConfigFile(fullAssemblyPath);
+
+            bool assemblyInitializeSucceeded = false;
+            int failed = 0;
+            bool assemblyCleanupSucceeded = false;
+
+            //
+            // Run [AssemblyInitialize] method
+            //
+            assemblyInitializeSucceeded =
+                RunMethod(
+                    testAssembly.AssemblyInitializeMethod, null,
+                    true,
+                    null, false,
+                    "[AssemblyInitialize]");
+
+            if (assemblyInitializeSucceeded)
+            {
+                //
+                // Run tests in each [TestClass]
+                //
+                if (assemblyInitializeSucceeded)
+                {
+                    foreach (var testClass in testAssembly.TestClasses)
+                    {
+                        if (!RunTestClass(testClass))
+                        {
+                            failed++;
+                        }
+                    }
+                }
+
+                //
+                // Run [AssemblyCleanup] method
+                //
+                assemblyCleanupSucceeded =
+                    RunMethod(
+                        testAssembly.AssemblyCleanupMethod, null,
+                        false,
+                        null, false,
+                        "[AssemblyCleanup]");
+            }
+
+            return
+                assemblyInitializeSucceeded &&
+                failed == 0 &&
+                assemblyCleanupSucceeded;
         }
 
 
@@ -204,61 +288,6 @@ namespace TestRunner.Program
                 Console.Out.WriteLine("WARNING: Running on Mono, configuration file will probably not take effect");
                 Console.Out.WriteLine("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
             }
-        }
-
-
-        /// <summary>
-        /// Run tests in a test assembly
-        /// </summary>
-        public static bool RunTestAssembly(TestAssembly testAssembly)
-        {
-            Guard.NotNull(testAssembly, "testAssembly");
-
-            bool assemblyInitializeSucceeded = false;
-            int failed = 0;
-            bool assemblyCleanupSucceeded = false;
-
-            //
-            // Run [AssemblyInitialize] method
-            //
-            assemblyInitializeSucceeded =
-                RunMethod(
-                    testAssembly.AssemblyInitializeMethod, null,
-                    true,
-                    null, false,
-                    "[AssemblyInitialize]");
-
-            if (assemblyInitializeSucceeded)
-            {
-                //
-                // Run tests in each [TestClass]
-                //
-                if (assemblyInitializeSucceeded)
-                {
-                    foreach (var testClass in testAssembly.TestClasses)
-                    {
-                        if (!RunTestClass(testClass))
-                        {
-                            failed++;
-                        }
-                    }
-                }
-
-                //
-                // Run [AssemblyCleanup] method
-                //
-                assemblyCleanupSucceeded =
-                    RunMethod(
-                        testAssembly.AssemblyCleanupMethod, null,
-                        false,
-                        null, false,
-                        "[AssemblyCleanup]");
-            }
-
-            return
-                assemblyInitializeSucceeded &&
-                failed == 0 &&
-                assemblyCleanupSucceeded;
         }
 
 
