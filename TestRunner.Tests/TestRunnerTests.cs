@@ -12,10 +12,32 @@ namespace TestRunner.Tests
         
         static string here = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         static string testRunner = Path.Combine(here, "TestRunner.exe");
+        static string passTests = Path.Combine(here, "TestRunner.Tests.Pass.dll");
+        static string failTests = Path.Combine(here, "TestRunner.Tests.Fail.dll");
         static string msTestTests = Path.Combine(here, "TestRunner.Tests.MSTest.dll");
         static string differentConfigTests = Path.Combine(here, "TestRunner.Tests.DifferentConfigValue.dll");
         static string fakeDll = Path.Combine(here, "FakeDll.dll");
         static string referencedAssembly = Path.Combine(here, "TestRunner.Tests.ReferencedAssembly.dll");
+
+
+        [TestMethod]
+        public void Pass_Yields_ExitCode_0()
+        {
+            Assert.AreEqual<int>(
+                0,
+                ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", passTests)).ExitCode,
+                "ExitCode");
+        }
+
+
+        [TestMethod]
+        public void Fail_Yields_ExitCode_1()
+        {
+            Assert.AreEqual<int>(
+                1,
+                ProcessExtensions.Execute(testRunner, string.Format("\"{0}\"", failTests)).ExitCode,
+                "ExitCode");
+        }
 
 
         [TestMethod]
