@@ -77,7 +77,7 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
-        public void Multiple_Passing_Assemblies_Yields_ExitCode_0()
+        public void Many_Passing_Assemblies_Yields_ExitCode_0()
         {
             Assert.AreEqual(
                 0,
@@ -86,7 +86,7 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
-        public void Failing_Assembly_In_Multiple_Yields_ExitCode_1()
+        public void One_Failing_Assembly_In_Many_Yields_ExitCode_1()
         {
             Assert.AreEqual(
                 1,
@@ -95,7 +95,7 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
-        public void Assemblies_With_Different_Config_Files_Pass()
+        public void Many_Assemblies_With_Different_Config_Files_Pass()
         {
             Assert.AreEqual(
                 0,
