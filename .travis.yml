@@ -4,5 +4,5 @@ install:
   - nuget install TestRunner -OutputDirectory packages
 script:
   - xbuild /p:Configuration=Debug testrunner.sln
-  - mono --debug ./packages/TestRunner.*/tools/TestRunner.exe ./TestRunner.Tests/bin/Debug/TestRunner.Tests.dll
+  - mono --debug --runtime=v4.0 ./packages/TestRunner.*/tools/TestRunner.exe ./TestRunner.Tests/bin/Debug/TestRunner.Tests.dll
 
