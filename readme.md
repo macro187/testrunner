@@ -56,15 +56,13 @@ Options
 Exit Status
 -----------
 
-`0` if all test, initialization, and cleanup methods in `<testassembly>` succeeded.
+    Individual <testassembly> files PASS if all test, initialization, and
+    cleanup methods they contain execute successfully; OR they contain no tests;
+    OR they are not .NET assemblies.  They FAIL in all other cases, including
+    when the file does not exist.
 
-`0` if `<testassembly>` contained no tests.
-
-`0` if `<testassembly>` was not a .NET assembly.
-
-`1` if any of the test, initialization, or cleanup methods in `<testassembly>` failed.
-
-`1` if `<testassembly>` was not found.
+    The program returns exit code 0 if all <testassembly>s listed on the command
+    line PASS, and a non-zero exit code in all other cases.
 
 
 Examples
