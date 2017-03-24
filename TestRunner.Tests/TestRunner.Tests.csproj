@@ -52,30 +52,17 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="..\TestRunner.Tests.MSTest\MSTestTests.Constants.cs">
+      <Link>MSTestTests.Constants.cs</Link>
+    </Compile>
+    <Compile Include="..\TestRunner\Infrastructure\Guard.cs">
+      <Link>Guard.cs</Link>
+    </Compile>
+    <Compile Include="..\TestRunner\Infrastructure\ProcessExtensions.cs">
+      <Link>ProcessExtensions.cs</Link>
+    </Compile>
     <Compile Include="TestRunnerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TestRunner.Tests.DifferentConfigValue\TestRunner.Tests.DifferentConfigValue.csproj">
-      <Project>{f8f20587-522c-46b2-8a8a-bcd51a241a5e}</Project>
-      <Name>TestRunner.Tests.DifferentConfigValue</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestRunner.Tests.Fail\TestRunner.Tests.Fail.csproj">
-      <Project>{a7951cab-a5e1-46af-9566-fbf4fe5df9f4}</Project>
-      <Name>TestRunner.Tests.Fail</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestRunner.Tests.MSTest\TestRunner.Tests.MSTest.csproj">
-      <Project>{9895bf65-0f44-440a-9a62-796908ba0741}</Project>
-      <Name>TestRunner.TestSuite</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestRunner.Tests.Pass\TestRunner.Tests.Pass.csproj">
-      <Project>{a8ac0880-b960-48d2-8d13-5117292078d8}</Project>
-      <Name>TestRunner.Tests.Pass</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestRunner\TestRunner.csproj">
-      <Project>{3dae3693-dd85-45b9-8a9e-8f99240eee6a}</Project>
-      <Name>TestRunner</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\TestRunner.Tests.FakeDll\FakeDll.dll">

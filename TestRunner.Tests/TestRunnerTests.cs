@@ -12,13 +12,44 @@ namespace TestRunner.Tests
     {
         
         static string here = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        static string testRunner = Path.Combine(here, "TestRunner.exe");
-        static string passTests = Path.Combine(here, "TestRunner.Tests.Pass.dll");
-        static string failTests = Path.Combine(here, "TestRunner.Tests.Fail.dll");
-        static string msTestTests = Path.Combine(here, "TestRunner.Tests.MSTest.dll");
-        static string differentConfigTests = Path.Combine(here, "TestRunner.Tests.DifferentConfigValue.dll");
-        static string fakeDll = Path.Combine(here, "FakeDll.dll");
-        static string referencedAssembly = Path.Combine(here, "TestRunner.Tests.ReferencedAssembly.dll");
+
+        static string testRunner = Path.GetFullPath(Path.Combine(
+            here, "..", "..", "..",
+            "TestRunner",
+            "bin", "Debug",
+            "TestRunner.exe"));
+
+        static string passTests = Path.GetFullPath(Path.Combine(
+            here, "..", "..", "..",
+            "TestRunner.Tests.Pass",
+            "bin", "Debug",
+            "TestRunner.Tests.Pass.dll"));
+
+        static string failTests = Path.GetFullPath(Path.Combine(
+            here, "..", "..", "..",
+            "TestRunner.Tests.Fail",
+            "bin", "Debug",
+            "TestRunner.Tests.Fail.dll"));
+
+        static string msTestTests = Path.GetFullPath(Path.Combine(
+            here, "..", "..", "..",
+            "TestRunner.Tests.MSTest",
+            "bin", "Debug",
+            "TestRunner.Tests.MSTest.dll"));
+
+        static string differentConfigTests = Path.GetFullPath(Path.Combine(
+            here, "..", "..", "..",
+            "TestRunner.Tests.DifferentConfigValue",
+            "bin", "Debug",
+            "TestRunner.Tests.DifferentConfigValue.dll"));
+
+        static string fakeDll = Path.GetFullPath(Path.Combine(here, "FakeDll.dll"));
+
+        static string referencedAssembly = Path.GetFullPath(Path.Combine(
+            here, "..", "..", "..",
+            "TestRunner.Tests.ReferencedAssembly",
+            "bin", "Debug",
+            "TestRunner.Tests.ReferencedAssembly.dll"));
 
 
         static string Quote(params string[] arguments)
