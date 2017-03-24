@@ -10,23 +10,27 @@
 #
 # Deploying NuGet Package
 #
-# 1. Increment version numbers in TestRunner\Properties\AssemblyInfo.cs and commit
+# 1.  Increment version numbers in TestRunner\Properties\AssemblyInfo.cs
 #
-# 2. Rebuild the solution
+# 2.  Increment changelog
 #
-# 3. Run the unit test suite
+# 3.  Commit
 #
-# 4. powershell -file Generate-Nuspec.ps1
+# 4.  Rebuild the solution
 #
-# 5. Review / edit .nuspec, especially $releaseNotes
+# 5.  Run the unit test suite
 #
-# 6. nuget.exe pack .nuspec
+# 6.  powershell -file Generate-Nuspec.ps1
 #
-# 7. nuget.exe push TestRunner.<version>.nupkg <apikey> -Source https://www.nuget.org/api/v2/package
+# 7.  Review / edit .nuspec, especially $releaseNotes
 #
-# 8. git branch -f nuget
+# 8.  nuget.exe pack .nuspec
 #
-# 9. git push --all
+# 9.  nuget.exe push TestRunner.<version>.nupkg <apikey> -Source https://www.nuget.org/api/v2/package
+#
+# 10. git branch -f nuget
+#
+# 11. git push --all
 #
 
 
@@ -57,11 +61,7 @@ $copyright = "$exeCopyright $exeAuthors"
 $tags = "mstest test runner console"
 $projectUrl = "https://github.com/macro187/testrunner"
 $licenseUrl = "$projectUrl/blob/master/license.txt"
-
-$releaseNotes =
-@"
-TODO
-"@
+$releaseNotes = "$projectUrl/blob/master/changelog.md"
 
 $files = @(
     "readme.md",
