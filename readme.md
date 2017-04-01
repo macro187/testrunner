@@ -44,7 +44,7 @@ Microsoft .NET Framework v4.0 or newer, or [Mono](http://www.mono-project.com/) 
 Synopsis
 --------
 
-    TestRunner.exe <testassembly> [<testassembly> [...]]
+    TestRunner.exe <testassembly> [...]
 
 
 Options
@@ -56,13 +56,19 @@ Options
 Exit Status
 -----------
 
-    Individual <testassembly> files PASS if all test, initialization, and
-    cleanup methods they contain execute successfully; OR they contain no tests;
-    OR they are not .NET assemblies.  They FAIL in all other cases, including
-    when the file does not exist.
+    0 if all <testassembly>s listed on the command line PASS
+    - OR -
+    Non-zero in all other cases
 
-    The program returns exit code 0 if all <testassembly>s listed on the command
-    line PASS, and a non-zero exit code in all other cases.
+    A <testassembly> is said to PASS if all test, initialization, and cleanup
+    methods it contains execute successfully
+    - OR -
+    It contains no tests
+    - OR -
+    It is not a .NET assembly
+
+    A <testassembly> is said to FAIL in all other cases, including if the file
+    does not exist.
 
 
 Examples
