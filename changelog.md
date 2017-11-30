@@ -2,8 +2,10 @@ TestRunner Changelog
 ====================
 
 
-vNext
------
+v1.5.1
+------
+
+-   Fix build on Mono 5 which no longer supports `__MonoCS__` preprocessor variable
 
 
 v1.5
