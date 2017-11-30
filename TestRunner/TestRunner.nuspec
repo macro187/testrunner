@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+    <metadata>
+        <id>$id$</id>
+        <version>$version$</version>
+        <title>$title$</title>
+        <summary>$description$</summary>
+        <description>$description$</description>
+        <authors>$author$</authors>
+        <owners>$author$</owners>
+        <copyright>$copyright$</copyright>
+        <tags>mstest test runner console</tags>
+        <projectUrl>https://github.com/macro187/testrunner</projectUrl>
+        <licenseUrl>https://github.com/macro187/testrunner/blob/master/license.txt</licenseUrl>
+        <releaseNotes>https://github.com/macro187/testrunner/blob/master/changelog.md</releaseNotes>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    </metadata>
+    <files>
+        <file src="..\readme.md" target="" />
+        <file src="..\changelog.md" target="" />
+        <file src="..\license.txt" target="" />
+        <file src="bin\$configuration$\$id$.exe" target="tools" />
+    </files>
+</package>
