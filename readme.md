@@ -11,12 +11,16 @@ Lightweight, standalone, no external dependencies.
 
 Cross-platform, works on Microsoft .NET, Mono, Windows, Linux, and Mac OSX.
 
-Includes test timing information.
+Reflection-based, works with test assemblies built against any version/variant of the MSTest dll.
 
-Includes detailed exception information in the case of failures.
+Multi-process, runs test assemblies in their own isolated `TestRunner` processes.
 
-Includes [System.Diagnostics.Trace](https://msdn.microsoft.com/en-us/library/system.diagnostics.trace\(v=vs.110\).aspx)
+Provides [System.Diagnostics.Trace](https://msdn.microsoft.com/en-us/library/system.diagnostics.trace\(v=vs.110\).aspx)
 output.
+
+Provides test timing information.
+
+Provides detailed exception information in the case of failures.
 
 Supports
 [\[TestClass\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testclassattribute.aspx),
