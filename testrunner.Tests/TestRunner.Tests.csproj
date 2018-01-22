@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\testrunner.Tests.MSTest\MSTestTests.Constants.cs" Link="MSTestTests.Constants.cs" />
+    <Compile Include="..\testrunner\Infrastructure\Guard.cs" Link="Guard.cs" />
+    <Compile Include="..\testrunner\Infrastructure\ProcessExtensions.cs" Link="ProcessExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\testrunner\testrunner.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\testrunner.Tests.DifferentConfigValue\testrunner.Tests.DifferentConfigValue.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\testrunner.Tests.Fail\testrunner.Tests.Fail.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\testrunner.Tests.MSTest\testrunner.Tests.MSTest.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\testrunner.Tests.Pass\testrunner.Tests.Pass.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\testrunner.Tests.ReferencedAssembly\testrunner.Tests.ReferencedAssembly.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

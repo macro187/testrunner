@@ -59,12 +59,23 @@ namespace TestRunner.Proxies
 
         void FindTestClasses()
         {
-            TestClasses =
-                new ReadOnlyCollection<TestClass>(
-                    Assembly.GetTypes()
-                        .Select(t => TestClass.TryCreate(t))
-                        .Where(t => t != null)
-                        .ToList());
+            try
+            {
+                TestClasses =
+                    new ReadOnlyCollection<TestClass>(
+                        Assembly.GetTypes()
+                            .Select(t => TestClass.TryCreate(t))
+                            .Where(t => t != null)
+                            .ToList());
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                foreach (var le in e.LoaderExceptions)
+                {
+                    Console.WriteLine(ExceptionExtensions.FormatException(le));
+                }
+                throw;
+            }
         }
 
 

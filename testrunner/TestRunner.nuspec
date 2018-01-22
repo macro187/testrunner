@@ -19,6 +19,8 @@
         <file src="..\readme.md" target="" />
         <file src="..\changelog.md" target="" />
         <file src="..\license.txt" target="" />
-        <file src="bin\$configuration$\$id$.exe" target="tools" />
+        <file src="bin\$configuration$\net461\$id$.exe" target="tools" />
     </files>
+    <references>
+    </references>
 </package>

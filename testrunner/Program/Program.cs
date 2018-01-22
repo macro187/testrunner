@@ -33,7 +33,7 @@ namespace TestRunner.Program
                 //
                 // Route trace output to stdout
                 //
-                Trace.Listeners.Add(new ConsoleTraceListener());
+                Trace.Listeners.Add(new TestRunnerTraceListener());
 
                 //
                 // Parse arguments

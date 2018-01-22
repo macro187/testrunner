@@ -1,6 +1,4 @@
 /.vs
 /*/bin
 /*/obj
-/.nuspec
 *.user
-*.nupkg

@@ -13,43 +13,60 @@ namespace TestRunner.Tests
         
         static string here = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
+        #if NET461
+        const string frameworkMoniker = "net461";
+        #elif NETCOREAPP2_0
+        const string frameworkMoniker = "netcoreapp2.0";
+        #else
+        #error Unrecognised build framework
+        #endif
+
         static string testRunner = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..",
-            "TestRunner",
+            here, "..", "..", "..", "..",
+            "testrunner",
             "bin", "Debug",
-            "TestRunner.exe"));
+            frameworkMoniker,
+            "testrunner.exe"));
 
         static string passTests = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..",
-            "TestRunner.Tests.Pass",
+            here, "..", "..", "..", "..",
+            "testrunner.Tests.Pass",
             "bin", "Debug",
-            "TestRunner.Tests.Pass.dll"));
+            frameworkMoniker,
+            "testrunner.Tests.Pass.dll"));
 
         static string failTests = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..",
-            "TestRunner.Tests.Fail",
+            here, "..", "..", "..", "..",
+            "testrunner.Tests.Fail",
             "bin", "Debug",
-            "TestRunner.Tests.Fail.dll"));
+            frameworkMoniker,
+            "testrunner.Tests.Fail.dll"));
 
         static string msTestTests = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..",
-            "TestRunner.Tests.MSTest",
+            here, "..", "..", "..", "..",
+            "testrunner.Tests.MSTest",
             "bin", "Debug",
-            "TestRunner.Tests.MSTest.dll"));
+            frameworkMoniker,
+            "testrunner.Tests.MSTest.dll"));
 
         static string differentConfigTests = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..",
-            "TestRunner.Tests.DifferentConfigValue",
+            here, "..", "..", "..", "..",
+            "testrunner.Tests.DifferentConfigValue",
             "bin", "Debug",
-            "TestRunner.Tests.DifferentConfigValue.dll"));
+            frameworkMoniker,
+            "testrunner.Tests.DifferentConfigValue.dll"));
 
-        static string fakeDll = Path.GetFullPath(Path.Combine(here, "FakeDll.dll"));
+        static string fakeDll = Path.GetFullPath(Path.Combine(
+            here, "..", "..", "..", "..",
+            "testrunner.Tests.FakeDll",
+            "FakeDll.dll"));
 
         static string referencedAssembly = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..",
-            "TestRunner.Tests.ReferencedAssembly",
+            here, "..", "..", "..", "..",
+            "testrunner.Tests.ReferencedAssembly",
             "bin", "Debug",
-            "TestRunner.Tests.ReferencedAssembly.dll"));
+            frameworkMoniker,
+            "testrunner.Tests.ReferencedAssembly.dll"));
 
 
         static string Quote(params string[] arguments)
