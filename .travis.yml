@@ -1,5 +1,6 @@
 language: csharp
-solution: testrunner.sln
+mono: none
+dotnet: 2.1.4
 script:
-  - xbuild /p:Configuration=Debug testrunner.sln
-  - mono --debug ./TestRunner/bin/Debug/net461/TestRunner.exe ./TestRunner.Tests/bin/Debug/net461/TestRunner.Tests.dll
+  - dotnet build
+  - dotnet testrunner/bin/Debug/netcoreapp2.0/testrunner.dll testrunner.Tests/bin/Debug/netcoreapp2.0/testrunner.Tests.dll
