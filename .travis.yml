@@ -2,5 +2,5 @@ language: csharp
 mono: none
 dotnet: 2.1.4
 script:
-  - dotnet build
+  - dotnet build -f netcoreapp2.0
   - dotnet testrunner/bin/Debug/netcoreapp2.0/testrunner.dll testrunner.Tests/bin/Debug/netcoreapp2.0/testrunner.Tests.dll
