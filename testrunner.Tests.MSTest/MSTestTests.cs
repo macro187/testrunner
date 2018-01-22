@@ -98,9 +98,19 @@ namespace TestRunner.Tests.MSTest
             // See https://bugzilla.xamarin.com/show_bug.cgi?id=15741
             //
             if (Type.GetType("Mono.Runtime") != null) return;
+
+            //
+            // Config file switching doesn't appear to work on .NET Core
+            //
+            #if NETCOREAPP2_0
+            return;
+            #else
+
             Assert.AreEqual(
                 "ConfigFileValue",
                 ConfigurationManager.AppSettings["ConfigFileKey"]);
+
+            #endif
         }
         
 
