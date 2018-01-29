@@ -22,50 +22,56 @@ namespace TestRunner.Tests
         #endif
 
         static string testRunner = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..", "..",
+            here, "..", "..", "..", "..", "..",
             "testrunner",
             "bin", "Debug",
             frameworkMoniker,
+            "publish",
             "testrunner.exe"));
 
         static string passTests = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..", "..",
+            here, "..", "..", "..", "..", "..",
             "testrunner.Tests.Pass",
             "bin", "Debug",
             frameworkMoniker,
+            "publish",
             "testrunner.Tests.Pass.dll"));
 
         static string failTests = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..", "..",
+            here, "..", "..", "..", "..", "..",
             "testrunner.Tests.Fail",
             "bin", "Debug",
             frameworkMoniker,
+            "publish",
             "testrunner.Tests.Fail.dll"));
 
         static string msTestTests = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..", "..",
+            here, "..", "..", "..", "..", "..",
             "testrunner.Tests.MSTest",
             "bin", "Debug",
             frameworkMoniker,
+            "publish",
             "testrunner.Tests.MSTest.dll"));
 
         static string differentConfigTests = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..", "..",
+            here, "..", "..", "..", "..", "..",
             "testrunner.Tests.DifferentConfigValue",
             "bin", "Debug",
             frameworkMoniker,
+            "publish",
             "testrunner.Tests.DifferentConfigValue.dll"));
 
         static string fakeDll = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..", "..",
+            here, "..", "..", "..", "..", "..",
             "testrunner.Tests.FakeDll",
             "FakeDll.dll"));
 
         static string referencedAssembly = Path.GetFullPath(Path.Combine(
-            here, "..", "..", "..", "..",
+            here, "..", "..", "..", "..", "..",
             "testrunner.Tests.ReferencedAssembly",
             "bin", "Debug",
             frameworkMoniker,
+            "publish",
             "testrunner.Tests.ReferencedAssembly.dll"));
 
 
