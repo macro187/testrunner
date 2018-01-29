@@ -9,13 +9,16 @@ Description
 
 Lightweight, standalone, no external dependencies.
 
-Cross-platform, works on Microsoft .NET, Mono, Windows, Linux, and Mac OSX.
+Cross-platform, works on .NET Framework, .NET Core, Mono (probably), Windows,
+Linux, Mac OSX (probably).
 
-Reflection-based, works with test assemblies built against any version/variant of the MSTest dll.
+Reflection-based, runs test assemblies built against any version/variant of
+the MSTest dll.
 
-Multi-process, runs test assemblies in their own isolated `TestRunner` processes.
+Multi-process, runs test assemblies in their own isolated processes.
 
-Provides [System.Diagnostics.Trace](https://msdn.microsoft.com/en-us/library/system.diagnostics.trace\(v=vs.110\).aspx)
+Provides
+[System.Diagnostics.Trace](https://docs.microsoft.com/en-gb/dotnet/api/system.diagnostics.trace)
 output.
 
 Provides test timing information.
@@ -23,33 +26,33 @@ Provides test timing information.
 Provides detailed exception information in the case of failures.
 
 Supports
-[\[TestClass\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testclassattribute.aspx),
-[\[TestMethod\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testmethodattribute.aspx),
-[\[TestInitialize\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testinitializeattribute.aspx),
-[\[TestCleanup\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcleanupattribute.aspx),
-[\[ClassInitialize\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.classinitializeattribute.aspx),
-[\[ClassCleanup\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.classcleanupattribute.aspx),
-[\[AssemblyInitialize\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.assemblyinitializeattribute.aspx),
-[\[AssemblyCleanup\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.assemblycleanupattribute.aspx),
-[\[ExpectedException\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.expectedexceptionattribute.aspx),
+[\[TestClass\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testclassattribute),
+[\[TestMethod\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testmethodattribute),
+[\[TestInitialize\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testinitializeattribute),
+[\[TestCleanup\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testcleanupattribute),
+[\[ClassInitialize\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.classinitializeattribute),
+[\[ClassCleanup\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.classcleanupattribute),
+[\[AssemblyInitialize\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.assemblyinitializeattribute),
+[\[AssemblyCleanup\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.assemblycleanupattribute),
+[\[ExpectedException\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.expectedexceptionattribute),
 and
-[\[Ignore\]](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.ignoreattribute.aspx).
+[\[Ignore\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.ignoreattribute).
 
-Supports test assembly `.config` files (but not on Mono yet due to a
-[bug](https://bugzilla.xamarin.com/show_bug.cgi?id=15741))
+Supports test assembly `.config` files.
 
 
 Requirements
 ============
 
-Microsoft .NET Framework v4.0 or newer, or [Mono](http://www.mono-project.com/) v2.10 or newer.
+.NET Framework v4.6.1 or newer, or .NET Core 2.0 or newer, or Mono v5.0.0 or
+newer (probably).
 
 
 Synopsis
 ========
 
 ```
-TestRunner.exe <testassembly> [...]
+testrunner.exe <testassemblies>
 ```
 
 
@@ -57,43 +60,52 @@ Options
 =======
 
 ```
-<testassembly> - Path to an assembly containing MSTest tests
+<testassemblies> - Path(s) to assembly(s) containing MSTest tests
 ```
 
 
 Exit Status
 ===========
 
-```
-0 if all <testassembly>s listed on the command line PASS
-- OR -
-Non-zero in all other cases
+0 if all specified test assemblies succeed, otherwise non-zero.
 
-A <testassembly> is said to PASS if all test, initialization, and cleanup
-methods it contains execute successfully
-- OR -
-It contains no tests
-- OR -
-It is not a .NET assembly
+Test assemblies succeed if all test, initialization, and cleanup methods
+run successfully.
 
-A <testassembly> is said to FAIL in all other cases, including if the file
-does not exist.
-```
+Test assemblies succeed if they contain no tests.
+
+Test assemblies succeed if they are not .NET assemblies.
+
+Test assemblies fail if any test, initialization, or cleanup methods fail.
+
+Test assemblies fail if the file does not exist.
 
 
 Examples
 ========
 
-Windows
--------
+.NET Framework
+--------------
 
-    C:\> TestRunner.exe C:\Path\To\TestAssembly.dll C:\Path\To\AnotherTestAssembly.dll
+```
+C:\> testrunner.exe C:\Path\To\TestAssembly.dll C:\Path\To\AnotherTestAssembly.dll
+```
 
 
-Unix or Mac
------------
+.NET Core
+---------
 
-    $ mono --debug TestRunner.exe /path/to/TestAssembly.dll /path/to/AnotherTestAssembly.dll
+```
+C:\> dotnet testrunner.dll C:\Path\To\TestAssembly.dll C:\Path\To\AnotherTestAssembly.dll
+```
+
+
+Mono
+----
+
+```
+$ mono --debug testrunner.exe /path/to/TestAssembly.dll /path/to/AnotherTestAssembly.dll
+```
 
 
 NuGet Package
@@ -105,10 +117,30 @@ Available as a NuGet package named [TestRunner](https://www.nuget.org/packages/T
 Building
 ========
 
-Use Visual Studio, MSBuild, or [XBuild](http://www.mono-project.com/docs/tools+libraries/tools/xbuild/).
+.NET Framework
+--------------
 
-Older versions of XBuild may not understand the tools and language versions in the project file(s).
-Try `xbuild /toolsversion:4.0 /property:LangVersion=default`.
+```
+C:\testrunner\> dotnet publish -f net461
+```
+
+
+.NET Core
+---------
+
+```
+C:\testrunner\> dotnet publish -f netcoreapp2.0
+```
+
+
+Limitations
+===========
+
+Test assembly `.config` files not supported on Mono because of a
+[bug](https://bugzilla.xamarin.com/show_bug.cgi?id=15741)).
+
+Test assembly `.config` files not supported on .NET Core because it doesn't
+support them by design.
 
 
 License
