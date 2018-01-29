@@ -137,7 +137,7 @@ Limitations
 ===========
 
 Test assembly `.config` files not supported on Mono because of a
-[bug](https://bugzilla.xamarin.com/show_bug.cgi?id=15741)).
+[bug](https://bugzilla.xamarin.com/show_bug.cgi?id=15741).
 
 Test assembly `.config` files not supported on .NET Core because it doesn't
 support them by design.
@@ -146,7 +146,7 @@ support them by design.
 License
 =======
 
-MS-PL <https://github.com/macro187/testrunner/blob/master/license.txt>
+MS-PL \<<https://github.com/macro187/testrunner/blob/master/license.txt>\>
 
 
 Copyright
@@ -161,7 +161,7 @@ JDeltorp \<<https://github.com/JDeltorp>\>
 History
 =======
 
-Forked from <https://testrunner.codeplex.com/> revision 87713 on September 24th, 2016
+Forked from \<<https://testrunner.codeplex.com/>\> revision 87713 on September 24th, 2016
 
 
 Continuous Integration
