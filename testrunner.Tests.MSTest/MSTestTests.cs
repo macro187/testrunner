@@ -1,5 +1,7 @@
 ﻿using System;
+#if NET461
 using System.Configuration;
+#endif
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestRunner.Tests.ReferencedAssembly;
 
@@ -93,26 +95,19 @@ namespace TestRunner.Tests.MSTest
         [TestMethod]
         public void TestAssembly_Config_File_Is_Used()
         {
+            #if NET461
             //
             // Config file switching doesn't work on Mono
             // See https://bugzilla.xamarin.com/show_bug.cgi?id=15741
             //
             if (Type.GetType("Mono.Runtime") != null) return;
 
-            //
-            // Config file switching doesn't appear to work on .NET Core
-            //
-            #if NETCOREAPP2_0
-            return;
-            #else
-
             Assert.AreEqual(
                 "ConfigFileValue",
                 ConfigurationManager.AppSettings["ConfigFileKey"]);
-
             #endif
         }
-        
+
 
         //
         // If each [TestMethod] doesn't get its own [TestClass] instance, the second of these two tests to run will fail

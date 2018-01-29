@@ -1,5 +1,7 @@
 ﻿using System;
+#if NET461
 using System.Configuration;
+#endif
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace TestRunner.Tests.DifferentConfigValue
@@ -12,6 +14,7 @@ namespace TestRunner.Tests.DifferentConfigValue
         [TestMethod]
         public void TestAssembly_Config_File_Is_Used()
         {
+            #if NET461
             //
             // Config file switching doesn't work on Mono
             // See https://bugzilla.xamarin.com/show_bug.cgi?id=15741
@@ -20,6 +23,7 @@ namespace TestRunner.Tests.DifferentConfigValue
             Assert.AreEqual(
                 "DifferentConfigFileValue",
                 ConfigurationManager.AppSettings["ConfigFileKey"]);
+            #endif
         }
 
     }

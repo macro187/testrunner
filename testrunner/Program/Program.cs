@@ -1,5 +1,7 @@
 ﻿using System;
+#if NET461
 using System.Configuration;
+#endif
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -253,6 +255,7 @@ namespace TestRunner.Program
             string configPath = assemblyPath + ".config";
             if (!File.Exists(configPath)) return;
 
+            #if NET461
             AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
 
             //
@@ -298,6 +301,7 @@ namespace TestRunner.Program
                 Console.Out.WriteLine("WARNING: Running on Mono, configuration file will probably not take effect");
                 Console.Out.WriteLine("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
             }
+            #endif
         }
 
 
