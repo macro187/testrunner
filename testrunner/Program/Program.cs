@@ -106,15 +106,15 @@ namespace TestRunner.Program
         static void Banner()
         {
             var name = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName;
-            var description = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileDescription;
-            var major = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart;
-            var minor = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart;
+            var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
             var authors = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).CompanyName;
+
             WriteHeading(
-                StringExtensions.FormatInvariant("{0} - {1}", name, description),
-                StringExtensions.FormatInvariant("Version {0}.{1}", major, minor),
-                StringExtensions.FormatInvariant("{0} {1}", copyright, authors));
+                $"{name} v{version}",
+                copyright,
+                authors
+                );
         }
 
 
