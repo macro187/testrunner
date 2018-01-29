@@ -121,7 +121,7 @@ Building
 --------------
 
 ```
-C:\testrunner\> dotnet publish -f net461
+dotnet publish -f net461
 ```
 
 
@@ -129,7 +129,7 @@ C:\testrunner\> dotnet publish -f net461
 ---------
 
 ```
-C:\testrunner\> dotnet publish -f netcoreapp2.0
+dotnet publish -f netcoreapp2.0
 ```
 
 
