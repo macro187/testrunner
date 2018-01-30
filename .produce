@@ -1,2 +1,2 @@
-program: TestRunner/bin/Debug/net461/TestRunner.exe
+program: testrunner/bin/Debug/net461/testrunner.exe
 
