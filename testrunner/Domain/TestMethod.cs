@@ -2,7 +2,7 @@
 using System.Reflection;
 using TestRunner.Infrastructure;
 
-namespace TestRunner.Proxies
+namespace TestRunner.Domain
 {
 
     public class TestMethod

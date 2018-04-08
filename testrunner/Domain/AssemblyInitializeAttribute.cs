@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TestRunner.Proxies
+namespace TestRunner.Domain
 {
 
     class AssemblyInitializeAttribute : AttributeBase

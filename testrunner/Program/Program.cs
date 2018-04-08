@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using TestRunner.Infrastructure;
-using TestRunner.Proxies;
+using TestRunner.Domain;
 
 namespace TestRunner.Program
 {

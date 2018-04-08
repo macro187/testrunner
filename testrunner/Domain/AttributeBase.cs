@@ -1,7 +1,7 @@
 ﻿using System;
 using TestRunner.Infrastructure;
 
-namespace TestRunner.Proxies
+namespace TestRunner.Domain
 {
     public abstract class AttributeBase
     {

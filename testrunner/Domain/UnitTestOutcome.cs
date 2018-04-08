@@ -1,4 +1,4 @@
-﻿namespace TestRunner
+﻿namespace TestRunner.Domain
 {
     public enum UnitTestOutcome : int
     {

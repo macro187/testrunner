@@ -2,15 +2,15 @@
 using System.Data;
 using System.Data.Common;
 
-namespace TestRunner
+namespace TestRunner.Domain
 {
     static class TestContextImplementation
     {
 
-        // public static Microsoft.VisualStudio.TestTools.UnitTesting.UnitTestOutcome GetCurrentTestOutcome()
-        // {
-        //     return null;
-        // }
+        public static UnitTestOutcome GetCurrentTestOutcome()
+        {
+            return UnitTestOutcome.Unknown;
+        }
 
         public static DbConnection GetDataConnection()
         {
