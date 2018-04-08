@@ -357,15 +357,15 @@ namespace TestRunner.Program
                                 testClass.TestCleanupMethod,
                                 testClass))
                         {
-                            case TestResult.Passed:
+                            case UnitTestOutcome.Passed:
                                 passed++;
                                 ran++;
                                 break;
-                            case TestResult.Failed:
+                            case UnitTestOutcome.Failed:
                                 failed++;
                                 ran++;
                                 break;
-                            case TestResult.Ignored:
+                            case UnitTestOutcome.NotRunnable:
                                 ignored++;
                                 break;
                         }
@@ -422,7 +422,7 @@ namespace TestRunner.Program
         /// <returns>
         /// The results of the test
         /// </returns>
-        static TestResult RunTest(
+        static UnitTestOutcome RunTest(
             TestMethod testMethod,
             MethodInfo testInitializeMethod,
             MethodInfo testCleanupMethod,
@@ -434,7 +434,7 @@ namespace TestRunner.Program
             {
                 Console.Out.WriteLine();
                 Console.Out.WriteLine("Ignored because method is decorated with [Ignore]");
-                return TestResult.Ignored;
+                return UnitTestOutcome.NotRunnable;
             }
 
             //
@@ -478,7 +478,7 @@ namespace TestRunner.Program
             Console.Out.WriteLine();
             Console.Out.WriteLine(passed ? "Passed" : "FAILED");
 
-            return passed ? TestResult.Passed : TestResult.Failed;
+            return passed ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
         }
 
 
