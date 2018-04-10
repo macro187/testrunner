@@ -9,8 +9,11 @@ Description
 
 Lightweight, standalone, no external dependencies.
 
-Cross-platform, works on .NET Framework, .NET Core, Mono (probably), Windows,
-Linux, Mac OSX (probably).
+Cross-platform, works on .NET Framework, .NET Core, Mono, Windows, Linux, Mac
+OSX.
+
+>   TestRunner is currently **untested on Mono** and **not working on .NET
+>   Core**
 
 Reflection-based, runs test assemblies built against any version/variant of
 the MSTest dll.
