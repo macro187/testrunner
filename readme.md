@@ -12,9 +12,6 @@ Lightweight, standalone, no external dependencies.
 Cross-platform, works on .NET Framework, .NET Core, Mono, Windows, Linux, Mac
 OSX.
 
->   TestRunner is currently **untested on Mono** and **not working on .NET
->   Core**
-
 Reflection-based, runs test assemblies built against any version/variant of
 the MSTest dll.
 
@@ -144,6 +141,10 @@ Test assembly `.config` files not supported on Mono because of a
 
 Test assembly `.config` files not supported on .NET Core because it doesn't
 support them by design.
+
+Currently untested on Mono.
+
+Currently not working on .NET Core.
 
 
 License
