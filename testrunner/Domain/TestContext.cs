@@ -4,6 +4,12 @@ using System.Data.Common;
 
 namespace TestRunner.Domain
 {
+
+    /// <summary>
+    /// Property values and method implementations for the
+    /// <see cref="Microsoft.VisualStudio.TestTools.UnitTesting.TestContext"/> provided to test methods
+    /// </summary>
+    ///
     static class TestContext
     {
         
@@ -40,24 +46,6 @@ namespace TestRunner.Domain
 
         public static string TestRunResultsDirectory { get; set; }
 
-        public static void Clear()
-        {
-            CurrentTestOutcome = UnitTestOutcome.Unknown;
-            DataConnection = null;
-            DataRow = null;
-            DeploymentDirectory = null;
-            FullyQualifiedTestClassName = null;
-            Properties = null;
-            ResultsDirectory = null;
-            TestDeploymentDir = null;
-            TestDir = null;
-            TestLogsDir = null;
-            TestName = null;
-            TestResultsDirectory = null;
-            TestRunDirectory = null;
-            TestRunResultsDirectory = null;
-        }
-
         public static void AddResultFile(string fileName)
         {
         }
@@ -76,6 +64,24 @@ namespace TestRunner.Domain
 
         public static void WriteLine(string format, params object[] args)
         {
+        }
+
+        public static void Clear()
+        {
+            CurrentTestOutcome = UnitTestOutcome.Unknown;
+            DataConnection = null;
+            DataRow = null;
+            DeploymentDirectory = null;
+            FullyQualifiedTestClassName = null;
+            Properties = null;
+            ResultsDirectory = null;
+            TestDeploymentDir = null;
+            TestDir = null;
+            TestLogsDir = null;
+            TestName = null;
+            TestResultsDirectory = null;
+            TestRunDirectory = null;
+            TestRunResultsDirectory = null;
         }
 
     }

@@ -506,7 +506,7 @@ namespace TestRunner.Program
             var watch = new Stopwatch();
             watch.Start();
             bool success = false;
-            var parameters = takesTestContext ? new object[] {null} : null;
+            var parameters = takesTestContext ? new object[] { TestContextProxy.Proxy } : null;
             try
             {
                 method.Invoke(instance, parameters);
