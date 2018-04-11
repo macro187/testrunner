@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using TestRunner.Infrastructure;
 using TestRunner.Domain;
+using static TestRunner.Infrastructure.ConsoleExtensions;
 
 namespace TestRunner.Program
 {
@@ -43,11 +44,11 @@ namespace TestRunner.Program
                 ArgumentParser.Parse(args);
                 if (!ArgumentParser.Success)
                 {
-                    Console.Out.WriteLine();
-                    Console.Out.WriteLine(ArgumentParser.GetUsage());
-                    Console.Out.WriteLine();
-                    Console.Out.WriteLine();
-                    Console.Out.WriteLine(ArgumentParser.ErrorMessage);
+                    WriteLine();
+                    WriteLine(ArgumentParser.GetUsage());
+                    WriteLine();
+                    WriteLine();
+                    WriteLine(ArgumentParser.ErrorMessage);
                     return 1;
                 }
 
@@ -80,8 +81,8 @@ namespace TestRunner.Program
             //
             catch (UserException ue)
             {
-                Console.Out.WriteLine();
-                Console.Out.WriteLine(ue.Message);
+                WriteLine();
+                WriteLine(ue.Message);
                 return 1;
             }
 
@@ -90,11 +91,11 @@ namespace TestRunner.Program
             //
             catch (Exception e)
             {
-                Console.Out.WriteLine();
-                Console.Out.WriteLine(
+                WriteLine();
+                WriteLine(
                     "An internal error occurred in {0}:",
                     Path.GetFileName(Assembly.GetExecutingAssembly().Location));
-                Console.Out.WriteLine(ExceptionExtensions.FormatException(e));
+                WriteLine(ExceptionExtensions.FormatException(e));
                 return 1;
             }
         }
@@ -144,7 +145,7 @@ namespace TestRunner.Program
         {
             Guard.NotNull(assemblyPath, "assemblyPath");
 
-            Console.Out.WriteLine();
+            WriteLine();
             WriteHeading("Assembly: " + assemblyPath);
 
             //
@@ -153,8 +154,8 @@ namespace TestRunner.Program
             string fullAssemblyPath = GetFullAssemblyPath(assemblyPath);
             if (!File.Exists(fullAssemblyPath))
             {
-                Console.Out.WriteLine();
-                Console.Out.WriteLine("Test assembly not found: {0}", fullAssemblyPath);
+                WriteLine();
+                WriteLine("Test assembly not found: {0}", fullAssemblyPath);
                 return false;
             }
 
@@ -168,20 +169,20 @@ namespace TestRunner.Program
             }
             catch (BadImageFormatException)
             {
-                Console.Out.WriteLine();
-                Console.Out.WriteLine("Not a .NET assembly: {0}", fullAssemblyPath);
+                WriteLine();
+                WriteLine("Not a .NET assembly: {0}", fullAssemblyPath);
                 return true;
             }
             var testAssembly = TestAssembly.TryCreate(assembly);
             if (testAssembly == null)
             {
-                Console.Out.WriteLine();
-                Console.Out.WriteLine("Not a test assembly: {0}", fullAssemblyPath);
+                WriteLine();
+                WriteLine("Not a test assembly: {0}", fullAssemblyPath);
                 return true;
             }
-            Console.Out.WriteLine();
-            Console.Out.WriteLine("Test Assembly:");
-            Console.Out.WriteLine(assembly.Location);
+            WriteLine();
+            WriteLine("Test Assembly:");
+            WriteLine(assembly.Location);
 
             //
             // Use the test assembly's .config file if present
@@ -291,15 +292,15 @@ namespace TestRunner.Program
                 currentField.SetValue(null, null);
             }
 
-            Console.Out.WriteLine();
-            Console.Out.WriteLine("Configuration File:");
-            Console.Out.WriteLine(configPath);
+            WriteLine();
+            WriteLine("Configuration File:");
+            WriteLine(configPath);
 
             if (Type.GetType("Mono.Runtime") != null)
             {
-                Console.Out.WriteLine();
-                Console.Out.WriteLine("WARNING: Running on Mono, configuration file will probably not take effect");
-                Console.Out.WriteLine("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
+                WriteLine();
+                WriteLine("WARNING: Running on Mono, configuration file will probably not take effect");
+                WriteLine("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
             }
             #endif
         }
@@ -315,7 +316,7 @@ namespace TestRunner.Program
         {
             Guard.NotNull(testClass, "testClass");
 
-            Console.Out.WriteLine();
+            WriteLine();
             WriteHeading(testClass.FullName);
 
             bool classInitializeSucceeded = false;
@@ -327,8 +328,8 @@ namespace TestRunner.Program
 
             if (testClass.IsIgnored)
             {
-                Console.Out.WriteLine();
-                Console.Out.WriteLine("Ignoring all tests because class is decorated with [Ignore]");
+                WriteLine();
+                WriteLine("Ignoring all tests because class is decorated with [Ignore]");
                 ignored = testClass.TestMethods.Count;
             }
             else
@@ -387,19 +388,19 @@ namespace TestRunner.Program
             // Print results
             //
             WriteSubheading("Summary");
-            Console.Out.WriteLine();
-            Console.Out.WriteLine("ClassInitialize: {0}",
+            WriteLine();
+            WriteLine("ClassInitialize: {0}",
                 testClass.ClassInitializeMethod == null
                     ? "Not present"
                     : classInitializeSucceeded
                         ? "Succeeded"
                         : "Failed");
-            Console.Out.WriteLine("Total:           {0} tests", testClass.TestMethods.Count);
-            Console.Out.WriteLine("Ran:             {0} tests", ran);
-            Console.Out.WriteLine("Ignored:         {0} tests", ignored);
-            Console.Out.WriteLine("Passed:          {0} tests", passed);
-            Console.Out.WriteLine("Failed:          {0} tests", failed);
-            Console.Out.WriteLine("ClassCleanup:    {0}",
+            WriteLine("Total:           {0} tests", testClass.TestMethods.Count);
+            WriteLine("Ran:             {0} tests", ran);
+            WriteLine("Ignored:         {0} tests", ignored);
+            WriteLine("Passed:          {0} tests", passed);
+            WriteLine("Failed:          {0} tests", failed);
+            WriteLine("ClassCleanup:    {0}",
                 testClass.ClassCleanupMethod == null
                     ? "Not present"
                     : classCleanupSucceeded
@@ -432,8 +433,8 @@ namespace TestRunner.Program
 
             if (testMethod.IsIgnored)
             {
-                Console.Out.WriteLine();
-                Console.Out.WriteLine("Ignored because method is decorated with [Ignore]");
+                WriteLine();
+                WriteLine("Ignored because method is decorated with [Ignore]");
                 return UnitTestOutcome.NotRunnable;
             }
 
@@ -475,8 +476,8 @@ namespace TestRunner.Program
 
             bool passed = testInitializeSucceeded && testMethodSucceeded && testCleanupSucceeded;
 
-            Console.Out.WriteLine();
-            Console.Out.WriteLine(passed ? "Passed" : "FAILED");
+            WriteLine();
+            WriteLine(passed ? "Passed" : "FAILED");
 
             return passed ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
         }
@@ -500,8 +501,8 @@ namespace TestRunner.Program
 
             if (method == null) return true;
 
-            Console.Out.WriteLine();
-            Console.Out.WriteLine(prefix + (string.IsNullOrEmpty(prefix) ? "" : " ") + method.Name + "()");
+            WriteLine();
+            WriteLine(prefix + (string.IsNullOrEmpty(prefix) ? "" : " ") + method.Name + "()");
 
             var watch = new Stopwatch();
             watch.Start();
@@ -527,46 +528,15 @@ namespace TestRunner.Program
                 if (expected)
                 {
                     success = true;
-                    Console.Out.WriteLine("  [ExpectedException] {0} occurred:", expectedException.FullName);
+                    WriteLine("  [ExpectedException] {0} occurred:", expectedException.FullName);
                 }
-                Console.Out.WriteLine(StringExtensions.Indent(ExceptionExtensions.FormatException(ex)));
+                WriteLine(StringExtensions.Indent(ExceptionExtensions.FormatException(ex)));
             }
 
-            Console.Out.WriteLine("  {0} ({1:N0} ms)", success ? "Succeeded" : "Failed", watch.ElapsedMilliseconds);
+            WriteLine("  {0} ({1:N0} ms)", success ? "Succeeded" : "Failed", watch.ElapsedMilliseconds);
 
             return success;
         }
-
-
-        static void WriteHeading(params string[] lines)
-        {
-            WriteHeading('=', lines);
-        }
-
-
-        static void WriteSubheading(params string[] lines)
-        {
-            WriteHeading('-', lines);
-        }
-
-
-        static void WriteHeading(char ruleCharacter, params string[] lines)
-        {
-            if (lines == null) return;
-            if (lines.Length == 0) return;
-
-            var longestLine = lines.Max(line => line.Length);
-            var rule = new string(ruleCharacter, longestLine);
-
-            Console.Out.WriteLine();
-            Console.Out.WriteLine(rule);
-            foreach (var line in lines)
-            {
-                Console.Out.WriteLine(line);
-            }
-            Console.Out.WriteLine(rule);
-        }
-
 
     }
 }

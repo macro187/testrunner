@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using TestRunner.Infrastructure;
+using static TestRunner.Infrastructure.ConsoleExtensions;
 
 namespace TestRunner.Domain
 {
@@ -72,7 +73,7 @@ namespace TestRunner.Domain
             {
                 foreach (var le in e.LoaderExceptions)
                 {
-                    Console.WriteLine(ExceptionExtensions.FormatException(le));
+                    WriteLine(ExceptionExtensions.FormatException(le));
                 }
                 throw;
             }
