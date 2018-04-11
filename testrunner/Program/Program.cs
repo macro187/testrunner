@@ -196,7 +196,7 @@ namespace TestRunner.Program
             // Run [AssemblyInitialize] method
             //
             assemblyInitializeSucceeded =
-                RunMethod(
+                MethodRunner.Run(
                     testAssembly.AssemblyInitializeMethod, null,
                     true,
                     null, false,
@@ -222,7 +222,7 @@ namespace TestRunner.Program
                 // Run [AssemblyCleanup] method
                 //
                 assemblyCleanupSucceeded =
-                    RunMethod(
+                    MethodRunner.Run(
                         testAssembly.AssemblyCleanupMethod, null,
                         false,
                         null, false,
@@ -279,7 +279,7 @@ namespace TestRunner.Program
                 // Run [ClassInitialize] method
                 //
                 classInitializeSucceeded =
-                    RunMethod(
+                    MethodRunner.Run(
                         testClass.ClassInitializeMethod, null,
                         true,
                         null, false,
@@ -317,7 +317,7 @@ namespace TestRunner.Program
                     // Run [ClassCleanup] method
                     //
                     classCleanupSucceeded =
-                        RunMethod(
+                        MethodRunner.Run(
                             testClass.ClassCleanupMethod, null,
                             false,
                             null, false,
@@ -392,7 +392,7 @@ namespace TestRunner.Program
             bool testCleanupSucceeded = false;
 
             testInitializeSucceeded =
-                RunMethod(
+                MethodRunner.Run(
                     testInitializeMethod, testInstance,
                     false,
                     null, false,
@@ -401,14 +401,14 @@ namespace TestRunner.Program
             if (testInitializeSucceeded)
             {
                 testMethodSucceeded =
-                    RunMethod(
+                    MethodRunner.Run(
                         testMethod.MethodInfo, testInstance,
                         false,
                         testMethod.ExpectedException, testMethod.AllowDerivedExpectedExceptionTypes,
                         "[TestMethod]");
 
                 testCleanupSucceeded =
-                    RunMethod(
+                    MethodRunner.Run(
                         testCleanupMethod, testInstance,
                         false,
                         null, false,
@@ -423,61 +423,6 @@ namespace TestRunner.Program
             return passed ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
         }
 
-
-        /// <summary>
-        /// Run a test-related method using reflection
-        /// </summary>
-        /// <returns>
-        /// Whether the method ran successfully
-        /// </returns>
-        static bool RunMethod(
-            MethodInfo method,
-            object instance,
-            bool takesTestContext,
-            Type expectedException,
-            bool expectedExceptionAllowDerived,
-            string prefix)
-        {
-            prefix = prefix ?? "";
-
-            if (method == null) return true;
-
-            WriteLine();
-            WriteLine(prefix + (string.IsNullOrEmpty(prefix) ? "" : " ") + method.Name + "()");
-
-            var watch = new Stopwatch();
-            watch.Start();
-            bool success = false;
-            var parameters = takesTestContext ? new object[] { TestContextProxy.Proxy } : null;
-            try
-            {
-                method.Invoke(instance, parameters);
-                watch.Stop();
-                success = true;
-            }
-            catch (TargetInvocationException tie)
-            {
-                watch.Stop();
-                var ex = tie.InnerException;
-                bool expected = 
-                    expectedException != null &&
-                    (
-                        ex.GetType() == expectedException ||
-                        (expectedExceptionAllowDerived && ex.GetType().IsSubclassOf(expectedException))
-                    );
-                    
-                if (expected)
-                {
-                    success = true;
-                    WriteLine("  [ExpectedException] {0} occurred:", expectedException.FullName);
-                }
-                WriteLine(StringExtensions.Indent(ExceptionExtensions.FormatException(ex)));
-            }
-
-            WriteLine("  {0} ({1:N0} ms)", success ? "Succeeded" : "Failed", watch.ElapsedMilliseconds);
-
-            return success;
-        }
 
     }
 }
