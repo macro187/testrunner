@@ -12,10 +12,102 @@ namespace TestRunner.Program
     /// <summary>
     /// Command line argument parser
     /// </summary>
-    internal class ArgumentParser
+    ///
+    static class ArgumentParser
     {
         
-        public ArgumentParser(string[] args)
+        /// <summary>
+        /// Were the command line arguments valid?
+        /// </summary>
+        ///
+        static public bool Success
+        {
+            get;
+            private set;
+        }
+
+
+        /// <summary>
+        /// User-facing error message if not <see cref="Success"/>
+        /// </summary>
+        ///
+        static public string ErrorMessage
+        {
+            get;
+            private set;
+        }
+
+
+        static public bool InProc
+        {
+            get;
+            private set;
+        }
+
+
+        /// <summary>
+        /// Path(s) to test assemblies listed on the command line
+        /// </summary>
+        ///
+        static public IList<string> AssemblyPaths
+        {
+            get
+            {
+                return new ReadOnlyCollection<string>(_assemblyPaths);
+            }
+        }
+
+        static List<string> _assemblyPaths;
+
+
+        /// <summary>
+        /// Produce user-facing command line usage information
+        /// </summary>
+        ///
+        static public string GetUsage()
+        {
+            var fileName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            bool isUnix = new[] { PlatformID.Unix, PlatformID.MacOSX }.Contains(Environment.OSVersion.Platform);
+            var shellPrefix =
+                isUnix
+                    ? "$"
+                    : "C:\\>";
+            var examplePath =
+                isUnix
+                    ? "/path/to/"
+                    : "C:\\path\\to\\";
+
+            return
+                StringExtensions.FormatInvariant(
+                    string.Join(
+                        Environment.NewLine,
+                        new[] {
+                            "SYNOPSIS",
+                            "",
+                            "    {0} <assemblypath> [<assemblypath> [...]]",
+                            "",
+                            "OPTIONS",
+                            "",
+                            "    <assemblypath>",
+                            "        Path to a file that may be an assembly containing MSTest unit tests",
+                            "",
+                            "EXAMPLES",
+                            "",
+                            "    {1} {0} TestAssembly.dll AnotherTestAssembly.dll",
+                            "",
+                            "    {1} {0} {2}TestAssembly.dll {2}AnotherTestAssembly.dll",
+                            }),
+                    fileName,
+                    shellPrefix,
+                    examplePath);
+        }
+
+
+        /// <summary>
+        /// Parse command line arguments
+        /// </summary>
+        ///
+        static public void Parse(string[] args)
         {
             Success = false;
             ErrorMessage = "";
@@ -25,52 +117,7 @@ namespace TestRunner.Program
         }
 
 
-        /// <summary>
-        /// User-facing command line usage information
-        /// </summary>
-        public static string Usage
-        {
-            get
-            {
-                var fileName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-                bool isUnix = new[] { PlatformID.Unix, PlatformID.MacOSX }.Contains(Environment.OSVersion.Platform);
-                var shellPrefix =
-                    isUnix
-                        ? "$"
-                        : "C:\\>";
-                var examplePath =
-                    isUnix
-                        ? "/path/to/"
-                        : "C:\\path\\to\\";
-
-                return
-                    StringExtensions.FormatInvariant(
-                        string.Join(
-                            Environment.NewLine,
-                            new[] {
-                                "SYNOPSIS",
-                                "",
-                                "    {0} <assemblypath> [<assemblypath> [...]]",
-                                "",
-                                "OPTIONS",
-                                "",
-                                "    <assemblypath>",
-                                "        Path to a file that may be an assembly containing MSTest unit tests",
-                                "",
-                                "EXAMPLES",
-                                "",
-                                "    {1} {0} TestAssembly.dll AnotherTestAssembly.dll",
-                                "",
-                                "    {1} {0} {2}TestAssembly.dll {2}AnotherTestAssembly.dll",
-                                }),
-                        fileName,
-                        shellPrefix,
-                        examplePath);
-            }
-        }
-
-
-        void Parse(Queue<string> args)
+        static void Parse(Queue<string> args)
         {
             for (;;)
             {
@@ -107,47 +154,6 @@ namespace TestRunner.Program
 
             Success = true;
         }
-
-
-        /// <summary>
-        /// Were the command line arguments valid?
-        /// </summary>
-        public bool Success
-        {
-            get;
-            private set;
-        }
-
-
-        /// <summary>
-        /// User-facing error message if not <see cref="Success"/>
-        /// </summary>
-        public string ErrorMessage
-        {
-            get;
-            private set;
-        }
-
-
-        public bool InProc
-        {
-            get;
-            private set;
-        }
-
-
-        /// <summary>
-        /// Path(s) to test assemblies listed on the command line
-        /// </summary>
-        public IList<string> AssemblyPaths
-        {
-            get
-            {
-                return new ReadOnlyCollection<string>(_assemblyPaths);
-            }
-        }
-
-        List<string> _assemblyPaths;
 
     }
 }

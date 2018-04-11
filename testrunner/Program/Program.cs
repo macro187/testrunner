@@ -40,23 +40,23 @@ namespace TestRunner.Program
                 //
                 // Parse arguments
                 //
-                var argumentParser = new ArgumentParser(args);
-                if (!argumentParser.Success)
+                ArgumentParser.Parse(args);
+                if (!ArgumentParser.Success)
                 {
                     Console.Out.WriteLine();
-                    Console.Out.WriteLine(ArgumentParser.Usage);
+                    Console.Out.WriteLine(ArgumentParser.GetUsage());
                     Console.Out.WriteLine();
                     Console.Out.WriteLine();
-                    Console.Out.WriteLine(argumentParser.ErrorMessage);
+                    Console.Out.WriteLine(ArgumentParser.ErrorMessage);
                     return 1;
                 }
 
                 //
                 // If --inproc <testassembly>, run tests in <testassembly>
                 //
-                if (argumentParser.InProc)
+                if (ArgumentParser.InProc)
                 {
-                    return RunTestAssembly(argumentParser.AssemblyPaths[0]) ? 0 : 1;
+                    return RunTestAssembly(ArgumentParser.AssemblyPaths[0]) ? 0 : 1;
                 }
 
                 //
@@ -68,7 +68,7 @@ namespace TestRunner.Program
                 // Reinvoke TestRunner --inproc for each <testassembly> on command line
                 //
                 bool success = true;
-                foreach (var assemblyPath in argumentParser.AssemblyPaths)
+                foreach (var assemblyPath in ArgumentParser.AssemblyPaths)
                 {
                     if (ExecuteInNewProcess(assemblyPath) != 0) success = false;
                 }
