@@ -1,7 +1,4 @@
 ﻿using System;
-#if NET461
-using System.Configuration;
-#endif
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
