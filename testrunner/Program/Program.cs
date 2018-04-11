@@ -53,7 +53,7 @@ namespace TestRunner.Program
                 //
                 if (ArgumentParser.InProc)
                 {
-                    return RunTestAssembly(ArgumentParser.AssemblyPaths[0]) ? 0 : 1;
+                    return TestAssemblyRunner.Run(ArgumentParser.AssemblyPaths[0]) ? 0 : 1;
                 }
 
                 //
@@ -126,121 +126,6 @@ namespace TestRunner.Program
             //
             var testRunner = Assembly.GetExecutingAssembly().Location;
             return ProcessExtensions.Execute(testRunner, "--inproc \"" + assemblyPath + "\"").ExitCode;
-        }
-
-
-        /// <summary>
-        /// Run tests in a test assembly
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage(
-            "Microsoft.Reliability",
-            "CA2001:AvoidCallingProblematicMethods",
-            MessageId = "System.Reflection.Assembly.LoadFrom",
-            Justification = "Need to load assemblies in order to run tests")]
-        static bool RunTestAssembly(string assemblyPath)
-        {
-            Guard.NotNull(assemblyPath, "assemblyPath");
-
-            WriteLine();
-            WriteHeading("Assembly: " + assemblyPath);
-
-            //
-            // Resolve full path to test assembly
-            //
-            string fullAssemblyPath = GetFullAssemblyPath(assemblyPath);
-            if (!File.Exists(fullAssemblyPath))
-            {
-                WriteLine();
-                WriteLine("Test assembly not found: {0}", fullAssemblyPath);
-                return false;
-            }
-
-            //
-            // Load test assembly
-            //
-            Assembly assembly;
-            try
-            {
-                assembly = Assembly.LoadFrom(fullAssemblyPath);
-            }
-            catch (BadImageFormatException)
-            {
-                WriteLine();
-                WriteLine("Not a .NET assembly: {0}", fullAssemblyPath);
-                return true;
-            }
-            var testAssembly = TestAssembly.TryCreate(assembly);
-            if (testAssembly == null)
-            {
-                WriteLine();
-                WriteLine("Not a test assembly: {0}", fullAssemblyPath);
-                return true;
-            }
-            WriteLine();
-            WriteLine("Test Assembly:");
-            WriteLine(assembly.Location);
-
-            //
-            // Use the test assembly's .config file if present
-            //
-            ConfigFileSwitcher.SwitchTo(fullAssemblyPath + ".config");
-
-            bool assemblyInitializeSucceeded = false;
-            int failed = 0;
-            bool assemblyCleanupSucceeded = false;
-
-            //
-            // Run [AssemblyInitialize] method
-            //
-            assemblyInitializeSucceeded =
-                MethodRunner.Run(
-                    testAssembly.AssemblyInitializeMethod, null,
-                    true,
-                    null, false,
-                    "[AssemblyInitialize]");
-
-            if (assemblyInitializeSucceeded)
-            {
-                //
-                // Run tests in each [TestClass]
-                //
-                if (assemblyInitializeSucceeded)
-                {
-                    foreach (var testClass in testAssembly.TestClasses)
-                    {
-                        if (!TestClassRunner.Run(testClass))
-                        {
-                            failed++;
-                        }
-                    }
-                }
-
-                //
-                // Run [AssemblyCleanup] method
-                //
-                assemblyCleanupSucceeded =
-                    MethodRunner.Run(
-                        testAssembly.AssemblyCleanupMethod, null,
-                        false,
-                        null, false,
-                        "[AssemblyCleanup]");
-            }
-
-            return
-                assemblyInitializeSucceeded &&
-                failed == 0 &&
-                assemblyCleanupSucceeded;
-        }
-
-
-        /// <summary>
-        /// Resolve full path to test assembly
-        /// </summary>
-        static string GetFullAssemblyPath(string path)
-        {
-            return Path.IsPathRooted(path)
-                ? path
-                : Path.Combine(Environment.CurrentDirectory, path);
         }
 
 
