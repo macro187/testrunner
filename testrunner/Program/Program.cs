@@ -4,7 +4,6 @@ using System.Configuration;
 #endif
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using TestRunner.Infrastructure;
 using TestRunner.Domain;
@@ -187,7 +186,7 @@ namespace TestRunner.Program
             //
             // Use the test assembly's .config file if present
             //
-            UseConfigFile(fullAssemblyPath);
+            ConfigFileSwitcher.SwitchTo(fullAssemblyPath + ".config");
 
             bool assemblyInitializeSucceeded = false;
             int failed = 0;
@@ -245,64 +244,6 @@ namespace TestRunner.Program
             return Path.IsPathRooted(path)
                 ? path
                 : Path.Combine(Environment.CurrentDirectory, path);
-        }
-
-
-        /// <summary>
-        /// Use the test assembly's .config file, if one is present
-        /// </summary>
-        static void UseConfigFile(string assemblyPath)
-        {
-            string configPath = assemblyPath + ".config";
-            if (!File.Exists(configPath)) return;
-
-            #if NET461
-            AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
-
-            //
-            // The following hackery forces the new config file to take effect
-            //
-            // See http://stackoverflow.com/questions/6150644/change-default-app-config-at-runtime/6151688#6151688
-            //
-            var initStateField =
-                typeof(ConfigurationManager).GetField("s_initState", BindingFlags.NonPublic | BindingFlags.Static);
-            if (initStateField != null)
-            {
-                initStateField.SetValue(null, 0);
-            }
-
-            var configSystemField =
-                typeof(ConfigurationManager).GetField("s_configSystem", BindingFlags.NonPublic | BindingFlags.Static);
-            if (configSystemField != null)
-            {
-                configSystemField.SetValue(null, null);
-            }
-
-            var clientConfigPathsType =
-                typeof(ConfigurationManager)
-                    .Assembly
-                    .GetTypes()
-                    .FirstOrDefault(x => x.FullName == "System.Configuration.ClientConfigPaths");
-            var currentField =
-                clientConfigPathsType != null
-                    ? clientConfigPathsType.GetField("s_current", BindingFlags.NonPublic | BindingFlags.Static)
-                    : null;
-            if (currentField != null)
-            {
-                currentField.SetValue(null, null);
-            }
-
-            WriteLine();
-            WriteLine("Configuration File:");
-            WriteLine(configPath);
-
-            if (Type.GetType("Mono.Runtime") != null)
-            {
-                WriteLine();
-                WriteLine("WARNING: Running on Mono, configuration file will probably not take effect");
-                WriteLine("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
-            }
-            #endif
         }
 
 
