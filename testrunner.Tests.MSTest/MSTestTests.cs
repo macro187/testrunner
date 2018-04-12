@@ -21,6 +21,9 @@ namespace TestRunner.Tests.MSTest
         object isInstanceNewLock = new object();
 
 
+        public TestContext TestContext { get; set; }
+
+
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext testContext)
         {
@@ -80,6 +83,13 @@ namespace TestRunner.Tests.MSTest
             Assert.IsTrue(
                 classInitializeReceivedTestContext,
                 "[ClassInitialize] method did not receive a TestContext instance");
+        }
+
+
+        [TestMethod]
+        public void TestContext_Available_During_TestMethod()
+        {
+            Assert.IsNotNull(TestContext, "TestContext not available during [TestMethod]");
         }
 
 

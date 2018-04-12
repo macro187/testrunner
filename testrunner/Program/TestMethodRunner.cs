@@ -41,6 +41,18 @@ namespace TestRunner.Program
             var testInstance = Activator.CreateInstance(testClass.Type);
 
             //
+            // Set the instance's TestContext property, if present
+            //
+            if (testClass.TestContextSetter != null)
+            {
+                MethodRunner.Run(
+                    testClass.TestContextSetter, testInstance,
+                    true,
+                    null, false,
+                    null);
+            }
+
+            //
             // Invoke [TestInitialize], [TestMethod], and [TestCleanup]
             //
             bool testInitializeSucceeded = false;

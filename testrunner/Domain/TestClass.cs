@@ -29,6 +29,7 @@ namespace TestRunner.Domain
             FindClassCleanupMethod();
             FindTestInitializeMethod();
             FindTestCleanupMethod();
+            FindTestContextSetter();
         }
 
 
@@ -93,6 +94,18 @@ namespace TestRunner.Domain
 
 
         public MethodInfo TestCleanupMethod
+        {
+            get;
+            private set;
+        }
+
+
+        /// <summary>
+        /// Setter method for the test class' <c>TestContext</c> property OR <c>null</c> if it doesn't have one OR
+        /// <c>null</c> if it is read-only
+        /// </summary>
+        ///
+        public MethodInfo TestContextSetter
         {
             get;
             private set;
@@ -245,6 +258,21 @@ namespace TestRunner.Domain
                 return;
             
             TestCleanupMethod = methods[0];
+        }
+
+
+        void FindTestContextSetter()
+        {
+            var property = Type.GetProperty("TestContext", BindingFlags.Instance | BindingFlags.Public);
+            if (property == null) return;
+
+            var type = property.PropertyType.FullName;
+            if (type != "Microsoft.VisualStudio.TestTools.UnitTesting.TestContext") return;
+
+            var setter = property.SetMethod;
+            if (setter == null) return;
+
+            TestContextSetter = setter;
         }
 
     }
