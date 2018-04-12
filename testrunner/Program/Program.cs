@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using TestRunner.Infrastructure;
-using TestRunner.Domain;
 using static TestRunner.Infrastructure.ConsoleExtensions;
 
 namespace TestRunner.Program
@@ -11,12 +10,16 @@ namespace TestRunner.Program
     static class Program
     {
 
-        /// <summary>
-        /// Program entry point
-        /// </summary>
+        static readonly string ProgramPath = Assembly.GetExecutingAssembly().Location;
+        static readonly string ProgramName = Path.GetFileName(ProgramPath);
+
+
         [STAThread]
         static void Main(string[] args)
         {
+            //
+            // Exit the program immediately, killing off any background threads
+            //
             Environment.Exit(Main2(args));
         }
 
@@ -29,47 +32,7 @@ namespace TestRunner.Program
         {
             try
             {
-                //
-                // Route trace output to stdout
-                //
-                Trace.Listeners.Add(new TestRunnerTraceListener());
-
-                //
-                // Parse arguments
-                //
-                ArgumentParser.Parse(args);
-                if (!ArgumentParser.Success)
-                {
-                    WriteLine();
-                    WriteLine(ArgumentParser.GetUsage());
-                    WriteLine();
-                    WriteLine();
-                    WriteLine(ArgumentParser.ErrorMessage);
-                    return 1;
-                }
-
-                //
-                // If --inproc <testassembly>, run tests in <testassembly>
-                //
-                if (ArgumentParser.InProc)
-                {
-                    return TestAssemblyRunner.Run(ArgumentParser.AssemblyPaths[0]) ? 0 : 1;
-                }
-
-                //
-                // Print program banner
-                //
-                Banner();
-
-                //
-                // Reinvoke TestRunner --inproc for each <testassembly> on command line
-                //
-                bool success = true;
-                foreach (var assemblyPath in ArgumentParser.AssemblyPaths)
-                {
-                    if (ExecuteInNewProcess(assemblyPath) != 0) success = false;
-                }
-                return success ? 0 : 1;
+                return Main3(args);
             }
 
             //
@@ -88,11 +51,61 @@ namespace TestRunner.Program
             catch (Exception e)
             {
                 WriteLine();
-                WriteLine(
-                    "An internal error occurred in {0}:",
-                    Path.GetFileName(Assembly.GetExecutingAssembly().Location));
+                WriteLine("An internal error occurred in {0}:", ProgramName);
                 WriteLine(ExceptionExtensions.FormatException(e));
                 return 1;
+            }
+        }
+
+
+        static int Main3(string[] args)
+        {
+            //
+            // Route trace output to stdout
+            //
+            Trace.Listeners.Add(new TestRunnerTraceListener());
+
+            //
+            // Parse arguments
+            //
+            ArgumentParser.Parse(args);
+            if (!ArgumentParser.Success)
+            {
+                WriteLine();
+                WriteLine(ArgumentParser.GetUsage());
+                WriteLine();
+                WriteLine();
+                WriteLine(ArgumentParser.ErrorMessage);
+                return 1;
+            }
+
+            //
+            // Parent process: Print the program banner and invoke TestRunner --inproc child processes for each
+            // <testassembly> specified on the command line
+            //
+            if (!ArgumentParser.InProc)
+            {
+                Banner();
+                bool success = true;
+                foreach (var assemblyPath in ArgumentParser.AssemblyPaths)
+                {
+                    var exitCode = 
+                        ProcessExtensions.Execute(
+                            ProgramPath,
+                            "--inproc \"" + assemblyPath + "\"")
+                        .ExitCode;
+
+                    if (exitCode != 0) success = false;
+                }
+                return success ? 0 : 1;
+            }
+
+            //
+            // Child process: Run the tests in the specified <testassembly>
+            //
+            else
+            {
+                return TestAssemblyRunner.Run(ArgumentParser.AssemblyPaths[0]) ? 0 : 1;
             }
         }
 
@@ -100,6 +113,7 @@ namespace TestRunner.Program
         /// <summary>
         /// Print program information
         /// </summary>
+        ///
         static void Banner()
         {
             var name = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName;
@@ -113,21 +127,6 @@ namespace TestRunner.Program
                 authors
                 );
         }
-
-
-        /// <summary>
-        /// Reinvoke TestRunner to run tests in a test assembly in a separate process
-        /// </summary>
-        static int ExecuteInNewProcess(string assemblyPath)
-        {
-            //
-            // TODO
-            // Teach how to reinvoke using mono.exe if that's how the initial invocation was done
-            //
-            var testRunner = Assembly.GetExecutingAssembly().Location;
-            return ProcessExtensions.Execute(testRunner, "--inproc \"" + assemblyPath + "\"").ExitCode;
-        }
-
 
     }
 }
