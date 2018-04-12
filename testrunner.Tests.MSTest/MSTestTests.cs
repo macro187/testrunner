@@ -13,7 +13,9 @@ namespace TestRunner.Tests.MSTest
     {
 
         static bool assemblyInitializeRan = false;
+        static bool assemblyInitializeReceivedTestContext = false;
         static bool classInitializeRan = false;
+        static bool classInitializeReceivedTestContext = false;
         bool testInitializeRan = false;
         bool isInstanceNew  = true;
         object isInstanceNewLock = new object();
@@ -22,6 +24,7 @@ namespace TestRunner.Tests.MSTest
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext testContext)
         {
+            assemblyInitializeReceivedTestContext = testContext != null;
             assemblyInitializeRan = true;
         }
 
@@ -29,6 +32,7 @@ namespace TestRunner.Tests.MSTest
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
+            classInitializeReceivedTestContext = testContext != null;
             classInitializeRan = true;
         }
 
@@ -58,6 +62,24 @@ namespace TestRunner.Tests.MSTest
         public void TestInitialize_Runs()
         {
             Assert.IsTrue(testInitializeRan, "[TestInitialize] method did not run");
+        }
+
+
+        [TestMethod]
+        public void AssemblyInitialize_Receives_TestContext()
+        {
+            Assert.IsTrue(
+                assemblyInitializeReceivedTestContext,
+                "[AssemblyInitialize] method did not receive a TestContext instance");
+        }
+
+
+        [TestMethod]
+        public void ClassInitialize_Receives_TestContext()
+        {
+            Assert.IsTrue(
+                classInitializeReceivedTestContext,
+                "[ClassInitialize] method did not receive a TestContext instance");
         }
 
 
