@@ -26,69 +26,77 @@ namespace TestRunner.Program
             MethodInfo testCleanupMethod,
             TestClass testClass)
         {
-            WriteSubheading(testMethod.Name.Replace("_", " "));
-
-            if (testMethod.IsIgnored)
+            TestContext.TestName = testMethod.Name;
+            try
             {
-                WriteLine();
-                WriteLine("Ignored because method is decorated with [Ignore]");
-                return UnitTestOutcome.NotRunnable;
-            }
+                WriteSubheading(testMethod.Name.Replace("_", " "));
 
-            //
-            // Construct an instance of the test class
-            //
-            var testInstance = Activator.CreateInstance(testClass.Type);
+                if (testMethod.IsIgnored)
+                {
+                    WriteLine();
+                    WriteLine("Ignored because method is decorated with [Ignore]");
+                    return UnitTestOutcome.NotRunnable;
+                }
 
-            //
-            // Set the instance's TestContext property, if present
-            //
-            if (testClass.TestContextSetter != null)
-            {
-                MethodRunner.Run(
-                    testClass.TestContextSetter, testInstance,
-                    true,
-                    null, false,
-                    null);
-            }
+                //
+                // Construct an instance of the test class
+                //
+                var testInstance = Activator.CreateInstance(testClass.Type);
 
-            //
-            // Invoke [TestInitialize], [TestMethod], and [TestCleanup]
-            //
-            bool testInitializeSucceeded = false;
-            bool testMethodSucceeded = false;
-            bool testCleanupSucceeded = false;
-
-            testInitializeSucceeded =
-                MethodRunner.Run(
-                    testInitializeMethod, testInstance,
-                    false,
-                    null, false,
-                    "[TestInitialize]");
-
-            if (testInitializeSucceeded)
-            {
-                testMethodSucceeded =
+                //
+                // Set the instance's TestContext property, if present
+                //
+                if (testClass.TestContextSetter != null)
+                {
                     MethodRunner.Run(
-                        testMethod.MethodInfo, testInstance,
-                        false,
-                        testMethod.ExpectedException, testMethod.AllowDerivedExpectedExceptionTypes,
-                        "[TestMethod]");
+                        testClass.TestContextSetter, testInstance,
+                        true,
+                        null, false,
+                        null);
+                }
 
-                testCleanupSucceeded =
+                //
+                // Invoke [TestInitialize], [TestMethod], and [TestCleanup]
+                //
+                bool testInitializeSucceeded = false;
+                bool testMethodSucceeded = false;
+                bool testCleanupSucceeded = false;
+
+                testInitializeSucceeded =
                     MethodRunner.Run(
-                        testCleanupMethod, testInstance,
+                        testInitializeMethod, testInstance,
                         false,
                         null, false,
-                        "[TestCleanup]");
+                        "[TestInitialize]");
+
+                if (testInitializeSucceeded)
+                {
+                    testMethodSucceeded =
+                        MethodRunner.Run(
+                            testMethod.MethodInfo, testInstance,
+                            false,
+                            testMethod.ExpectedException, testMethod.AllowDerivedExpectedExceptionTypes,
+                            "[TestMethod]");
+
+                    testCleanupSucceeded =
+                        MethodRunner.Run(
+                            testCleanupMethod, testInstance,
+                            false,
+                            null, false,
+                            "[TestCleanup]");
+                }
+
+                bool passed = testInitializeSucceeded && testMethodSucceeded && testCleanupSucceeded;
+
+                WriteLine();
+                WriteLine(passed ? "Passed" : "FAILED");
+
+                return passed ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
             }
-
-            bool passed = testInitializeSucceeded && testMethodSucceeded && testCleanupSucceeded;
-
-            WriteLine();
-            WriteLine(passed ? "Passed" : "FAILED");
-
-            return passed ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
+            finally
+            {
+                TestContext.TestName = null;
+            }
         }
         
     }

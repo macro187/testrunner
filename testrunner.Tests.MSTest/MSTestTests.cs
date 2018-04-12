@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 #if NET461
 using System.Configuration;
 #endif
@@ -12,10 +13,13 @@ namespace TestRunner.Tests.MSTest
     public partial class MSTestTests
     {
 
+        static readonly string FullyQualifiedTestClassName = typeof(MSTestTests).FullName;
+
         static bool assemblyInitializeRan = false;
         static bool assemblyInitializeReceivedTestContext = false;
         static bool classInitializeRan = false;
         static bool classInitializeReceivedTestContext = false;
+        static string classInitializeFullyQualifiedTestClassName;
         bool testInitializeRan = false;
         bool isInstanceNew  = true;
         object isInstanceNewLock = new object();
@@ -36,6 +40,7 @@ namespace TestRunner.Tests.MSTest
         public static void ClassInitialize(TestContext testContext)
         {
             classInitializeReceivedTestContext = testContext != null;
+            classInitializeFullyQualifiedTestClassName = testContext?.FullyQualifiedTestClassName;
             classInitializeRan = true;
         }
 
@@ -87,9 +92,31 @@ namespace TestRunner.Tests.MSTest
 
 
         [TestMethod]
+        public void ClassInitialize_Receives_Correct_FullyQualifiedTestClassName()
+        {
+            Assert.AreEqual(classInitializeFullyQualifiedTestClassName, FullyQualifiedTestClassName);
+        }
+
+
+        [TestMethod]
         public void TestContext_Available_During_TestMethod()
         {
             Assert.IsNotNull(TestContext, "TestContext not available during [TestMethod]");
+        }
+
+
+        [TestMethod]
+        public void TestContext_FullyQualifiedTestClassName_Correct_During_TestMethod()
+        {
+            Assert.AreEqual(TestContext?.FullyQualifiedTestClassName, FullyQualifiedTestClassName);
+        }
+
+
+        [TestMethod]
+        public void TestContext_TestName_Correct_During_TestMethod()
+        {
+            var thisTestName = MethodBase.GetCurrentMethod().Name;
+            Assert.AreEqual(TestContext?.TestName, thisTestName);
         }
 
 
