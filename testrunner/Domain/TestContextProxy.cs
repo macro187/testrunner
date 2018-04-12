@@ -35,7 +35,7 @@ namespace TestRunner.Domain
         {
             var typeBuilder = GetProxyTypeBuilder();
             
-            BuildProxyProperty(typeBuilder, "CurrentTestOutcome", typeof(int));
+            BuildProxyProperty(typeBuilder, "CurrentTestOutcome", GetUnitTestOutcomeType());
             BuildProxyProperty(typeBuilder, "DataConnection", typeof(System.Data.Common.DbConnection));
             BuildProxyProperty(typeBuilder, "DataRow", typeof(System.Data.DataRow));
             BuildProxyProperty(typeBuilder, "DeploymentDirectory", typeof(string));
@@ -151,19 +151,74 @@ namespace TestRunner.Domain
 
         static Type GetTestContextType()
         {
+            var type =
+                GetMSTestExtensionsAssembly()
+                    .GetType("Microsoft.VisualStudio.TestTools.UnitTesting.TestContext", false);
+
+            if (type == null)
+                throw new UserException("No TestContext type found in linked MSTest DLL");
+            
+            return type;
+        }
+
+
+        static Type GetUnitTestOutcomeType()
+        {
+            var type =
+                GetMSTestAssembly()
+                    .GetType("Microsoft.VisualStudio.TestTools.UnitTesting.UnitTestOutcome", false);
+
+            if (type == null)
+                throw new UserException("No UnitTestOutcome type found in linked MSTest DLL");
+            
+            return type;
+        }
+
+
+        static Assembly GetMSTestAssembly()
+        {
             Assembly assembly = null;
             foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
             {
                 var name = a.GetName().Name;
 
-                // Old-style MSTest: TestContext is in the main assembly
+                // Old-style MSTest
                 if (name == "Microsoft.VisualStudio.QualityTools.UnitTestFramework")
                 {
                     assembly = a;
                     break;
                 }
 
-                // New-style MSTest: TestContext is in a separate .Extensions assembly
+                // New-style MSTest
+                if (name == "Microsoft.VisualStudio.TestPlatform.TestFramework")
+                {
+                    assembly = a;
+                    break;
+                }
+            }
+
+            if (assembly == null)
+                throw new UserException("Test DLL doesn't appear to be linked to an MSTest DLL");
+
+            return assembly;
+        }
+
+
+        static Assembly GetMSTestExtensionsAssembly()
+        {
+            Assembly assembly = null;
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var name = a.GetName().Name;
+
+                // In old-style MSTest everything is in one assembly
+                if (name == "Microsoft.VisualStudio.QualityTools.UnitTestFramework")
+                {
+                    assembly = a;
+                    break;
+                }
+
+                // In new-style MSTest some stuff is in a separate .Extensions assembly
                 if (name == "Microsoft.VisualStudio.TestPlatform.TestFramework")
                 {
                     assembly = Assembly.LoadFrom(a.Location.Substring(0, a.Location.Length - 4) + ".Extensions.dll");
@@ -174,12 +229,7 @@ namespace TestRunner.Domain
             if (assembly == null)
                 throw new UserException("Test DLL doesn't appear to be linked to an MSTest DLL");
 
-            var type = assembly.GetType("Microsoft.VisualStudio.TestTools.UnitTesting.TestContext", false);
-
-            if (type == null)
-                throw new UserException("No TestContext type found in linked MSTest DLL");
-            
-            return type;
+            return assembly;
         }
 
 
