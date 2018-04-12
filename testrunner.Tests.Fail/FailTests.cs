@@ -7,6 +7,19 @@ namespace TestRunner.Tests.Fail
     [TestClass]
     public class FailTests
     {
+        
+        public TestContext TestContext { get; set; }
+
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            if (TestContext.CurrentTestOutcome == UnitTestOutcome.Failed)
+            {
+                Console.Out.WriteLine("Failed UnitTestOutcome");
+            }
+        }
+
 
         [TestMethod]
         public void FailTest()

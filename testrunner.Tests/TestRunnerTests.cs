@@ -100,6 +100,15 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
+        public void TestCleanup_Receives_Failed_UnitTestResult_When_Test_Fails()
+        {
+            Assert.IsTrue(
+                ProcessExtensions.Execute(testRunner, Quote(failTests)).Output
+                    .Contains("Failed UnitTestOutcome"));
+        }
+
+
+        [TestMethod]
         public void Non_Existent_File_Yields_ExitCode_1()
         {
             Assert.AreEqual(

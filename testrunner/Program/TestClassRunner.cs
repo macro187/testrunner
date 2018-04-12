@@ -1,4 +1,5 @@
-﻿using TestRunner.Domain;
+﻿using System.Linq;
+using TestRunner.Domain;
 using TestRunner.Infrastructure;
 using static TestRunner.Infrastructure.ConsoleExtensions;
 
@@ -43,12 +44,18 @@ namespace TestRunner.Program
                     //
                     // Run [ClassInitialize] method
                     //
+                    TestContext.TestName = testClass.TestMethods.First().Name;
+                    TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
+
                     classInitializeSucceeded =
                         MethodRunner.Run(
                             testClass.ClassInitializeMethod, null,
                             true,
                             null, false,
                             "[ClassInitialize]");
+
+                    TestContext.TestName = null;
+                    TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
 
                     if (classInitializeSucceeded)
                     {

@@ -17,10 +17,25 @@ namespace TestRunner.Tests.MSTest
 
         static bool assemblyInitializeRan = false;
         static bool assemblyInitializeReceivedTestContext = false;
-        static bool classInitializeRan = false;
+        static string assemblyInitializeTestName;
+        static string assemblyInitializeFullyQualifiedTestClassName;
+        static UnitTestOutcome? assemblyInitializeCurrentTestOutcome;
+
+        static int classInitializeCount = 0;
         static bool classInitializeReceivedTestContext = false;
+        static string classInitializeTestName;
         static string classInitializeFullyQualifiedTestClassName;
-        bool testInitializeRan = false;
+        static UnitTestOutcome? classInitializeCurrentTestOutcome;
+
+        static int testInitializeCount = 0;
+        bool testInitializeTestContextAvailable;
+        string testInitializeTestName;
+        string testInitializeFullyQualifiedTestClassName;
+        UnitTestOutcome? testInitializeCurrentTestOutcome;
+
+        static int testCleanupCount = 0;
+        static UnitTestOutcome? testCleanupCurrentTestOutcome;
+
         bool isInstanceNew  = true;
         object isInstanceNewLock = new object();
 
@@ -32,6 +47,9 @@ namespace TestRunner.Tests.MSTest
         public static void AssemblyInitialize(TestContext testContext)
         {
             assemblyInitializeReceivedTestContext = testContext != null;
+            assemblyInitializeTestName = testContext?.TestName;
+            assemblyInitializeFullyQualifiedTestClassName = testContext?.FullyQualifiedTestClassName;
+            assemblyInitializeCurrentTestOutcome = testContext?.CurrentTestOutcome;
             assemblyInitializeRan = true;
         }
 
@@ -40,15 +58,21 @@ namespace TestRunner.Tests.MSTest
         public static void ClassInitialize(TestContext testContext)
         {
             classInitializeReceivedTestContext = testContext != null;
+            classInitializeTestName = testContext?.TestName;
             classInitializeFullyQualifiedTestClassName = testContext?.FullyQualifiedTestClassName;
-            classInitializeRan = true;
+            classInitializeCurrentTestOutcome = testContext?.CurrentTestOutcome;
+            classInitializeCount++;
         }
 
 
         [TestInitialize]
         public void TestInitialize()
         {
-            testInitializeRan = true;
+            testInitializeTestContextAvailable = TestContext != null;
+            testInitializeTestName = TestContext?.TestName;
+            testInitializeFullyQualifiedTestClassName = TestContext?.FullyQualifiedTestClassName;
+            testInitializeCurrentTestOutcome = TestContext?.CurrentTestOutcome;
+            testInitializeCount++;
         }
 
 
@@ -60,16 +84,38 @@ namespace TestRunner.Tests.MSTest
 
 
         [TestMethod]
-        public void ClassInitialize_Runs()
+        public void ClassInitialize_Runs_Once()
         {
-            Assert.IsTrue(classInitializeRan, "[ClassInitialize] method did not run");
+            Assert.AreEqual(1, classInitializeCount);
+        }
+        [TestMethod]
+        public void ClassInitialize_Runs_Once_2()
+        {
+            Assert.AreEqual(1, classInitializeCount);
         }
 
 
         [TestMethod]
         public void TestInitialize_Runs()
         {
-            Assert.IsTrue(testInitializeRan, "[TestInitialize] method did not run");
+            Assert.IsTrue(testInitializeCount > 0, "[TestInitialize] method did not run");
+        }
+
+
+        //
+        // Run the same check twice to make sure we've completed at least one full [TestMethod]
+        //
+        [TestMethod]
+        public void TestCleanup_Runs()
+        {
+            if (testInitializeCount < 2) return;
+            Assert.IsTrue(testCleanupCount > 0, "[TestCleanup] did not run");
+        }
+        [TestMethod]
+        public void TestCleanup_Runs_2()
+        {
+            if (testInitializeCount < 2) return;
+            Assert.IsTrue(testCleanupCount > 0, "[TestCleanup] did not run");
         }
 
 
@@ -83,6 +129,29 @@ namespace TestRunner.Tests.MSTest
 
 
         [TestMethod]
+        public void AssemblyInitialize_Receives_Random_TestName()
+        {
+            Assert.IsNotNull(assemblyInitializeTestName);
+            Assert.AreNotEqual("", assemblyInitializeTestName);
+        }
+
+
+        [TestMethod]
+        public void AssemblyInitialize_Receives_Random_FullyQualifiedTestClassName()
+        {
+            Assert.IsNotNull(assemblyInitializeFullyQualifiedTestClassName);
+            Assert.AreNotEqual("", assemblyInitializeFullyQualifiedTestClassName);
+        }
+
+
+        [TestMethod]
+        public void AssemblyInitialize_Receives_InProgress_CurrentTestOutcome()
+        {
+            Assert.AreEqual(UnitTestOutcome.InProgress, assemblyInitializeCurrentTestOutcome);
+        }
+
+
+        [TestMethod]
         public void ClassInitialize_Receives_TestContext()
         {
             Assert.IsTrue(
@@ -92,9 +161,24 @@ namespace TestRunner.Tests.MSTest
 
 
         [TestMethod]
+        public void ClassInitialize_Receives_Random_TestName()
+        {
+            Assert.IsNotNull(classInitializeTestName);
+            Assert.AreNotEqual("", classInitializeTestName);
+        }
+
+
+        [TestMethod]
         public void ClassInitialize_Receives_Correct_FullyQualifiedTestClassName()
         {
-            Assert.AreEqual(classInitializeFullyQualifiedTestClassName, FullyQualifiedTestClassName);
+            Assert.AreEqual(FullyQualifiedTestClassName, classInitializeFullyQualifiedTestClassName);
+        }
+
+
+        [TestMethod]
+        public void ClassInitialize_Receives_InProgress_CurrentTestOutcome()
+        {
+            Assert.AreEqual(UnitTestOutcome.InProgress, classInitializeCurrentTestOutcome);
         }
 
 
@@ -106,9 +190,70 @@ namespace TestRunner.Tests.MSTest
 
 
         [TestMethod]
+        public void TestContext_Available_During_TestInitialize()
+        {
+            Assert.IsTrue(testInitializeTestContextAvailable);
+        }
+
+
+        [TestMethod]
+        public void TestContext_CurrentTestOutcome_InProgress_During_TestInitialize()
+        {
+            Assert.AreEqual(
+                UnitTestOutcome.InProgress,
+                testInitializeCurrentTestOutcome);
+        }
+
+
+        [TestMethod]
+        public void TestContext_CurrentTestOutcome_InProgress_During_TestMethod()
+        {
+            Assert.AreEqual(
+                UnitTestOutcome.InProgress,
+                TestContext.CurrentTestOutcome);
+        }
+
+
+        //
+        // Run the same check twice to make sure we've completed at least one full [TestMethod]
+        //
+        [TestMethod]
+        public void TestContext_CurrentTestOutcome_Passed_During_TestCleanup_After_Passed_TestMethod()
+        {
+            if (testInitializeCount < 2) return;
+            Assert.AreEqual(
+                UnitTestOutcome.Passed,
+                testCleanupCurrentTestOutcome);
+        }
+        [TestMethod]
+        public void TestContext_CurrentTestOutcome_Passed_During_TestCleanup_After_Passed_TestMethod_2()
+        {
+            if (testInitializeCount < 2) return;
+            Assert.AreEqual(
+                UnitTestOutcome.Passed,
+                testCleanupCurrentTestOutcome);
+        }
+
+
+        [TestMethod]
+        public void TestContext_FullyQualifiedTestClassName_Correct_During_TestInitialize()
+        {
+            Assert.AreEqual(FullyQualifiedTestClassName, testInitializeFullyQualifiedTestClassName);
+        }
+
+
+        [TestMethod]
         public void TestContext_FullyQualifiedTestClassName_Correct_During_TestMethod()
         {
-            Assert.AreEqual(TestContext?.FullyQualifiedTestClassName, FullyQualifiedTestClassName);
+            Assert.AreEqual(FullyQualifiedTestClassName, TestContext?.FullyQualifiedTestClassName);
+        }
+
+
+        [TestMethod]
+        public void TestContext_TestName_Correct_During_TestInitialize()
+        {
+            var thisTestName = MethodBase.GetCurrentMethod().Name;
+            Assert.AreEqual(thisTestName, testInitializeTestName);
         }
 
 
@@ -116,7 +261,7 @@ namespace TestRunner.Tests.MSTest
         public void TestContext_TestName_Correct_During_TestMethod()
         {
             var thisTestName = MethodBase.GetCurrentMethod().Name;
-            Assert.AreEqual(TestContext?.TestName, thisTestName);
+            Assert.AreEqual(thisTestName, TestContext?.TestName);
         }
 
 
@@ -206,6 +351,8 @@ namespace TestRunner.Tests.MSTest
             // the output
             //
             Console.WriteLine(TestCleanupMessage);
+            testCleanupCurrentTestOutcome = TestContext?.CurrentTestOutcome;
+            testCleanupCount++;
         }
 
 

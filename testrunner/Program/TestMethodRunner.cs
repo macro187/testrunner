@@ -62,6 +62,8 @@ namespace TestRunner.Program
                 bool testMethodSucceeded = false;
                 bool testCleanupSucceeded = false;
 
+                TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
+
                 testInitializeSucceeded =
                     MethodRunner.Run(
                         testInitializeMethod, testInstance,
@@ -77,6 +79,11 @@ namespace TestRunner.Program
                             false,
                             testMethod.ExpectedException, testMethod.AllowDerivedExpectedExceptionTypes,
                             "[TestMethod]");
+
+                    TestContext.CurrentTestOutcome =
+                        testMethodSucceeded
+                            ? UnitTestOutcome.Passed
+                            : UnitTestOutcome.Failed;
 
                     testCleanupSucceeded =
                         MethodRunner.Run(
@@ -96,6 +103,7 @@ namespace TestRunner.Program
             finally
             {
                 TestContext.TestName = null;
+                TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
             }
         }
         

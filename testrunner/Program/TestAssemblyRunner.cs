@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
@@ -83,12 +84,20 @@ namespace TestRunner.Program
             //
             // Run [AssemblyInitialize] method
             //
+            TestContext.FullyQualifiedTestClassName = testAssembly.TestClasses.First().FullName;
+            TestContext.TestName = testAssembly.TestClasses.First().TestMethods.First().Name;
+            TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
+
             assemblyInitializeSucceeded =
                 MethodRunner.Run(
                     testAssembly.AssemblyInitializeMethod, null,
                     true,
                     null, false,
                     "[AssemblyInitialize]");
+
+            TestContext.FullyQualifiedTestClassName = null;
+            TestContext.TestName = null;
+            TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
 
             if (assemblyInitializeSucceeded)
             {
