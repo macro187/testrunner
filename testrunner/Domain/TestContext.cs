@@ -10,7 +10,7 @@ namespace TestRunner.Domain
     /// <see cref="Microsoft.VisualStudio.TestTools.UnitTesting.TestContext"/> provided to test methods
     /// </summary>
     ///
-    static class TestContext
+    public static class TestContext
     {
         
         static TestContext()
