@@ -78,6 +78,7 @@ namespace TestRunner.Domain
                 parameterTypes);
 
             var target = typeof(TestContext).GetMethod(name, parameterTypes);
+            if (target == null) throw new Exception("Target TestContext method " + name + " not found");
 
             var il = method.GetILGenerator();
             if (parameterTypes.Length > 0) il.Emit(OpCodes.Ldarg_0);
@@ -104,6 +105,7 @@ namespace TestRunner.Domain
                 Type.EmptyTypes);
 
             var target = typeof(TestContext).GetProperty(name).GetMethod;
+            if (target == null) throw new Exception("Target TestContext property " + name + " getter not found");
 
             var il = getter.GetILGenerator();
             il.Emit(OpCodes.Call, target);
