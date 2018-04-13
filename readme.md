@@ -4,15 +4,12 @@ TestRunner
 A console MSTest runner
 
 
-Description
-===========
+Features
+========
 
 Lightweight, standalone, no external dependencies.
 
-Cross-platform, works on .NET Framework, .NET Core, Mono, Windows, Linux, Mac
-OSX.
-
-Reflection-based, runs test assemblies built against any version/variant of
+Reflection-based, runs test assemblies built against any variant or version of
 the MSTest dll.
 
 Multi-process, runs test assemblies in their own isolated processes.
@@ -25,7 +22,7 @@ Provides test timing information.
 
 Provides detailed exception information in the case of failures.
 
-Supports
+Supports test attributes
 [\[TestClass\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testclassattribute),
 [\[TestMethod\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testmethodattribute),
 [\[TestInitialize\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testinitializeattribute),
@@ -38,14 +35,43 @@ Supports
 and
 [\[Ignore\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.ignoreattribute).
 
+Supports [TestContext](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testcontext)
+members `CurrentTestOutcome`, `FullyQualifiedTestClassName`, and `TestName`.
+
 Supports test assembly `.config` files.
+
+
+Limitations
+===========
+
+Partial test attribute coverage (see Features).
+
+Partial `TestContext` coverage (see Features).
+
+Test assembly `.config` files don't work on Mono because of a
+[bug in Mono](https://bugzilla.xamarin.com/show_bug.cgi?id=15741).
+
+Test assembly `.config` files not supported on .NET Core because it doesn't
+support them by design.
+
+`<bindingRedirect>`s in test assembly `.config` files may not work.
+
+Untested on Mono.
+
+Broken on .NET Core.
 
 
 Requirements
 ============
 
 .NET Framework v4.6.1 or newer, or .NET Core 2.0 or newer, or Mono v5.0.0 or
-newer (probably).
+newer.
+
+
+NuGet Package
+=============
+
+Available as a NuGet package named [TestRunner](https://www.nuget.org/packages/TestRunner/).
 
 
 Synopsis
@@ -108,12 +134,6 @@ $ mono --debug testrunner.exe /path/to/TestAssembly.dll /path/to/AnotherTestAsse
 ```
 
 
-NuGet Package
-=============
-
-Available as a NuGet package named [TestRunner](https://www.nuget.org/packages/TestRunner/).
-
-
 Building
 ========
 
@@ -131,20 +151,6 @@ dotnet publish -f net461
 ```
 dotnet publish -f netcoreapp2.0
 ```
-
-
-Limitations
-===========
-
-Test assembly `.config` files not supported on Mono because of a
-[bug](https://bugzilla.xamarin.com/show_bug.cgi?id=15741).
-
-Test assembly `.config` files not supported on .NET Core because it doesn't
-support them by design.
-
-Currently untested on Mono.
-
-Currently not working on .NET Core.
 
 
 License
