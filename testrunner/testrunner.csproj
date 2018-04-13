@@ -5,6 +5,9 @@
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
     <Copyright>Copyright (c) 2012-2018</Copyright>
     <Authors>Ron MacNeil, Rickenberg, JDeltorp</Authors>
+    <Version>1.5.2-master</Version>
+    <AssemblyFileVersion>1.5.2.0</AssemblyFileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net461'">
