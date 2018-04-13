@@ -9,10 +9,13 @@ Features
 
 Lightweight, standalone, no external dependencies.
 
-Reflection-based, runs test assemblies built against any variant or version of
-the MSTest dll.
+Cross-platform, tested on Microsoft .NET Framework on Windows and Mono on
+Linux.
 
 Multi-process, runs test assemblies in their own isolated processes.
+
+Reflection-based, runs test assemblies built against any variant or version of
+the MSTest dll.
 
 Provides
 [System.Diagnostics.Trace](https://docs.microsoft.com/en-gb/dotnet/api/system.diagnostics.trace)
@@ -55,8 +58,6 @@ Test assembly `.config` files not supported on .NET Core because it doesn't
 support them by design.
 
 `<bindingRedirect>`s in test assembly `.config` files may not work.
-
-Untested on Mono.
 
 Broken on .NET Core.
 
