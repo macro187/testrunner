@@ -1,8 +1,16 @@
 language: csharp
-mono: none
-dotnet: 2.1.4
-script:
-  - dotnet build -f netcoreapp2.0
-  - dotnet publish -f netcoreapp2.0 testrunner/testrunner.csproj
-  - dotnet publish -f netcoreapp2.0 testrunner.Tests.MSTest/testrunner.Tests.MSTest.csproj
-  - dotnet testrunner/bin/Debug/netcoreapp2.0/publish/testrunner.dll --inproc testrunner.Tests.MSTest/bin/Debug/netcoreapp2.0/publish/testrunner.Tests.MSTest.dll
+
+matrix:
+    include:
+        -   dotnet: 2.1.4
+            mono: none
+            script:
+                -   dotnet publish -f netcoreapp2.0
+#               -   dotnet testrunner/bin/Debug/netcoreapp2.0/publish/testrunner.dll --inproc testrunner.Tests.MSTest/bin/Debug/netcoreapp2.0/publish/testrunner.Tests.MSTest.dll
+        -   mono: latest
+            dotnet: none
+            script:
+                -   msbuild /t:restore /p:TargetFramework=net461
+                -   msbuild /t:rebuild /p:TargetFramework=net461
+                -   msbuild /t:publish /p:TargetFramework=net461
+                -   mono --debug testrunner/bin/Debug/net461/publish/testrunner.exe testrunner.Tests/bin/Debug/net461/publish/testrunner.Tests.dll
