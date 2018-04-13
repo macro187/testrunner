@@ -178,13 +178,17 @@ Forked from \<<https://testrunner.codeplex.com/>\> revision 87713 on September 2
 Continuous Integration
 ======================
 
-Appveyor (Windows)
-------------------
+Builds the software and runs the automated test suite.
+
+
+Appveyor (.NET Framework on Windows)
+------------------------------------
 
 [![Build status](https://ci.appveyor.com/api/projects/status/v8s72ij64an7kr87?svg=true)](https://ci.appveyor.com/project/macro187/testrunner)
 
 
-Travis (Linux)
---------------
+Travis (Mono and .NET Core on Linux)
+------------------------------------
 
 [![Build Status](https://travis-ci.org/macro187/testrunner.svg?branch=master)](https://travis-ci.org/macro187/testrunner)
+
