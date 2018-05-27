@@ -21,13 +21,21 @@ namespace TestRunner.Tests
         #error Unrecognised build framework
         #endif
 
+        #if NET461
+        const string testRunnerExe = "testrunner.exe";
+        #elif NETCOREAPP2_0
+        const string testRunnerExe = "testrunner.dll";
+        #else
+        #error Unrecognised build framework
+        #endif
+
         static string testRunner = Path.GetFullPath(Path.Combine(
             here, "..", "..", "..", "..", "..",
             "testrunner",
             "bin", "Debug",
             frameworkMoniker,
             "publish",
-            "testrunner.exe"));
+            testRunnerExe));
 
         static string passTests = Path.GetFullPath(Path.Combine(
             here, "..", "..", "..", "..", "..",
