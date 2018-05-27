@@ -2,11 +2,16 @@ TestRunner Changelog
 ====================
 
 
+v1.7.0
+------
+
+Add .NET Core support
+
+
 v1.6.0
 ------
 
 Add support for `TestContext` `.CurrentTestOutcome`, `.FullyQualifiedTestClassName`, and `.TestName`
-
 
 
 v1.5.1
