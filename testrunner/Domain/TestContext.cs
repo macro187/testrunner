@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿#if NETCOREAPP2_0
+using System.Collections.Generic;
+#else
+using System.Collections;
+#endif
 using System.Data;
 using System.Data.Common;
 
@@ -28,7 +32,11 @@ namespace TestRunner.Domain
 
         public static string FullyQualifiedTestClassName { get; set; }
 
+        #if NETCOREAPP2_0
+        public static IDictionary<string, object> Properties { get; set; }
+        #else
         public static IDictionary Properties { get; set; }
+        #endif
 
         public static string ResultsDirectory { get; set; }
 

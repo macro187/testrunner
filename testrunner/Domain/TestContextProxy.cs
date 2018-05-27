@@ -1,5 +1,9 @@
 ﻿using System;
+#if NETCOREAPP2_0
+using System.Collections.Generic;
+#else
 using System.Collections;
+#endif
 using System.Reflection;
 using System.Reflection.Emit;
 using TestRunner.Infrastructure;
@@ -33,28 +37,33 @@ namespace TestRunner.Domain
 
         static object BuildProxy()
         {
-            var typeBuilder = GetProxyTypeBuilder();
+            var testContextType = GetTestContextType();
+            var typeBuilder = GetProxyTypeBuilder(testContextType);
             
-            BuildProxyProperty(typeBuilder, "CurrentTestOutcome", GetUnitTestOutcomeType());
-            BuildProxyProperty(typeBuilder, "DataConnection", typeof(System.Data.Common.DbConnection));
-            BuildProxyProperty(typeBuilder, "DataRow", typeof(System.Data.DataRow));
-            BuildProxyProperty(typeBuilder, "DeploymentDirectory", typeof(string));
-            BuildProxyProperty(typeBuilder, "FullyQualifiedTestClassName", typeof(string));
-            BuildProxyProperty(typeBuilder, "Properties", typeof(IDictionary));
-            BuildProxyProperty(typeBuilder, "ResultsDirectory", typeof(string));
-            BuildProxyProperty(typeBuilder, "TestDeploymentDir", typeof(string));
-            BuildProxyProperty(typeBuilder, "TestDir", typeof(string));
-            BuildProxyProperty(typeBuilder, "TestLogsDir", typeof(string));
-            BuildProxyProperty(typeBuilder, "TestName", typeof(string));
-            BuildProxyProperty(typeBuilder, "TestResultsDirectory", typeof(string));
-            BuildProxyProperty(typeBuilder, "TestRunDirectory", typeof(string));
-            BuildProxyProperty(typeBuilder, "TestRunResultsDirectory", typeof(string));
+            BuildProxyProperty(typeBuilder, testContextType, "CurrentTestOutcome", GetUnitTestOutcomeType());
+            BuildProxyProperty(typeBuilder, testContextType, "DataConnection", typeof(System.Data.Common.DbConnection));
+            BuildProxyProperty(typeBuilder, testContextType, "DataRow", typeof(System.Data.DataRow));
+            BuildProxyProperty(typeBuilder, testContextType, "DeploymentDirectory", typeof(string));
+            BuildProxyProperty(typeBuilder, testContextType, "FullyQualifiedTestClassName", typeof(string));
+            #if NETCOREAPP2_0
+            BuildProxyProperty(typeBuilder, testContextType, "Properties", typeof(IDictionary<string, object>));
+            #else
+            BuildProxyProperty(typeBuilder, testContextType, "Properties", typeof(IDictionary));
+            #endif
+            BuildProxyProperty(typeBuilder, testContextType, "ResultsDirectory", typeof(string));
+            BuildProxyProperty(typeBuilder, testContextType, "TestDeploymentDir", typeof(string));
+            BuildProxyProperty(typeBuilder, testContextType, "TestDir", typeof(string));
+            BuildProxyProperty(typeBuilder, testContextType, "TestLogsDir", typeof(string));
+            BuildProxyProperty(typeBuilder, testContextType, "TestName", typeof(string));
+            BuildProxyProperty(typeBuilder, testContextType, "TestResultsDirectory", typeof(string));
+            BuildProxyProperty(typeBuilder, testContextType, "TestRunDirectory", typeof(string));
+            BuildProxyProperty(typeBuilder, testContextType, "TestRunResultsDirectory", typeof(string));
 
-            BuildProxyMethod(typeBuilder, "AddResultFile", null, typeof(string));
-            BuildProxyMethod(typeBuilder, "BeginTimer", null, typeof(string));
-            BuildProxyMethod(typeBuilder, "EndTimer", null, typeof(string));
-            BuildProxyMethod(typeBuilder, "WriteLine", null, typeof(string));
-            BuildProxyMethod(typeBuilder, "WriteLine", null, typeof(string), typeof(object[]));
+            BuildProxyMethod(typeBuilder, testContextType, "AddResultFile", null, typeof(string));
+            BuildProxyMethod(typeBuilder, testContextType, "BeginTimer", null, typeof(string));
+            BuildProxyMethod(typeBuilder, testContextType, "EndTimer", null, typeof(string));
+            BuildProxyMethod(typeBuilder, testContextType, "WriteLine", null, typeof(string));
+            BuildProxyMethod(typeBuilder, testContextType, "WriteLine", null, typeof(string), typeof(object[]));
 
             return Activator.CreateInstance(GetTypeFromTypeBuilder(typeBuilder));
         }
@@ -62,16 +71,20 @@ namespace TestRunner.Domain
 
         static void BuildProxyMethod(
             TypeBuilder typeBuilder,
+            Type baseType,
             string name,
             Type returnType,
             params Type[] parameterTypes)
         {
             parameterTypes = parameterTypes ?? new Type[0];
 
+            var baseMethod = baseType.GetMethod(name, parameterTypes);
+            if (baseMethod == null) return;
+            if (baseMethod.ReturnType.FullName != (returnType?.FullName ?? "System.Void")) return;
+
             var method = typeBuilder.DefineMethod(
                 name,
                 MethodAttributes.Public |
-                MethodAttributes.ReuseSlot |
                 MethodAttributes.Virtual | 
                 MethodAttributes.HideBySig,
                 returnType,
@@ -92,15 +105,20 @@ namespace TestRunner.Domain
         }
 
 
-        static void BuildProxyProperty(TypeBuilder typeBuilder, string name, Type type)
+        static void BuildProxyProperty(TypeBuilder typeBuilder, Type baseType, string name, Type type)
         {
+            var getterName = "get_" + name;
+
+            var baseGetter = baseType.GetMethod(getterName);
+            if (baseGetter == null) return;
+            if (baseGetter.ReturnType.FullName != (type?.FullName ?? "System.Void")) return;
+
             var getter = typeBuilder.DefineMethod(
-                "get_" + name,
+                getterName,
                 MethodAttributes.Public |
-                MethodAttributes.SpecialName |
-                MethodAttributes.ReuseSlot |
                 MethodAttributes.Virtual | 
-                MethodAttributes.HideBySig,
+                MethodAttributes.HideBySig |
+                MethodAttributes.SpecialName,
                 type,
                 Type.EmptyTypes);
 
@@ -121,7 +139,7 @@ namespace TestRunner.Domain
         }
 
 
-        static TypeBuilder GetProxyTypeBuilder()
+        static TypeBuilder GetProxyTypeBuilder(Type testContextType)
         {
             return GetProxyAssemblyBuilder()
                 .DefineDynamicModule("MainModule")
@@ -133,7 +151,7 @@ namespace TestRunner.Domain
                     TypeAttributes.AnsiClass |
                     TypeAttributes.BeforeFieldInit |
                     TypeAttributes.AutoLayout,
-                    GetTestContextType());
+                    testContextType);
         }
 
 
