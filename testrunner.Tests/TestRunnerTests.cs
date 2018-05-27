@@ -86,7 +86,7 @@ namespace TestRunner.Tests
         {
             Assert.AreEqual(
                 0,
-                ProcessExtensions.Execute(testRunner, Quote(passTests)).ExitCode);
+                ProcessExtensions.ExecuteDotnet(testRunner, Quote(passTests)).ExitCode);
         }
 
 
@@ -95,7 +95,7 @@ namespace TestRunner.Tests
         {
             Assert.AreEqual(
                 1,
-                ProcessExtensions.Execute(testRunner, Quote(failTests)).ExitCode);
+                ProcessExtensions.ExecuteDotnet(testRunner, Quote(failTests)).ExitCode);
         }
 
 
@@ -103,7 +103,7 @@ namespace TestRunner.Tests
         public void TestCleanup_Receives_Failed_UnitTestResult_When_Test_Fails()
         {
             Assert.IsTrue(
-                ProcessExtensions.Execute(testRunner, Quote(failTests)).Output
+                ProcessExtensions.ExecuteDotnet(testRunner, Quote(failTests)).Output
                     .Contains("Failed UnitTestOutcome"));
         }
 
@@ -113,14 +113,14 @@ namespace TestRunner.Tests
         {
             Assert.AreEqual(
                 1,
-                ProcessExtensions.Execute(testRunner, Quote("no-such.dll")).ExitCode);
+                ProcessExtensions.ExecuteDotnet(testRunner, Quote("no-such.dll")).ExitCode);
         }
 
 
         [TestMethod]
         public void MSTest_Suite_Passes()
         {
-            var results = ProcessExtensions.Execute(testRunner, Quote(msTestTests));
+            var results = ProcessExtensions.ExecuteDotnet(testRunner, Quote(msTestTests));
 
             Assert.AreEqual(
                 0, results.ExitCode,
@@ -153,7 +153,7 @@ namespace TestRunner.Tests
         {
             Assert.AreEqual(
                 0,
-                ProcessExtensions.Execute(testRunner, Quote(passTests, passTests)).ExitCode);
+                ProcessExtensions.ExecuteDotnet(testRunner, Quote(passTests, passTests)).ExitCode);
         }
 
 
@@ -162,7 +162,7 @@ namespace TestRunner.Tests
         {
             Assert.AreEqual(
                 1,
-                ProcessExtensions.Execute(testRunner, Quote(failTests, passTests)).ExitCode);
+                ProcessExtensions.ExecuteDotnet(testRunner, Quote(failTests, passTests)).ExitCode);
         }
 
 
@@ -171,7 +171,7 @@ namespace TestRunner.Tests
         {
             Assert.AreEqual(
                 0,
-                ProcessExtensions.Execute(testRunner, Quote(msTestTests, differentConfigTests)).ExitCode);
+                ProcessExtensions.ExecuteDotnet(testRunner, Quote(msTestTests, differentConfigTests)).ExitCode);
         }
 
 
@@ -180,7 +180,7 @@ namespace TestRunner.Tests
         {
             Assert.AreEqual(
                 0,
-                ProcessExtensions.Execute(testRunner, Quote(referencedAssembly)).ExitCode);
+                ProcessExtensions.ExecuteDotnet(testRunner, Quote(referencedAssembly)).ExitCode);
         }
 
 
@@ -189,7 +189,7 @@ namespace TestRunner.Tests
         {
             Assert.AreEqual(
                 0,
-                ProcessExtensions.Execute(testRunner, Quote(fakeDll)).ExitCode);
+                ProcessExtensions.ExecuteDotnet(testRunner, Quote(fakeDll)).ExitCode);
         }
 
     }

@@ -90,7 +90,7 @@ namespace TestRunner.Program
                 foreach (var assemblyPath in ArgumentParser.AssemblyPaths)
                 {
                     var exitCode = 
-                        ProcessExtensions.Execute(
+                        ProcessExtensions.ExecuteDotnet(
                             ProgramPath,
                             "--inproc \"" + assemblyPath + "\"")
                         .ExitCode;

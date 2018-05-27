@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading;
 
@@ -7,6 +8,39 @@ namespace TestRunner.Infrastructure
 {
     public static class ProcessExtensions
     {
+
+        static ProcessExtensions()
+        {
+            var driverPath = Process.GetCurrentProcess().MainModule.FileName;
+            var driverName = Path.GetFileNameWithoutExtension(driverPath).ToLowerInvariant();
+            switch (driverName)
+            {
+                case "dotnet":
+                case "mono":
+                    DotnetDriver = driverPath;
+                    break;
+            }
+        }
+
+
+        /// <summary>
+        /// Path to the .NET "driver" program (dotnet or mono) running the process, or <c>null</c> if none
+        /// </summary>
+        ///
+        static string DotnetDriver { get; }
+
+
+        public static ProcessExecuteResults ExecuteDotnet(string fileName, string arguments)
+        {
+            if (DotnetDriver != null)
+            {
+                arguments = fileName + " " + arguments;
+                fileName = DotnetDriver;
+            }
+
+            return Execute(fileName, arguments);
+        }
+
 
         public static ProcessExecuteResults Execute(string fileName, string arguments)
         {
