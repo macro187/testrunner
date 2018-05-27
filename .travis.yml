@@ -1,5 +1,11 @@
 language: csharp
 
+branches:
+    only:
+        -   master
+        -   /-master$/
+        -   /^\d+\.\d+\.\d+$/
+
 matrix:
     include:
         -   dotnet: 2.1.4
