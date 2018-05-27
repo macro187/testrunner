@@ -12,7 +12,7 @@ matrix:
             mono: none
             script:
                 -   dotnet publish -f netcoreapp2.0
-#               -   dotnet testrunner/bin/Debug/netcoreapp2.0/publish/testrunner.dll --inproc testrunner.Tests.MSTest/bin/Debug/netcoreapp2.0/publish/testrunner.Tests.MSTest.dll
+                -   dotnet testrunner/bin/Debug/netcoreapp2.0/publish/testrunner.dll testrunner.Tests/bin/Debug/netcoreapp2.0/publish/testrunner.Tests.dll
         -   mono: latest
             dotnet: none
             script:
