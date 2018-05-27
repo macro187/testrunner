@@ -54,19 +54,13 @@ Partial `TestContext` coverage (see Features).
 Test assembly `.config` files don't work on Mono because of a
 [bug in Mono](https://bugzilla.xamarin.com/show_bug.cgi?id=15741).
 
-Test assembly `.config` files not supported on .NET Core because it doesn't
-support them by design.
-
 `<bindingRedirect>`s in test assembly `.config` files may not work.
-
-Broken on .NET Core.
 
 
 Requirements
 ============
 
-.NET Framework v4.6.1 or newer, or .NET Core 2.0 or newer, or Mono v5.0.0 or
-newer.
+Microsoft .NET Framework v4.6.1 (or newer) OR Mono v5.0.0 (or newer).
 
 
 NuGet Package
@@ -119,14 +113,6 @@ C:\> testrunner.exe C:\Path\To\TestAssembly.dll C:\Path\To\AnotherTestAssembly.d
 ```
 
 
-.NET Core
----------
-
-```
-C:\> dotnet testrunner.dll C:\Path\To\TestAssembly.dll C:\Path\To\AnotherTestAssembly.dll
-```
-
-
 Mono
 ----
 
@@ -146,11 +132,13 @@ dotnet publish -f net461
 ```
 
 
-.NET Core
----------
+Mono
+----
 
 ```
-dotnet publish -f netcoreapp2.0
+msbuild /p:TargetFramework=net461 /t:Restore
+msbuild /p:TargetFramework=net461 /t:Rebuild
+msbuild /p:TargetFramework=net461 /t:Publish
 ```
 
 
@@ -178,17 +166,23 @@ Forked from \<<https://testrunner.codeplex.com/>\> revision 87713 on September 2
 Continuous Integration
 ======================
 
-Builds the software and runs the automated test suite.
 
-
-Appveyor (.NET Framework on Windows)
+Appveyor (Windows)
 ------------------------------------
 
 [![Build status](https://ci.appveyor.com/api/projects/status/v8s72ij64an7kr87?svg=true)](https://ci.appveyor.com/project/macro187/testrunner)
 
+net461 build and test run
 
-Travis (Mono and .NET Core on Linux)
+netcoreapp2.0 build
+
+
+Travis (Linux)
 ------------------------------------
 
 [![Build Status](https://travis-ci.org/macro187/testrunner.svg?branch=master)](https://travis-ci.org/macro187/testrunner)
+
+net461 build and test run (Mono)
+
+netcoreapp2.0 build (.NET Core)
 
