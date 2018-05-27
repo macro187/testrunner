@@ -21,9 +21,7 @@
         <file src="bin\$configuration$\net461\publish\**\*" target="tools" />
         <file src="_._" target="lib/net461/" />
         <file src="bin\$configuration$\net461\publish\**\*" target="tools/net461/" />
-        <!--
         <file src="_._" target="lib/netcoreapp2.0/" />
         <file src="bin\$configuration$\netcoreapp2.0\publish\**\*" target="tools/netcoreapp2.0/" />
-        -->
     </files>
 </package>

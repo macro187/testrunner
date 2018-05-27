@@ -9,8 +9,8 @@ Features
 
 Lightweight, standalone, no external dependencies.
 
-Cross-platform, tested on Microsoft .NET Framework on Windows and Mono on
-Linux.
+Cross-platform, tested on Microsoft .NET Framework and .NET Core on Windows,
+and Mono and .NET Core on Linux.
 
 Multi-process, runs test assemblies in their own isolated processes.
 
@@ -49,7 +49,7 @@ Limitations
 
 Partial test attribute coverage (see Features).
 
-Partial `TestContext` coverage (see Features).
+Partial `TestContext` coverage on .NET Framework (see Features).
 
 Test assembly `.config` files don't work on Mono because of a
 [bug in Mono](https://bugzilla.xamarin.com/show_bug.cgi?id=15741).
@@ -60,7 +60,8 @@ Test assembly `.config` files don't work on Mono because of a
 Requirements
 ============
 
-Microsoft .NET Framework v4.6.1 (or newer) OR Mono v5.0.0 (or newer).
+.NET Framework v4.6.1 (or newer) OR .NET Core 2.0 (or newer) OR Mono v5.0.0
+(or newer).
 
 
 NuGet Package
@@ -113,6 +114,14 @@ C:\> testrunner.exe C:\Path\To\TestAssembly.dll C:\Path\To\AnotherTestAssembly.d
 ```
 
 
+.NET Core
+---------
+
+```
+C:\> dotnet testrunner.dll C:\Path\To\TestAssembly.dll C:\Path\To\AnotherTestAssembly.dll
+```
+
+
 Mono
 ----
 
@@ -129,6 +138,14 @@ Building
 
 ```
 dotnet publish -f net461
+```
+
+
+.NET Core
+---------
+
+```
+dotnet publish -f netcoreapp2.0
 ```
 
 
@@ -172,9 +189,9 @@ Appveyor (Windows)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/v8s72ij64an7kr87?svg=true)](https://ci.appveyor.com/project/macro187/testrunner)
 
-net461 build and test run
+net461 build and tests
 
-netcoreapp2.0 build
+netcoreapp2.0 build and tests
 
 
 Travis (Linux)
@@ -182,7 +199,7 @@ Travis (Linux)
 
 [![Build Status](https://travis-ci.org/macro187/testrunner.svg?branch=master)](https://travis-ci.org/macro187/testrunner)
 
-net461 build and test run (Mono)
+net461 build and tests (Mono)
 
-netcoreapp2.0 build (.NET Core)
+netcoreapp2.0 build and tests (.NET Core)
 
