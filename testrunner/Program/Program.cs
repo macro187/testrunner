@@ -119,13 +119,10 @@ namespace TestRunner.Program
             var name = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName;
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
-            var authors = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).CompanyName;
 
             WriteHeading(
                 $"{name} v{version}",
-                copyright,
-                authors
-                );
+                copyright);
         }
 
     }
