@@ -2,6 +2,14 @@ TestRunner Changelog
 ====================
 
 
+v1.7.1
+------
+
+Stop occasionally printing output from child processes out of order, by
+correctly waiting until child processes are completely finished before
+proceeding
+
+
 v1.7.0
 ------
 
@@ -11,7 +19,8 @@ Add .NET Core support
 v1.6.0
 ------
 
-Add support for `TestContext` `.CurrentTestOutcome`, `.FullyQualifiedTestClassName`, and `.TestName`
+Add support for `TestContext` `.CurrentTestOutcome`,
+`.FullyQualifiedTestClassName`, and `.TestName`
 
 
 v1.5.1
