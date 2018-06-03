@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
-    <Version>1.7.1-master</Version>
+    <Version>1.7.1</Version>
     <AssemblyFileVersion>1.7.1.0</AssemblyFileVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <Copyright>Copyright (c) 2012-2018 Ron MacNeil, Rickenberg, JDeltorp</Copyright>
