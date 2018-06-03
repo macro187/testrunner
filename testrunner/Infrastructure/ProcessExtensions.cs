@@ -89,6 +89,7 @@ namespace TestRunner.Infrastructure
                 proc.Start();
                 proc.BeginOutputReadLine();
                 while (!exited) Thread.Yield();
+                proc.WaitForExit();
 
                 exitCode = proc.ExitCode;
             }
