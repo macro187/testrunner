@@ -13,7 +13,7 @@ namespace TestRunner.Infrastructure
             Justification = "Consistency with ArgumentException classes in BCL")]
         public static void NotNull(object value, string paramName)
         {
-            if (paramName == null) throw new ArgumentNullException("paramName");
+            if (paramName == null) throw new ArgumentNullException(nameof(paramName));
             if (value == null) throw new ArgumentNullException(paramName);
         }
 

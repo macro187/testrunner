@@ -14,7 +14,7 @@ namespace TestRunner.Domain
 
         public static TestAssembly TryCreate(Assembly assembly)
         {
-            Guard.NotNull(assembly, "assembly");
+            Guard.NotNull(assembly, nameof(assembly));
             var testAssembly = new TestAssembly(assembly);
             return testAssembly.TestClasses.Any() ? testAssembly : null;
         }

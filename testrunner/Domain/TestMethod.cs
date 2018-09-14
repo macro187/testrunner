@@ -10,7 +10,7 @@ namespace TestRunner.Domain
 
         internal static TestMethod TryCreate(MethodInfo methodInfo)
         {
-            Guard.NotNull(methodInfo, "methodInfo");
+            Guard.NotNull(methodInfo, nameof(methodInfo));
             return methodInfo.HasCustomAttribute(TestMethodAttribute.TryCreate) ? new TestMethod(methodInfo) : null;
         }
 

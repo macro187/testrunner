@@ -45,8 +45,8 @@ namespace TestRunner.Infrastructure
             this MemberInfo memberInfo,
             Func<Attribute, TAttribute> tryCreate)
         {
-            Guard.NotNull(memberInfo, "memberInfo");
-            Guard.NotNull(tryCreate, "tryCreate");
+            Guard.NotNull(memberInfo, nameof(memberInfo));
+            Guard.NotNull(tryCreate, nameof(tryCreate));
 
             return
                 memberInfo.GetCustomAttributes(false)

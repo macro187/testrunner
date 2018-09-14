@@ -13,7 +13,7 @@ namespace TestRunner.Domain
 
         internal static TestClass TryCreate(Type type)
         {
-            Guard.NotNull(type, "type");
+            Guard.NotNull(type, nameof(type));
             return type.HasCustomAttribute(TestClassAttribute.TryCreate) ? new TestClass(type) : null;
         }
 

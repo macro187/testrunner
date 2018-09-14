@@ -18,7 +18,7 @@ namespace TestRunner.Program
         ///
         static public bool Run(TestClass testClass)
         {
-            Guard.NotNull(testClass, "testClass");
+            Guard.NotNull(testClass, nameof(testClass));
 
             TestContext.FullyQualifiedTestClassName = testClass.FullName;
             try

@@ -22,7 +22,7 @@ namespace TestRunner.Program
             Justification = "Need to load assemblies in order to run tests")]
         static public bool Run(string assemblyPath)
         {
-            Guard.NotNull(assemblyPath, "assemblyPath");
+            Guard.NotNull(assemblyPath, nameof(assemblyPath));
 
             WriteLine();
             WriteHeading("Assembly: " + assemblyPath);

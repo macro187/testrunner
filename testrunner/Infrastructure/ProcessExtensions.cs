@@ -44,8 +44,8 @@ namespace TestRunner.Infrastructure
 
         public static ProcessExecuteResults Execute(string fileName, string arguments)
         {
-            Guard.NotNull(fileName, "fileName");
-            Guard.NotNull(arguments, "arguments");
+            Guard.NotNull(fileName, nameof(fileName));
+            Guard.NotNull(arguments, nameof(arguments));
 
             bool echoCommandLine = false;
             bool echoOutput = true;
@@ -109,9 +109,9 @@ namespace TestRunner.Infrastructure
 
         public ProcessExecuteResults(string standardOutput, string errorOutput, string output, int exitCode)
         {
-            Guard.NotNull(standardOutput, "standardOutput");
-            Guard.NotNull(errorOutput, "errorOutput");
-            Guard.NotNull(output, "output");
+            Guard.NotNull(standardOutput, nameof(standardOutput));
+            Guard.NotNull(errorOutput, nameof(errorOutput));
+            Guard.NotNull(output, nameof(output));
 
             StandardOutput = standardOutput;
             ErrorOutput = errorOutput;

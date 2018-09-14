@@ -12,9 +12,9 @@ namespace TestRunner.Domain
             Func<Attribute, TAttribute> constructor)
             where TAttribute : class
         {
-            Guard.NotNull(attribute, "attribute");
-            Guard.NotNull(typeName, "typeName");
-            Guard.NotNull(constructor, "constructor");
+            Guard.NotNull(attribute, nameof(attribute));
+            Guard.NotNull(typeName, nameof(typeName));
+            Guard.NotNull(constructor, nameof(constructor));
 
             if (attribute.GetType().FullName != typeName)
                 return null;

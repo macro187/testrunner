@@ -16,7 +16,7 @@ namespace TestRunner.Infrastructure
 
         public static string Indent(string value)
         {
-            Guard.NotNull(value, "value");
+            Guard.NotNull(value, nameof(value));
             var lines = SplitLines(value);
             var indentedLines = lines.Select(s => "  " + s);
             return string.Join(Environment.NewLine, indentedLines);
@@ -25,7 +25,7 @@ namespace TestRunner.Infrastructure
 
         public static string[] SplitLines(string value)
         {
-            Guard.NotNull(value, "value");
+            Guard.NotNull(value, nameof(value));
             value = value.Replace("\r\n", "\n").Replace("\r", "\n");
             if (value.EndsWith("\n", StringComparison.Ordinal))
             {
