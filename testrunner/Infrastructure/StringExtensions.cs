@@ -34,6 +34,23 @@ namespace TestRunner.Infrastructure
             return value.Split('\n');
         }
 
+
+        public static string[] FormatHeading(char ruleCharacter, params string[] lines)
+        {
+            if (lines == null) return new string[0];
+            if (lines.Length == 0) return new string [0];
+
+            var longestLine = lines.Max(line => line.Length);
+            var rule = new string(ruleCharacter, longestLine);
+
+            return
+                Enumerable.Empty<string>()
+                    .Concat(new[]{ rule })
+                    .Concat(lines)
+                    .Concat(new[]{ rule })
+                    .ToArray();
+        }
+
     }
 
 }

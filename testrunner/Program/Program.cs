@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using TestRunner.Infrastructure;
-using static TestRunner.Infrastructure.ConsoleExtensions;
+using static TestRunner.Events.EventHandler;
 
 namespace TestRunner.Program
 {
@@ -40,8 +40,8 @@ namespace TestRunner.Program
             //
             catch (UserException ue)
             {
-                WriteLine();
-                WriteLine(ue.Message);
+                DiagnosticEvent();
+                DiagnosticEvent(ue.Message);
                 return 1;
             }
 
@@ -50,9 +50,9 @@ namespace TestRunner.Program
             //
             catch (Exception e)
             {
-                WriteLine();
-                WriteLine("An internal error occurred in {0}:", ProgramName);
-                WriteLine(ExceptionExtensions.FormatException(e));
+                DiagnosticEvent();
+                DiagnosticEvent($"An internal error occurred in {ProgramName}:");
+                DiagnosticEvent(ExceptionExtensions.FormatException(e));
                 return 1;
             }
         }
@@ -71,11 +71,11 @@ namespace TestRunner.Program
             ArgumentParser.Parse(args);
             if (!ArgumentParser.Success)
             {
-                WriteLine();
-                WriteLine(ArgumentParser.GetUsage());
-                WriteLine();
-                WriteLine();
-                WriteLine(ArgumentParser.ErrorMessage);
+                DiagnosticEvent();
+                DiagnosticEvent(ArgumentParser.GetUsage());
+                DiagnosticEvent();
+                DiagnosticEvent();
+                DiagnosticEvent(ArgumentParser.ErrorMessage);
                 return 1;
             }
 
@@ -120,7 +120,7 @@ namespace TestRunner.Program
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
 
-            WriteHeading(
+            BannerEvent(
                 $"{name} v{version}",
                 copyright);
         }
