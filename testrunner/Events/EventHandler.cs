@@ -14,9 +14,9 @@ namespace TestRunner.Events
         public static void BannerEvent(params string[] lines)
         {
             lines = lines ?? new string[0];
-            var formattedBanner = StringExtensions.FormatHeading('=', lines);
-            Console.Error.WriteLine();
-            foreach (var line in formattedBanner) Console.Error.WriteLine(line);
+            var formattedLines = StringExtensions.FormatHeading('=', lines);
+            WriteError();
+            foreach (var line in formattedLines) WriteError(line);
         }
 
 
@@ -35,10 +35,9 @@ namespace TestRunner.Events
         /// Diagnostic messaging to do with the operation of TestRunner itself
         /// </summary>
         ///
-        public static void DiagnosticEvent(string value = "")
+        public static void DiagnosticEvent(string message = "")
         {
-            var lines = StringExtensions.SplitLines(value);
-            foreach (var line in lines) Console.Error.WriteLine(line);
+            WriteError(message);
         }
 
 
@@ -46,10 +45,23 @@ namespace TestRunner.Events
         /// <see cref="System.Diagnostics.Trace"/> output
         /// </summary>
         ///
-        public static void TraceEvent(string value = "")
+        public static void TraceEvent(string message = "")
         {
-            var lines = StringExtensions.SplitLines(value);
-            foreach (var line in lines) Console.Out.WriteLine(line);
+            WriteOut(message);
+        }
+
+
+        static void WriteOut(string message = "")
+        {
+            message = message ?? "";
+            foreach (var line in StringExtensions.SplitLines(message)) Console.Out.WriteLine(line);
+        }
+
+
+        static void WriteError(string message = "")
+        {
+            message = message ?? "";
+            foreach (var line in StringExtensions.SplitLines(message)) Console.Error.WriteLine(line);
         }
 
     }
