@@ -38,7 +38,7 @@ namespace TestRunner.Events
         public static void DiagnosticEvent(string value = "")
         {
             var lines = StringExtensions.SplitLines(value);
-            foreach (var line in lines) Console.Error.WriteLine(value);
+            foreach (var line in lines) Console.Error.WriteLine(line);
         }
 
     }
