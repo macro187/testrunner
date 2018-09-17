@@ -1,11 +1,11 @@
-﻿using System;
+﻿using System.IO;
 #if NET461
+using System;
 using System.Configuration;
-#endif
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using static TestRunner.Infrastructure.ConsoleExtensions;
+#endif
 
 namespace TestRunner.Runners
 {
