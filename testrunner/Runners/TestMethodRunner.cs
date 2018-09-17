@@ -3,7 +3,7 @@ using System.Reflection;
 using TestRunner.Domain;
 using static TestRunner.Infrastructure.ConsoleExtensions;
 
-namespace TestRunner.Program
+namespace TestRunner.Runners
 {
     static class TestMethodRunner
     {

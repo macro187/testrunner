@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using TestRunner.Infrastructure;
+using TestRunner.Runners;
 using static TestRunner.Events.EventHandler;
 
 namespace TestRunner.Program

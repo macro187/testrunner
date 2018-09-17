@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using static TestRunner.Infrastructure.ConsoleExtensions;
 
-namespace TestRunner.Program
+namespace TestRunner.Runners
 {
 
     static class ConfigFileSwitcher
