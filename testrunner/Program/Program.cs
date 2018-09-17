@@ -41,8 +41,7 @@ namespace TestRunner.Program
             //
             catch (UserException ue)
             {
-                DiagnosticEvent();
-                DiagnosticEvent(ue.Message);
+                UserErrorEvent(ue);
                 return 1;
             }
 
@@ -51,9 +50,7 @@ namespace TestRunner.Program
             //
             catch (Exception e)
             {
-                DiagnosticEvent();
-                DiagnosticEvent($"An internal error occurred in {ProgramName}:");
-                DiagnosticEvent(ExceptionExtensions.FormatException(e));
+                InternalErrorEvent(e);
                 return 1;
             }
         }
@@ -67,12 +64,8 @@ namespace TestRunner.Program
             ArgumentParser.Parse(args);
             if (!ArgumentParser.Success)
             {
-                DiagnosticEvent();
-                DiagnosticEvent(ArgumentParser.GetUsage());
-                DiagnosticEvent();
-                DiagnosticEvent();
-                DiagnosticEvent(ArgumentParser.ErrorMessage);
-                return 1;
+                UsageEvent(ArgumentParser.GetUsage());
+                throw new UserException(ArgumentParser.ErrorMessage);
             }
 
             //

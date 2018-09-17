@@ -21,23 +21,15 @@ namespace TestRunner.Events
 
 
         /// <summary>
-        /// Diagnostic messaging to do with the operation of TestRunner itself
+        /// Program usage information
         /// </summary>
         ///
-        public static void DiagnosticEvent(string[] values)
+        public static void UsageEvent(string message)
         {
-            if (values == null) return;
-            foreach (var value in values) DiagnosticEvent(value);
-        }
-
-
-        /// <summary>
-        /// Diagnostic messaging to do with the operation of TestRunner itself
-        /// </summary>
-        ///
-        public static void DiagnosticEvent(string message = "")
-        {
+            Guard.NotNull(message, nameof(message));
+            WriteError();
             WriteError(message);
+            WriteError();
         }
 
 
@@ -48,6 +40,31 @@ namespace TestRunner.Events
         public static void TraceEvent(string message = "")
         {
             WriteOut(message);
+        }
+
+
+        /// <summary>
+        /// A user-facing error occurred
+        /// </summary>
+        ///
+        public static void UserErrorEvent(UserException exception)
+        {
+            Guard.NotNull(exception, nameof(exception));
+            WriteError();
+            WriteError(exception.Message);
+        }
+
+
+        /// <summary>
+        /// An internal error occurred
+        /// </summary>
+        ///
+        public static void InternalErrorEvent(Exception exception)
+        {
+            Guard.NotNull(exception, nameof(exception));
+            WriteError();
+            WriteError("An internal error occurred:");
+            WriteError(ExceptionExtensions.FormatException(exception));
         }
 
 
