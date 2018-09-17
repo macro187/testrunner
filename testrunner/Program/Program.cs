@@ -62,11 +62,6 @@ namespace TestRunner.Program
         static int Main3(string[] args)
         {
             //
-            // Route trace output to stdout
-            //
-            Trace.Listeners.Add(new TestRunnerTraceListener());
-
-            //
             // Parse arguments
             //
             ArgumentParser.Parse(args);

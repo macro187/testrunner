@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
+using TestRunner.Events;
 using static TestRunner.Infrastructure.ConsoleExtensions;
 
 namespace TestRunner.Runners
@@ -66,7 +68,22 @@ namespace TestRunner.Runners
             WriteLine("Test Assembly:");
             WriteLine(assembly.Location);
 
-            return Run(testAssembly);
+            //
+            // Run the test assembly with System.Diagnostics.Trace output redirected to EventHandler
+            //
+            var traceListener = new EventTraceListener();
+            Trace.Listeners.Add(traceListener);
+            bool result;
+            try
+            {
+                result = Run(testAssembly);
+            }
+            finally
+            {
+                Trace.Listeners.Remove(traceListener);
+            }
+
+            return result;
         }
 
 

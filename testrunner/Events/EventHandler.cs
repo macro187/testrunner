@@ -41,5 +41,16 @@ namespace TestRunner.Events
             foreach (var line in lines) Console.Error.WriteLine(line);
         }
 
+
+        /// <summary>
+        /// <see cref="System.Diagnostics.Trace"/> output
+        /// </summary>
+        ///
+        public static void TraceEvent(string value = "")
+        {
+            var lines = StringExtensions.SplitLines(value);
+            foreach (var line in lines) Console.Out.WriteLine(line);
+        }
+
     }
 }
