@@ -61,6 +61,59 @@ namespace TestRunner.Events
         }
 
 
+        public static void ClassBeginEvent(string fullName)
+        {
+            Guard.NotNull(fullName, nameof(fullName));
+            WriteOut();
+            WriteHeadingOut(fullName);
+        }
+
+
+        public static void ClassIgnoredEvent()
+        {
+            WriteOut();
+            WriteOut("Ignoring all tests because class is decorated with [Ignore]");
+        }
+
+
+        public static void ClassSummaryEvent(
+            bool initializePresent,
+            bool initializeSucceeded,
+            int testsTotal,
+            int testsRan,
+            int testsIgnored,
+            int testsPassed,
+            int testsFailed,
+            bool cleanupPresent,
+            bool cleanupSucceeded
+        )
+        {
+            var initializeResult =
+                initializePresent
+                    ? initializeSucceeded
+                        ? "Succeeded"
+                        : "Failed"
+                    : "Not present";
+
+            var cleanupResult =
+                cleanupPresent
+                    ? cleanupSucceeded
+                        ? "Succeeded"
+                        : "Failed"
+                    : "Not present";
+
+            WriteSubheadingOut("Summary");
+            WriteOut();
+            WriteOut($"ClassInitialize: {initializeResult}");
+            WriteOut($"Total:           {testsTotal} tests");
+            WriteOut($"Ran:             {testsRan} tests");
+            WriteOut($"Ignored:         {testsIgnored} tests");
+            WriteOut($"Passed:          {testsPassed} tests");
+            WriteOut($"Failed:          {testsFailed} tests");
+            WriteOut($"ClassCleanup:    {cleanupResult}");
+        }
+
+
         public static void TestTraceOutputEvent(string message = "")
         {
             WriteOut(message);
@@ -97,6 +150,14 @@ namespace TestRunner.Events
             lines = lines ?? new string[0];
             lines = StringExtensions.FormatHeading('=', lines);
             foreach (var line in lines) WriteError(line);
+        }
+
+
+        static void WriteSubheadingOut(params string[] lines)
+        {
+            lines = lines ?? new string[0];
+            lines = StringExtensions.FormatHeading('-', lines);
+            foreach (var line in lines) WriteOut(line);
         }
 
 

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
-using static TestRunner.Infrastructure.ConsoleExtensions;
+using static TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
 {
@@ -23,8 +23,7 @@ namespace TestRunner.Runners
             TestContext.FullyQualifiedTestClassName = testClass.FullName;
             try
             {
-                WriteLine();
-                WriteHeading(testClass.FullName);
+                ClassBeginEvent(testClass.FullName);
 
                 bool classInitializeSucceeded = false;
                 int ran = 0;
@@ -35,8 +34,7 @@ namespace TestRunner.Runners
 
                 if (testClass.IsIgnored)
                 {
-                    WriteLine();
-                    WriteLine("Ignoring all tests because class is decorated with [Ignore]");
+                    ClassIgnoredEvent();
                     ignored = testClass.TestMethods.Count;
                 }
                 else
@@ -100,25 +98,16 @@ namespace TestRunner.Runners
                 //
                 // Print results
                 //
-                WriteSubheading("Summary");
-                WriteLine();
-                WriteLine("ClassInitialize: {0}",
-                    testClass.ClassInitializeMethod == null
-                        ? "Not present"
-                        : classInitializeSucceeded
-                            ? "Succeeded"
-                            : "Failed");
-                WriteLine("Total:           {0} tests", testClass.TestMethods.Count);
-                WriteLine("Ran:             {0} tests", ran);
-                WriteLine("Ignored:         {0} tests", ignored);
-                WriteLine("Passed:          {0} tests", passed);
-                WriteLine("Failed:          {0} tests", failed);
-                WriteLine("ClassCleanup:    {0}",
-                    testClass.ClassCleanupMethod == null
-                        ? "Not present"
-                        : classCleanupSucceeded
-                            ? "Succeeded"
-                            : "Failed");
+                ClassSummaryEvent(
+                    testClass.ClassInitializeMethod != null,
+                    classInitializeSucceeded,
+                    testClass.TestMethods.Count,
+                    ran,
+                    ignored,
+                    passed,
+                    failed,
+                    testClass.ClassCleanupMethod != null,
+                    classCleanupSucceeded);
 
                 return
                     classInitializeSucceeded &&
