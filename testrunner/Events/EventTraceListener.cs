@@ -33,7 +33,7 @@ namespace TestRunner.Events
                     line = buffer + line;
                     buffer = "";
                 }
-                EventHandler.TraceEvent(line);
+                EventHandler.TestTraceOutputEvent(line);
 
                 message = message.Substring(i + 1);
             }

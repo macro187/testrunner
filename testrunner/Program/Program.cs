@@ -64,7 +64,7 @@ namespace TestRunner.Program
             ArgumentParser.Parse(args);
             if (!ArgumentParser.Success)
             {
-                UsageEvent(ArgumentParser.GetUsage());
+                ProgramUsageEvent(ArgumentParser.GetUsage());
                 throw new UserException(ArgumentParser.ErrorMessage);
             }
 
@@ -109,7 +109,7 @@ namespace TestRunner.Program
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
 
-            BannerEvent(
+            ProgramBannerEvent(
                 $"{name} v{version}",
                 copyright);
         }

@@ -7,24 +7,14 @@ namespace TestRunner.Events
     public static class EventHandler
     {
 
-        /// <summary>
-        /// Program banner
-        /// </summary>
-        ///
-        public static void BannerEvent(params string[] lines)
+        public static void ProgramBannerEvent(params string[] lines)
         {
-            lines = lines ?? new string[0];
-            var formattedLines = StringExtensions.FormatHeading('=', lines);
             WriteError();
-            foreach (var line in formattedLines) WriteError(line);
+            WriteHeadingError(lines);
         }
 
 
-        /// <summary>
-        /// Program usage information
-        /// </summary>
-        ///
-        public static void UsageEvent(string message)
+        public static void ProgramUsageEvent(string message)
         {
             Guard.NotNull(message, nameof(message));
             WriteError();
@@ -33,20 +23,12 @@ namespace TestRunner.Events
         }
 
 
-        /// <summary>
-        /// <see cref="System.Diagnostics.Trace"/> output
-        /// </summary>
-        ///
-        public static void TraceEvent(string message = "")
+        public static void TestTraceOutputEvent(string message = "")
         {
             WriteOut(message);
         }
 
 
-        /// <summary>
-        /// A user-facing error occurred
-        /// </summary>
-        ///
         public static void UserErrorEvent(UserException exception)
         {
             Guard.NotNull(exception, nameof(exception));
@@ -55,16 +37,28 @@ namespace TestRunner.Events
         }
 
 
-        /// <summary>
-        /// An internal error occurred
-        /// </summary>
-        ///
         public static void InternalErrorEvent(Exception exception)
         {
             Guard.NotNull(exception, nameof(exception));
             WriteError();
             WriteError("An internal error occurred:");
             WriteError(ExceptionExtensions.FormatException(exception));
+        }
+
+
+        static void WriteHeadingOut(params string[] lines)
+        {
+            lines = lines ?? new string[0];
+            lines = StringExtensions.FormatHeading('=', lines);
+            foreach (var line in lines) WriteOut(line);
+        }
+
+
+        static void WriteHeadingError(params string[] lines)
+        {
+            lines = lines ?? new string[0];
+            lines = StringExtensions.FormatHeading('=', lines);
+            foreach (var line in lines) WriteError(line);
         }
 
 
