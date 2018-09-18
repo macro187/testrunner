@@ -6,7 +6,7 @@ using System.Reflection;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
 using TestRunner.Events;
-using static TestRunner.Infrastructure.ConsoleExtensions;
+using static TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
 {
@@ -26,8 +26,7 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(assemblyPath, nameof(assemblyPath));
 
-            WriteLine();
-            WriteHeading("Assembly: " + assemblyPath);
+            AssemblyBeginEvent(assemblyPath);
 
             //
             // Resolve full path to test assembly
@@ -38,8 +37,7 @@ namespace TestRunner.Runners
                     : Path.Combine(Environment.CurrentDirectory, assemblyPath);
             if (!File.Exists(fullAssemblyPath))
             {
-                WriteLine();
-                WriteLine("Test assembly not found: {0}", fullAssemblyPath);
+                AssemblyNotFoundEvent(fullAssemblyPath);
                 return false;
             }
 
@@ -53,20 +51,15 @@ namespace TestRunner.Runners
             }
             catch (BadImageFormatException)
             {
-                WriteLine();
-                WriteLine("Not a .NET assembly: {0}", fullAssemblyPath);
+                AssemblyNotDotNetEvent(fullAssemblyPath);
                 return true;
             }
             var testAssembly = TestAssembly.TryCreate(assembly);
             if (testAssembly == null)
             {
-                WriteLine();
-                WriteLine("Not a test assembly: {0}", fullAssemblyPath);
+                AssemblyNotTestEvent(fullAssemblyPath);
                 return true;
             }
-            WriteLine();
-            WriteLine("Test Assembly:");
-            WriteLine(assembly.Location);
 
             //
             // Run the test assembly with System.Diagnostics.Trace output redirected to EventHandler
@@ -82,6 +75,8 @@ namespace TestRunner.Runners
             {
                 Trace.Listeners.Remove(traceListener);
             }
+
+            AssemblyEndEvent();
 
             return result;
         }

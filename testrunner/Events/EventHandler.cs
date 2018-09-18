@@ -23,6 +23,44 @@ namespace TestRunner.Events
         }
 
 
+        public static void AssemblyBeginEvent(string path)
+        {
+            Guard.NotNull(path, nameof(path));
+            WriteOut();
+            WriteOut();
+            WriteHeadingOut(path);
+        }
+
+
+        public static void AssemblyNotFoundEvent(string path)
+        {
+            Guard.NotNull(path, nameof(path));
+            WriteOut();
+            WriteOut($"Test assembly not found: {path}");
+        }
+
+
+        public static void AssemblyNotDotNetEvent(string path)
+        {
+            Guard.NotNull(path, nameof(path));
+            WriteOut();
+            WriteOut($"Not a .NET assembly: {path}");
+        }
+
+
+        public static void AssemblyNotTestEvent(string path)
+        {
+            Guard.NotNull(path, nameof(path));
+            WriteOut();
+            WriteOut($"Not a test assembly: {path}");
+        }
+
+
+        public static void AssemblyEndEvent()
+        {
+        }
+
+
         public static void TestTraceOutputEvent(string message = "")
         {
             WriteOut(message);
