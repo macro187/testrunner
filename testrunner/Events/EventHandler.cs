@@ -134,6 +134,7 @@ namespace TestRunner.Events
                         : "Failed"
                     : "Not present";
 
+            WriteOut();
             WriteSubheadingOut("Summary");
             WriteOut();
             WriteOut($"ClassInitialize: {initializeResult}");
@@ -148,6 +149,27 @@ namespace TestRunner.Events
 
         public static void TestClassEndEvent()
         {
+        }
+
+
+        public static void TestMethodBeginEvent(string name)
+        {
+            WriteOut();
+            WriteSubheadingOut(name.Replace("_", " "));
+        }
+
+
+        public static void TestMethodIgnoredEvent()
+        {
+            WriteOut();
+            WriteOut("Ignored because method is decorated with [Ignore]");
+        }
+
+
+        public static void TestMethodEndEvent(bool passed)
+        {
+            WriteOut();
+            WriteOut(passed ? "Passed" : "FAILED");
         }
 
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using TestRunner.Domain;
-using static TestRunner.Infrastructure.ConsoleExtensions;
+using static TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
 {
@@ -29,12 +29,11 @@ namespace TestRunner.Runners
             TestContext.TestName = testMethod.Name;
             try
             {
-                WriteSubheading(testMethod.Name.Replace("_", " "));
+                TestMethodBeginEvent(testMethod.Name);
 
                 if (testMethod.IsIgnored)
                 {
-                    WriteLine();
-                    WriteLine("Ignored because method is decorated with [Ignore]");
+                    TestMethodIgnoredEvent();
                     return UnitTestOutcome.NotRunnable;
                 }
 
@@ -95,8 +94,7 @@ namespace TestRunner.Runners
 
                 bool passed = testInitializeSucceeded && testMethodSucceeded && testCleanupSucceeded;
 
-                WriteLine();
-                WriteLine(passed ? "Passed" : "FAILED");
+                TestMethodEndEvent(passed);
 
                 return passed ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
             }
