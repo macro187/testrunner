@@ -23,7 +23,24 @@ namespace TestRunner.Events
         }
 
 
-        public static void AssemblyBeginEvent(string path)
+        public static void ProgramUserErrorEvent(UserException exception)
+        {
+            Guard.NotNull(exception, nameof(exception));
+            WriteError();
+            WriteError(exception.Message);
+        }
+
+
+        public static void ProgramInternalErrorEvent(Exception exception)
+        {
+            Guard.NotNull(exception, nameof(exception));
+            WriteError();
+            WriteError("An internal error occurred:");
+            WriteError(ExceptionExtensions.FormatException(exception));
+        }
+
+
+        public static void TestAssemblyBeginEvent(string path)
         {
             Guard.NotNull(path, nameof(path));
             WriteOut();
@@ -32,7 +49,7 @@ namespace TestRunner.Events
         }
 
 
-        public static void AssemblyNotFoundEvent(string path)
+        public static void TestAssemblyNotFoundEvent(string path)
         {
             Guard.NotNull(path, nameof(path));
             WriteOut();
@@ -40,7 +57,7 @@ namespace TestRunner.Events
         }
 
 
-        public static void AssemblyNotDotNetEvent(string path)
+        public static void TestAssemblyNotDotNetEvent(string path)
         {
             Guard.NotNull(path, nameof(path));
             WriteOut();
@@ -48,7 +65,7 @@ namespace TestRunner.Events
         }
 
 
-        public static void AssemblyNotTestEvent(string path)
+        public static void TestAssemblyNotTestEvent(string path)
         {
             Guard.NotNull(path, nameof(path));
             WriteOut();
@@ -56,7 +73,7 @@ namespace TestRunner.Events
         }
 
 
-        public static void ConfigFileSwitchedEvent(string path)
+        public static void TestAssemblyConfigFileSwitchedEvent(string path)
         {
             WriteOut();
             WriteOut("Configuration File:");
@@ -71,12 +88,12 @@ namespace TestRunner.Events
         }
 
 
-        public static void AssemblyEndEvent()
+        public static void TestAssemblyEndEvent()
         {
         }
 
 
-        public static void ClassBeginEvent(string fullName)
+        public static void TestClassBeginEvent(string fullName)
         {
             Guard.NotNull(fullName, nameof(fullName));
             WriteOut();
@@ -84,14 +101,14 @@ namespace TestRunner.Events
         }
 
 
-        public static void ClassIgnoredEvent()
+        public static void TestClassIgnoredEvent()
         {
             WriteOut();
             WriteOut("Ignoring all tests because class is decorated with [Ignore]");
         }
 
 
-        public static void ClassSummaryEvent(
+        public static void TestClassSummaryEvent(
             bool initializePresent,
             bool initializeSucceeded,
             int testsTotal,
@@ -129,26 +146,9 @@ namespace TestRunner.Events
         }
 
 
-        public static void TestTraceOutputEvent(string message = "")
+        public static void OutputTraceEvent(string message = "")
         {
             WriteOut(message);
-        }
-
-
-        public static void UserErrorEvent(UserException exception)
-        {
-            Guard.NotNull(exception, nameof(exception));
-            WriteError();
-            WriteError(exception.Message);
-        }
-
-
-        public static void InternalErrorEvent(Exception exception)
-        {
-            Guard.NotNull(exception, nameof(exception));
-            WriteError();
-            WriteError("An internal error occurred:");
-            WriteError(ExceptionExtensions.FormatException(exception));
         }
 
 

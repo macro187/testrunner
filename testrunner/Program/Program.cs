@@ -41,7 +41,7 @@ namespace TestRunner.Program
             //
             catch (UserException ue)
             {
-                UserErrorEvent(ue);
+                ProgramUserErrorEvent(ue);
                 return 1;
             }
 
@@ -50,7 +50,7 @@ namespace TestRunner.Program
             //
             catch (Exception e)
             {
-                InternalErrorEvent(e);
+                ProgramInternalErrorEvent(e);
                 return 1;
             }
         }

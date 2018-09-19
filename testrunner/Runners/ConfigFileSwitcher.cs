@@ -57,7 +57,7 @@ namespace TestRunner.Runners
                 currentField.SetValue(null, null);
             }
 
-            ConfigFileSwitchedEvent(configPath);
+            TestAssemblyConfigFileSwitchedEvent(configPath);
             #endif
         }
         

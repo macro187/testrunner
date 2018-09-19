@@ -23,7 +23,7 @@ namespace TestRunner.Runners
             TestContext.FullyQualifiedTestClassName = testClass.FullName;
             try
             {
-                ClassBeginEvent(testClass.FullName);
+                TestClassBeginEvent(testClass.FullName);
 
                 bool classInitializeSucceeded = false;
                 int ran = 0;
@@ -34,7 +34,7 @@ namespace TestRunner.Runners
 
                 if (testClass.IsIgnored)
                 {
-                    ClassIgnoredEvent();
+                    TestClassIgnoredEvent();
                     ignored = testClass.TestMethods.Count;
                 }
                 else
@@ -98,7 +98,7 @@ namespace TestRunner.Runners
                 //
                 // Print results
                 //
-                ClassSummaryEvent(
+                TestClassSummaryEvent(
                     testClass.ClassInitializeMethod != null,
                     classInitializeSucceeded,
                     testClass.TestMethods.Count,
