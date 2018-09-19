@@ -146,6 +146,11 @@ namespace TestRunner.Events
         }
 
 
+        public static void TestClassEndEvent()
+        {
+        }
+
+
         public static void OutputTraceEvent(string message = "")
         {
             WriteOut(message);

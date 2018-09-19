@@ -109,6 +109,8 @@ namespace TestRunner.Runners
                     testClass.ClassCleanupMethod != null,
                     classCleanupSucceeded);
 
+                TestClassEndEvent();
+
                 return
                     classInitializeSucceeded &&
                     failed == 0 &&
