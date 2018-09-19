@@ -173,6 +173,42 @@ namespace TestRunner.Events
         }
 
 
+        public static void MethodBeginEvent(string prefix, string name)
+        {
+            Guard.NotNull(prefix, nameof(prefix));
+            Guard.NotNull(name, nameof(name));
+            if (prefix != "") prefix = prefix + " ";
+            WriteOut();
+            WriteOut($"{prefix}{name}()");
+        }
+
+
+        public static void MethodExpectedExceptionEvent(string name)
+        {
+            Guard.NotNull(name, nameof(name));
+            WriteOut($"  [ExpectedException] {name} occurred:");
+        }
+
+
+        public static void MethodExceptionEvent(Exception exception)
+        {
+            Guard.NotNull(exception, nameof(exception));
+            WriteOut(StringExtensions.Indent(ExceptionExtensions.FormatException(exception)));
+        }
+
+
+        public static void MethodSummaryEvent(bool success, long milliseconds)
+        {
+            var result = success ? "Succeeded" : "Failed";
+            WriteOut($"  {result} ({milliseconds:N0} ms)");
+        }
+
+
+        public static void MethodEndEvent()
+        {
+        }
+
+
         public static void OutputTraceEvent(string message = "")
         {
             WriteOut(message);

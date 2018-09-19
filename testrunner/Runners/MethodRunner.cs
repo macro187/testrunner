@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
-using static TestRunner.Infrastructure.ConsoleExtensions;
+using static TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
 {
@@ -30,8 +30,7 @@ namespace TestRunner.Runners
 
             if (method == null) return true;
 
-            WriteLine();
-            WriteLine(prefix + (string.IsNullOrEmpty(prefix) ? "" : " ") + method.Name + "()");
+            MethodBeginEvent(prefix, method.Name);
 
             var watch = new Stopwatch();
             watch.Start();
@@ -57,12 +56,15 @@ namespace TestRunner.Runners
                 if (expected)
                 {
                     success = true;
-                    WriteLine("  [ExpectedException] {0} occurred:", expectedException.FullName);
+                    MethodExpectedExceptionEvent(expectedException.FullName);
                 }
-                WriteLine(StringExtensions.Indent(ExceptionExtensions.FormatException(ex)));
+
+                MethodExceptionEvent(ex);
             }
 
-            WriteLine("  {0} ({1:N0} ms)", success ? "Succeeded" : "Failed", watch.ElapsedMilliseconds);
+            MethodSummaryEvent(success, watch.ElapsedMilliseconds);
+
+            MethodEndEvent();
 
             return success;
         }
