@@ -4,7 +4,7 @@ using System;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using static TestRunner.Infrastructure.ConsoleExtensions;
+using static TestRunner.Events.EventHandler;
 #endif
 
 namespace TestRunner.Runners
@@ -57,16 +57,7 @@ namespace TestRunner.Runners
                 currentField.SetValue(null, null);
             }
 
-            WriteLine();
-            WriteLine("Configuration File:");
-            WriteLine(configPath);
-
-            if (Type.GetType("Mono.Runtime") != null)
-            {
-                WriteLine();
-                WriteLine("WARNING: Running on Mono, configuration file will probably not take effect");
-                WriteLine("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
-            }
+            ConfigFileSwitchedEvent(configPath);
             #endif
         }
         

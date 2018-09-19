@@ -56,6 +56,21 @@ namespace TestRunner.Events
         }
 
 
+        public static void ConfigFileSwitchedEvent(string path)
+        {
+            WriteOut();
+            WriteOut("Configuration File:");
+            WriteOut(path);
+
+            if (Type.GetType("Mono.Runtime") != null)
+            {
+                WriteOut();
+                WriteOut("WARNING: Running on Mono, configuration file will probably not take effect");
+                WriteOut("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
+            }
+        }
+
+
         public static void AssemblyEndEvent()
         {
         }
