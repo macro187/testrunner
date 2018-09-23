@@ -95,10 +95,7 @@ namespace TestRunner.Runners
                     }
                 }
 
-                //
-                // Print results
-                //
-                TestClassSummaryEvent(
+                TestClassEndEvent(
                     testClass.ClassInitializeMethod != null,
                     classInitializeSucceeded,
                     testClass.TestMethods.Count,
@@ -108,8 +105,6 @@ namespace TestRunner.Runners
                     failed,
                     testClass.ClassCleanupMethod != null,
                     classCleanupSucceeded);
-
-                TestClassEndEvent();
 
                 return
                     classInitializeSucceeded &&

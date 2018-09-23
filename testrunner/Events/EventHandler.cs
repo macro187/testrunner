@@ -108,7 +108,7 @@ namespace TestRunner.Events
         }
 
 
-        public static void TestClassSummaryEvent(
+        public static void TestClassEndEvent(
             bool initializePresent,
             bool initializeSucceeded,
             int testsTotal,
@@ -144,11 +144,6 @@ namespace TestRunner.Events
             WriteOut($"Passed:          {testsPassed} tests");
             WriteOut($"Failed:          {testsFailed} tests");
             WriteOut($"ClassCleanup:    {cleanupResult}");
-        }
-
-
-        public static void TestClassEndEvent()
-        {
         }
 
 
