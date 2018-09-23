@@ -153,6 +153,10 @@ namespace TestRunner.Tests
             Assert.IsFalse(
                 results.Output.Contains(MSTest.MSTestTests.IgnoredTestMessage),
                 "An [Ignore]d test method ran");
+
+            Assert.IsFalse(
+                results.Output.Contains(MSTest.MSTestTests.IgnoredClassTestMessage),
+                "An [Ignore]d class test method ran");
         }
 
 
