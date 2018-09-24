@@ -25,6 +25,7 @@ namespace TestRunner.Runners
             {
                 TestClassBeginEvent(testClass.FullName);
 
+                bool classIgnored = false;
                 bool classInitializeSucceeded = false;
                 int ran = 0;
                 int passed = 0;
@@ -35,6 +36,7 @@ namespace TestRunner.Runners
                 if (testClass.IsIgnored)
                 {
                     TestClassIgnoredEvent();
+                    classIgnored = true;
                     ignored = testClass.TestMethods.Count;
                 }
                 else
@@ -107,9 +109,12 @@ namespace TestRunner.Runners
                     classCleanupSucceeded);
 
                 return
-                    classInitializeSucceeded &&
-                    failed == 0 &&
-                    classCleanupSucceeded;
+                    classIgnored ||
+                    (
+                        classInitializeSucceeded &&
+                        failed == 0 &&
+                        classCleanupSucceeded
+                    );
             }
             finally
             {
