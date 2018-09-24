@@ -110,6 +110,7 @@ namespace TestRunner.Events
 
 
         public static void TestClassEndEvent(
+            bool classIgnored,
             bool initializePresent,
             bool initializeSucceeded,
             int testsTotal,
@@ -123,16 +124,20 @@ namespace TestRunner.Events
         {
             var initializeResult =
                 initializePresent
-                    ? initializeSucceeded
-                        ? "Succeeded"
-                        : "Failed"
+                    ? classIgnored
+                        ? "Ignored"
+                        : initializeSucceeded
+                            ? "Succeeded"
+                            : "Failed"
                     : "Not present";
 
             var cleanupResult =
                 cleanupPresent
-                    ? cleanupSucceeded
-                        ? "Succeeded"
-                        : "Failed"
+                    ? classIgnored
+                        ? "Ignored"
+                        : cleanupSucceeded
+                            ? "Succeeded"
+                            : "Failed"
                     : "Not present";
 
             WriteOut();

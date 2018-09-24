@@ -88,6 +88,7 @@ namespace TestRunner.Runners
                 }
 
                 TestClassEndEvent(
+                    classIgnored,
                     testClass.ClassInitializeMethod != null,
                     classInitializeSucceeded,
                     testClass.TestMethods.Count,
