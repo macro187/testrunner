@@ -155,8 +155,16 @@ namespace TestRunner.Tests
                 "An [Ignore]d test method ran");
 
             Assert.IsFalse(
+                results.Output.Contains(MSTest.MSTestTests.IgnoredClassInitializeMessage),
+                "[TestInitialize] on an [Ignore]d [TestClass] ran");
+
+            Assert.IsFalse(
                 results.Output.Contains(MSTest.MSTestTests.IgnoredClassTestMessage),
                 "An [Ignore]d class test method ran");
+
+            Assert.IsFalse(
+                results.Output.Contains(MSTest.MSTestTests.IgnoredClassCleanupMessage),
+                "[TestCleanup] on an [Ignore]d [TestClass] ran");
         }
 
 

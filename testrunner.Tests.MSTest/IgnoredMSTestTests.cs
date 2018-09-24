@@ -9,10 +9,24 @@ namespace TestRunner.Tests.MSTest
     public class IgnoredMSTestTests
     {
 
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            Console.WriteLine(MSTestTests.IgnoredClassInitializeMessage);
+        }
+
+
         [TestMethod]
         public void IgnoredTestClassMethod()
         {
             Console.WriteLine(MSTestTests.IgnoredClassTestMessage);
+        }
+
+
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            Console.WriteLine(MSTestTests.IgnoredClassCleanupMessage);
         }
 
     }
