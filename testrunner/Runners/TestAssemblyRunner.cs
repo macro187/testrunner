@@ -101,11 +101,7 @@ namespace TestRunner.Runners
             TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
 
             assemblyInitializeSucceeded =
-                MethodRunner.Run(
-                    testAssembly.AssemblyInitializeMethod, null,
-                    true,
-                    null, false,
-                    "[AssemblyInitialize]");
+                MethodRunner.RunAssemblyInitializeMethod(testAssembly.AssemblyInitializeMethod);
 
             TestContext.FullyQualifiedTestClassName = null;
             TestContext.TestName = null;
@@ -130,12 +126,7 @@ namespace TestRunner.Runners
                 //
                 // Run [AssemblyCleanup] method
                 //
-                assemblyCleanupSucceeded =
-                    MethodRunner.Run(
-                        testAssembly.AssemblyCleanupMethod, null,
-                        false,
-                        null, false,
-                        "[AssemblyCleanup]");
+                assemblyCleanupSucceeded = MethodRunner.RunAssemblyCleanupMethod(testAssembly.AssemblyCleanupMethod);
             }
 
             return

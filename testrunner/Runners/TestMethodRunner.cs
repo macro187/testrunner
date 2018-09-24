@@ -45,14 +45,7 @@ namespace TestRunner.Runners
                 //
                 // Set the instance's TestContext property, if present
                 //
-                if (testClass.TestContextSetter != null)
-                {
-                    MethodRunner.Run(
-                        testClass.TestContextSetter, testInstance,
-                        true,
-                        null, false,
-                        null);
-                }
+                MethodRunner.RunTestContextSetter(testClass.TestContextSetter, testInstance);
 
                 //
                 // Invoke [TestInitialize], [TestMethod], and [TestCleanup]
@@ -63,33 +56,22 @@ namespace TestRunner.Runners
 
                 TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
 
-                testInitializeSucceeded =
-                    MethodRunner.Run(
-                        testInitializeMethod, testInstance,
-                        false,
-                        null, false,
-                        "[TestInitialize]");
+                testInitializeSucceeded = MethodRunner.RunTestInitializeMethod(testInitializeMethod, testInstance);
 
                 if (testInitializeSucceeded)
                 {
                     testMethodSucceeded =
-                        MethodRunner.Run(
+                        MethodRunner.RunTestMethod(
                             testMethod.MethodInfo, testInstance,
-                            false,
-                            testMethod.ExpectedException, testMethod.AllowDerivedExpectedExceptionTypes,
-                            "[TestMethod]");
+                            testMethod.ExpectedException,
+                            testMethod.AllowDerivedExpectedExceptionTypes);
 
                     TestContext.CurrentTestOutcome =
                         testMethodSucceeded
                             ? UnitTestOutcome.Passed
                             : UnitTestOutcome.Failed;
 
-                    testCleanupSucceeded =
-                        MethodRunner.Run(
-                            testCleanupMethod, testInstance,
-                            false,
-                            null, false,
-                            "[TestCleanup]");
+                    testCleanupSucceeded = MethodRunner.RunTestCleanupMethod(testCleanupMethod, testInstance);
                 }
 
                 bool passed = testInitializeSucceeded && testMethodSucceeded && testCleanupSucceeded;

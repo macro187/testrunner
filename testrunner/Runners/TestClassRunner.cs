@@ -47,12 +47,7 @@ namespace TestRunner.Runners
                     TestContext.TestName = testClass.TestMethods.First().Name;
                     TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
 
-                    classInitializeSucceeded =
-                        MethodRunner.Run(
-                            testClass.ClassInitializeMethod, null,
-                            true,
-                            null, false,
-                            "[ClassInitialize]");
+                    classInitializeSucceeded = MethodRunner.RunClassInitializeMethod(testClass.ClassInitializeMethod);
 
                     TestContext.TestName = null;
                     TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
@@ -88,12 +83,7 @@ namespace TestRunner.Runners
                         //
                         // Run [ClassCleanup] method
                         //
-                        classCleanupSucceeded =
-                            MethodRunner.Run(
-                                testClass.ClassCleanupMethod, null,
-                                false,
-                                null, false,
-                                "[ClassCleanup]");
+                        classCleanupSucceeded = MethodRunner.RunClassCleanupMethod(testClass.ClassCleanupMethod);
                     }
                 }
 

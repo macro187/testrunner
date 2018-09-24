@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Reflection;
 using TestRunner.Domain;
-using TestRunner.Infrastructure;
 using static TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
@@ -10,15 +9,94 @@ namespace TestRunner.Runners
     static class MethodRunner
     {
 
-        /// <summary>
-        /// Run a method from a test class using reflection
-        /// </summary>
-        ///
-        /// <returns>
-        /// Whether the method ran successfully
-        /// </returns>
-        ///
-        static public bool Run(
+        static public bool RunAssemblyInitializeMethod(MethodInfo method)
+        {
+            return Run(
+                method, null,
+                true,
+                null, false,
+                "[AssemblyInitialize]");
+        }
+
+
+        static public bool RunAssemblyCleanupMethod(MethodInfo method)
+        {
+            return Run(
+                method, null,
+                false,
+                null, false,
+                "[AssemblyCleanup]");
+        }
+
+
+        static public bool RunClassInitializeMethod(MethodInfo method)
+        {
+            return Run(
+                method, null,
+                true,
+                null, false,
+                "[ClassInitialize]");
+        }
+
+
+        static public bool RunClassCleanupMethod(MethodInfo method)
+        {
+            return Run(
+                method, null,
+                false,
+                null, false,
+                "[ClassCleanup]");
+        }
+
+
+        static public void RunTestContextSetter(
+            MethodInfo method,
+            object instance)
+        {
+            if (method == null) return;
+            Run(method, instance, true, null, false, null);
+        }
+
+
+        static public bool RunTestInitializeMethod(
+            MethodInfo method,
+            object instance)
+        {
+            return Run(
+                method, instance,
+                false,
+                null, false,
+                "[TestInitialize]");
+        }
+
+
+        static public bool RunTestMethod(
+            MethodInfo method,
+            object instance,
+            Type expectedException,
+            bool expectedExceptionAllowDerived)
+        {
+            return Run(
+                method, instance,
+                false,
+                expectedException, expectedExceptionAllowDerived,
+                "[TestMethod]");
+        }
+
+
+        static public bool RunTestCleanupMethod(
+            MethodInfo method,
+            object instance)
+        {
+            return Run(
+                method, instance,
+                false,
+                null, false,
+                "[TestCleanup]");
+        }
+
+
+        static bool Run(
             MethodInfo method,
             object instance,
             bool takesTestContext,
