@@ -129,11 +129,13 @@ namespace TestRunner.Runners
                     
                 if (expected)
                 {
+                    MethodExpectedExceptionEvent(expectedException, ex);
                     success = true;
-                    MethodExpectedExceptionEvent(expectedException.FullName);
                 }
-
-                MethodExceptionEvent(ex);
+                else
+                {
+                    MethodUnexpectedExceptionEvent(ex);
+                }
             }
 
             MethodTimingEvent(watch.ElapsedMilliseconds);

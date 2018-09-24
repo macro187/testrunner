@@ -265,14 +265,16 @@ namespace TestRunner.Events
         }
 
 
-        public static void MethodExpectedExceptionEvent(string name)
+        public static void MethodExpectedExceptionEvent(Type expected, Exception exception)
         {
-            Guard.NotNull(name, nameof(name));
-            WriteOut($"  [ExpectedException] {name} occurred:");
+            Guard.NotNull(expected, nameof(expected));
+            Guard.NotNull(exception, nameof(exception));
+            WriteOut($"  [ExpectedException] {expected.FullName} occurred:");
+            WriteOut(StringExtensions.Indent(ExceptionExtensions.FormatException(exception)));
         }
 
 
-        public static void MethodExceptionEvent(Exception exception)
+        public static void MethodUnexpectedExceptionEvent(Exception exception)
         {
             Guard.NotNull(exception, nameof(exception));
             WriteOut(StringExtensions.Indent(ExceptionExtensions.FormatException(exception)));
