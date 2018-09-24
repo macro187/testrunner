@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using TestRunner.Domain;
+using TestRunner.Infrastructure;
 using static TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
@@ -11,62 +12,62 @@ namespace TestRunner.Runners
 
         static public bool RunAssemblyInitializeMethod(MethodInfo method)
         {
-            return Run(
-                method, null,
-                true,
-                null, false,
-                "[AssemblyInitialize]");
+            if (method == null) return true;
+            AssemblyInitializeMethodBeginEvent(method);
+            var result = Run(method, null, true, null, false);
+            AssemblyInitializeMethodEndEvent(result);
+            return result;
         }
 
 
         static public bool RunAssemblyCleanupMethod(MethodInfo method)
         {
-            return Run(
-                method, null,
-                false,
-                null, false,
-                "[AssemblyCleanup]");
+            if (method == null) return true;
+            AssemblyCleanupMethodBeginEvent(method);
+            var result = Run(method, null, false, null, false);
+            AssemblyCleanupMethodEndEvent(result);
+            return result;
         }
 
 
         static public bool RunClassInitializeMethod(MethodInfo method)
         {
-            return Run(
-                method, null,
-                true,
-                null, false,
-                "[ClassInitialize]");
+            if (method == null) return true;
+            ClassInitializeMethodBeginEvent(method);
+            var result = Run(method, null, true, null, false);
+            ClassInitializeMethodEndEvent(result);
+            return result;
         }
 
 
         static public bool RunClassCleanupMethod(MethodInfo method)
         {
-            return Run(
-                method, null,
-                false,
-                null, false,
-                "[ClassCleanup]");
+            if (method == null) return true;
+            ClassCleanupMethodBeginEvent(method);
+            var result = Run(method, null, false, null, false);
+            ClassCleanupMethodEndEvent(result);
+            return result;
         }
 
 
-        static public void RunTestContextSetter(
-            MethodInfo method,
-            object instance)
+        static public void RunTestContextSetter(MethodInfo method, object instance)
         {
             if (method == null) return;
-            Run(method, instance, true, null, false, null);
+            Guard.NotNull(instance, nameof(instance));
+            TestContextSetterBeginEvent(method);
+            var result = Run(method, instance, true, null, false);
+            TestContextSetterEndEvent(result);
         }
 
 
-        static public bool RunTestInitializeMethod(
-            MethodInfo method,
-            object instance)
+        static public bool RunTestInitializeMethod(MethodInfo method, object instance)
         {
-            return Run(
-                method, instance,
-                false,
-                null, false,
-                "[TestInitialize]");
+            if (method == null) return true;
+            Guard.NotNull(instance, nameof(instance));
+            TestInitializeMethodBeginEvent(method);
+            var result = Run(method, instance, false, null, false);
+            TestInitializeMethodEndEvent(result);
+            return result;
         }
 
 
@@ -76,23 +77,23 @@ namespace TestRunner.Runners
             Type expectedException,
             bool expectedExceptionAllowDerived)
         {
-            return Run(
-                method, instance,
-                false,
-                expectedException, expectedExceptionAllowDerived,
-                "[TestMethod]");
+            Guard.NotNull(method, nameof(method));
+            Guard.NotNull(instance, nameof(instance));
+            TestMethodBeginEvent(method);
+            var result = Run(method, instance, false, expectedException, expectedExceptionAllowDerived);
+            TestMethodEndEvent(result);
+            return result;
         }
 
 
-        static public bool RunTestCleanupMethod(
-            MethodInfo method,
-            object instance)
+        static public bool RunTestCleanupMethod(MethodInfo method, object instance)
         {
-            return Run(
-                method, instance,
-                false,
-                null, false,
-                "[TestCleanup]");
+            if (method == null) return true;
+            Guard.NotNull(instance, nameof(instance));
+            TestCleanupMethodBeginEvent(method);
+            var result = Run(method, instance, false, null, false);
+            TestCleanupMethodEndEvent(result);
+            return result;
         }
 
 
@@ -101,14 +102,9 @@ namespace TestRunner.Runners
             object instance,
             bool takesTestContext,
             Type expectedException,
-            bool expectedExceptionAllowDerived,
-            string prefix)
+            bool expectedExceptionAllowDerived)
         {
-            prefix = prefix ?? "";
-
-            if (method == null) return true;
-
-            MethodBeginEvent(prefix, method.Name);
+            Guard.NotNull(method, nameof(method));
 
             var watch = new Stopwatch();
             watch.Start();
@@ -140,9 +136,7 @@ namespace TestRunner.Runners
                 MethodExceptionEvent(ex);
             }
 
-            MethodSummaryEvent(success, watch.ElapsedMilliseconds);
-
-            MethodEndEvent();
+            MethodTimingEvent(watch.ElapsedMilliseconds);
 
             return success;
         }

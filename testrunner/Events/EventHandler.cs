@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using TestRunner.Infrastructure;
 
 namespace TestRunner.Events
@@ -147,34 +148,120 @@ namespace TestRunner.Events
         }
 
 
-        public static void TestMethodBeginEvent(string name)
+        public static void TestBeginEvent(string name)
         {
             WriteOut();
             WriteSubheadingOut(name.Replace("_", " "));
         }
 
 
-        public static void TestMethodIgnoredEvent()
+        public static void TestIgnoredEvent()
         {
             WriteOut();
-            WriteOut("Ignored because method is decorated with [Ignore]");
+            WriteOut("Ignored because [TestMethod] is decorated with [Ignore]");
         }
 
 
-        public static void TestMethodEndEvent(bool passed)
+        public static void TestEndEvent(bool passed)
         {
             WriteOut();
             WriteOut(passed ? "Passed" : "FAILED");
         }
 
 
-        public static void MethodBeginEvent(string prefix, string name)
+        public static void AssemblyInitializeMethodBeginEvent(MethodInfo method)
         {
-            Guard.NotNull(prefix, nameof(prefix));
-            Guard.NotNull(name, nameof(name));
-            if (prefix != "") prefix = prefix + " ";
-            WriteOut();
-            WriteOut($"{prefix}{name}()");
+            WriteMethodBegin(method, "[AssemblyInitialize]");
+        }
+
+
+        public static void AssemblyInitializeMethodEndEvent(bool success)
+        {
+            WriteMethodEnd(success);
+        }
+
+
+        public static void AssemblyCleanupMethodBeginEvent(MethodInfo method)
+        {
+            WriteMethodBegin(method, "[AssemblyCleanup]");
+        }
+
+
+        public static void AssemblyCleanupMethodEndEvent(bool success)
+        {
+            WriteMethodEnd(success);
+        }
+
+
+        public static void ClassInitializeMethodBeginEvent(MethodInfo method)
+        {
+            WriteMethodBegin(method, "[ClassInitialize]");
+        }
+
+
+        public static void ClassInitializeMethodEndEvent(bool success)
+        {
+            WriteMethodEnd(success);
+        }
+
+
+        public static void ClassCleanupMethodBeginEvent(MethodInfo method)
+        {
+            WriteMethodBegin(method, "[ClassCleanup]");
+        }
+
+
+        public static void ClassCleanupMethodEndEvent(bool success)
+        {
+            WriteMethodEnd(success);
+        }
+
+
+        public static void TestContextSetterBeginEvent(MethodInfo method)
+        {
+            WriteMethodBegin(method, "");
+        }
+
+
+        public static void TestContextSetterEndEvent(bool success)
+        {
+            WriteMethodEnd(success);
+        }
+
+
+        public static void TestInitializeMethodBeginEvent(MethodInfo method)
+        {
+            WriteMethodBegin(method, "[TestInitialize]");
+        }
+
+
+        public static void TestInitializeMethodEndEvent(bool success)
+        {
+            WriteMethodEnd(success);
+        }
+
+
+        public static void TestMethodBeginEvent(MethodInfo method)
+        {
+            WriteMethodBegin(method, "[TestMethod]");
+        }
+
+
+        public static void TestMethodEndEvent(bool success)
+        {
+            WriteMethodEnd(success);
+        }
+
+
+        public static void TestCleanupMethodBeginEvent(MethodInfo method)
+        {
+            WriteMethodBegin(method, "[TestCleanup]");
+        }
+
+
+        public static void TestCleanupMethodEndEvent(bool success)
+        {
+            WriteMethodEnd(success);
         }
 
 
@@ -192,21 +279,31 @@ namespace TestRunner.Events
         }
 
 
-        public static void MethodSummaryEvent(bool success, long milliseconds)
+        public static void MethodTimingEvent(long milliseconds)
         {
-            var result = success ? "Succeeded" : "Failed";
-            WriteOut($"  {result} ({milliseconds:N0} ms)");
-        }
-
-
-        public static void MethodEndEvent()
-        {
+            WriteOut($"  ({milliseconds:N0} ms)");
         }
 
 
         public static void OutputTraceEvent(string message = "")
         {
             WriteOut(message);
+        }
+
+
+        static void WriteMethodBegin(MethodInfo method, string prefix)
+        {
+            Guard.NotNull(method, nameof(method));
+            Guard.NotNull(prefix, nameof(prefix));
+            prefix = prefix != "" ? prefix + " " : prefix;
+            WriteOut();
+            WriteOut($"{prefix}{method.Name}()");
+        }
+
+
+        static void WriteMethodEnd(bool success)
+        {
+            WriteOut(success ? "  Succeeded" : "  Failed");
         }
 
 

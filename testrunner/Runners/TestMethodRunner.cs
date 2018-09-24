@@ -29,11 +29,11 @@ namespace TestRunner.Runners
             TestContext.TestName = testMethod.Name;
             try
             {
-                TestMethodBeginEvent(testMethod.Name);
+                TestBeginEvent(testMethod.Name);
 
                 if (testMethod.IsIgnored)
                 {
-                    TestMethodIgnoredEvent();
+                    TestIgnoredEvent();
                     return UnitTestOutcome.NotRunnable;
                 }
 
@@ -76,7 +76,7 @@ namespace TestRunner.Runners
 
                 bool passed = testInitializeSucceeded && testMethodSucceeded && testCleanupSucceeded;
 
-                TestMethodEndEvent(passed);
+                TestEndEvent(passed);
 
                 return passed ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
             }
