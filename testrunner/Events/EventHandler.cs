@@ -180,9 +180,9 @@ namespace TestRunner.Events
         }
 
 
-        public static void AssemblyInitializeMethodEndEvent(bool success)
+        public static void AssemblyInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success);
+            WriteMethodEnd(success, elapsedMilliseconds);
         }
 
 
@@ -192,9 +192,9 @@ namespace TestRunner.Events
         }
 
 
-        public static void AssemblyCleanupMethodEndEvent(bool success)
+        public static void AssemblyCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success);
+            WriteMethodEnd(success, elapsedMilliseconds);
         }
 
 
@@ -204,9 +204,9 @@ namespace TestRunner.Events
         }
 
 
-        public static void ClassInitializeMethodEndEvent(bool success)
+        public static void ClassInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success);
+            WriteMethodEnd(success, elapsedMilliseconds);
         }
 
 
@@ -216,9 +216,9 @@ namespace TestRunner.Events
         }
 
 
-        public static void ClassCleanupMethodEndEvent(bool success)
+        public static void ClassCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success);
+            WriteMethodEnd(success, elapsedMilliseconds);
         }
 
 
@@ -228,9 +228,9 @@ namespace TestRunner.Events
         }
 
 
-        public static void TestContextSetterEndEvent(bool success)
+        public static void TestContextSetterEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success);
+            WriteMethodEnd(success, elapsedMilliseconds);
         }
 
 
@@ -240,9 +240,9 @@ namespace TestRunner.Events
         }
 
 
-        public static void TestInitializeMethodEndEvent(bool success)
+        public static void TestInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success);
+            WriteMethodEnd(success, elapsedMilliseconds);
         }
 
 
@@ -252,9 +252,9 @@ namespace TestRunner.Events
         }
 
 
-        public static void TestMethodEndEvent(bool success)
+        public static void TestMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success);
+            WriteMethodEnd(success, elapsedMilliseconds);
         }
 
 
@@ -264,9 +264,9 @@ namespace TestRunner.Events
         }
 
 
-        public static void TestCleanupMethodEndEvent(bool success)
+        public static void TestCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success);
+            WriteMethodEnd(success, elapsedMilliseconds);
         }
 
 
@@ -286,12 +286,6 @@ namespace TestRunner.Events
         }
 
 
-        public static void MethodTimingEvent(long milliseconds)
-        {
-            WriteOut($"  ({milliseconds:N0} ms)");
-        }
-
-
         public static void OutputTraceEvent(string message = "")
         {
             WriteOut(message);
@@ -308,9 +302,10 @@ namespace TestRunner.Events
         }
 
 
-        static void WriteMethodEnd(bool success)
+        static void WriteMethodEnd(bool success, long elapsedMilliseconds)
         {
-            WriteOut(success ? "  Succeeded" : "  Failed");
+            var result = success ? "Succeeded" : "Failed";
+            WriteOut($"  {result} ({elapsedMilliseconds:N0} ms)");
         }
 
 

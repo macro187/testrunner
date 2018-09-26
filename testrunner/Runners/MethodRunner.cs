@@ -10,12 +10,17 @@ namespace TestRunner.Runners
     static class MethodRunner
     {
 
+        static readonly Stopwatch Stopwatch = new Stopwatch();
+
+
         static public bool RunAssemblyInitializeMethod(MethodInfo method)
         {
             if (method == null) return true;
             AssemblyInitializeMethodBeginEvent(method);
+            StartStopwatch();
             var result = Run(method, null, true, null, false);
-            AssemblyInitializeMethodEndEvent(result);
+            var elapsed = StopStopwatch();
+            AssemblyInitializeMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -24,8 +29,10 @@ namespace TestRunner.Runners
         {
             if (method == null) return true;
             AssemblyCleanupMethodBeginEvent(method);
+            StartStopwatch();
             var result = Run(method, null, false, null, false);
-            AssemblyCleanupMethodEndEvent(result);
+            var elapsed = StopStopwatch();
+            AssemblyCleanupMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -34,8 +41,10 @@ namespace TestRunner.Runners
         {
             if (method == null) return true;
             ClassInitializeMethodBeginEvent(method);
+            StartStopwatch();
             var result = Run(method, null, true, null, false);
-            ClassInitializeMethodEndEvent(result);
+            var elapsed = StopStopwatch();
+            ClassInitializeMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -44,8 +53,10 @@ namespace TestRunner.Runners
         {
             if (method == null) return true;
             ClassCleanupMethodBeginEvent(method);
+            StartStopwatch();
             var result = Run(method, null, false, null, false);
-            ClassCleanupMethodEndEvent(result);
+            var elapsed = StopStopwatch();
+            ClassCleanupMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -55,8 +66,10 @@ namespace TestRunner.Runners
             if (method == null) return;
             Guard.NotNull(instance, nameof(instance));
             TestContextSetterBeginEvent(method);
+            StartStopwatch();
             var result = Run(method, instance, true, null, false);
-            TestContextSetterEndEvent(result);
+            var elapsed = StopStopwatch();
+            TestContextSetterEndEvent(result, elapsed);
         }
 
 
@@ -65,8 +78,10 @@ namespace TestRunner.Runners
             if (method == null) return true;
             Guard.NotNull(instance, nameof(instance));
             TestInitializeMethodBeginEvent(method);
+            StartStopwatch();
             var result = Run(method, instance, false, null, false);
-            TestInitializeMethodEndEvent(result);
+            var elapsed = StopStopwatch();
+            TestInitializeMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -80,8 +95,10 @@ namespace TestRunner.Runners
             Guard.NotNull(method, nameof(method));
             Guard.NotNull(instance, nameof(instance));
             TestMethodBeginEvent(method);
+            StartStopwatch();
             var result = Run(method, instance, false, expectedException, expectedExceptionAllowDerived);
-            TestMethodEndEvent(result);
+            var elapsed = StopStopwatch();
+            TestMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -91,8 +108,10 @@ namespace TestRunner.Runners
             if (method == null) return true;
             Guard.NotNull(instance, nameof(instance));
             TestCleanupMethodBeginEvent(method);
+            StartStopwatch();
             var result = Run(method, instance, false, null, false);
-            TestCleanupMethodEndEvent(result);
+            var elapsed = StopStopwatch();
+            TestCleanupMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -106,41 +125,56 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(method, nameof(method));
 
-            var watch = new Stopwatch();
-            watch.Start();
-            bool success = false;
             var parameters = takesTestContext ? new object[] { TestContextProxy.Proxy } : null;
+
             try
             {
                 method.Invoke(instance, parameters);
-                watch.Stop();
-                success = true;
+                return true;
             }
+
             catch (TargetInvocationException tie)
             {
-                watch.Stop();
-                var ex = tie.InnerException;
-                bool expected = 
+                var e = tie.InnerException;
+
+                var isExactExpectedException =
                     expectedException != null &&
-                    (
-                        ex.GetType() == expectedException ||
-                        (expectedExceptionAllowDerived && ex.GetType().IsSubclassOf(expectedException))
-                    );
-                    
-                if (expected)
+                    e.GetType() == expectedException;
+
+                var isDerivedExpectedException =
+                    expectedException != null &&
+                    expectedExceptionAllowDerived &&
+                    e.GetType().IsSubclassOf(expectedException);
+
+                bool wasExpected =
+                    isExactExpectedException ||
+                    isDerivedExpectedException;
+
+                if (wasExpected)
                 {
-                    MethodExpectedExceptionEvent(expectedException, ex);
-                    success = true;
+                    MethodExpectedExceptionEvent(expectedException, e);
+                    return true;
                 }
-                else
-                {
-                    MethodUnexpectedExceptionEvent(ex);
-                }
+
+                MethodUnexpectedExceptionEvent(e);
+                return false;
             }
+        }
 
-            MethodTimingEvent(watch.ElapsedMilliseconds);
 
-            return success;
+        static void StartStopwatch()
+        {
+            if (Stopwatch.IsRunning) throw new InvalidOperationException("Stopwatch already running");
+            Stopwatch.Reset();
+            Stopwatch.Start();
+        }
+
+
+        static long StopStopwatch()
+        {
+            if (!Stopwatch.IsRunning) throw new InvalidOperationException("Stopwatch isn't running");
+            Stopwatch.Stop();
+            return Stopwatch.ElapsedMilliseconds;
         }
         
     }
