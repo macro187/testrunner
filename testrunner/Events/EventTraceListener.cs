@@ -4,7 +4,7 @@ namespace TestRunner.Events
 {
 
     /// <summary>
-    /// A <see cref="System.Diagnostics.TraceListener"/> that redirects output to <see cref="EventHandler"/>
+    /// A <see cref="TraceListener"/> that redirects output to the <see cref="EventHandler"/> pipeline
     /// </summary>
     ///
     public class EventTraceListener : TraceListener
@@ -33,7 +33,7 @@ namespace TestRunner.Events
                     line = buffer + line;
                     buffer = "";
                 }
-                EventHandler.OutputTraceEvent(line);
+                EventHandler.First.OutputTraceEvent(line);
 
                 message = message.Substring(i + 1);
             }

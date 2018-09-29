@@ -4,7 +4,8 @@ using System.IO;
 using System.Reflection;
 using TestRunner.Infrastructure;
 using TestRunner.Runners;
-using static TestRunner.Events.EventHandler;
+using TestRunner.Events;
+using EventHandler = TestRunner.Events.EventHandler;
 
 namespace TestRunner.Program
 {
@@ -31,6 +32,8 @@ namespace TestRunner.Program
             Justification = "Required to handle unexpected exceptions")]
         static int Main2(string[] args)
         {
+            EventHandler.Append(new DefaultOutputEventHandler());
+
             try
             {
                 return Main3(args);
@@ -41,7 +44,7 @@ namespace TestRunner.Program
             //
             catch (UserException ue)
             {
-                ProgramUserErrorEvent(ue);
+                EventHandler.First.ProgramUserErrorEvent(ue);
                 return 1;
             }
 
@@ -50,7 +53,7 @@ namespace TestRunner.Program
             //
             catch (Exception e)
             {
-                ProgramInternalErrorEvent(e);
+                EventHandler.First.ProgramInternalErrorEvent(e);
                 return 1;
             }
         }
@@ -64,7 +67,7 @@ namespace TestRunner.Program
             ArgumentParser.Parse(args);
             if (!ArgumentParser.Success)
             {
-                ProgramUsageEvent(ArgumentParser.GetUsage());
+                EventHandler.First.ProgramUsageEvent(ArgumentParser.GetUsage());
                 throw new UserException(ArgumentParser.ErrorMessage);
             }
 
@@ -109,7 +112,7 @@ namespace TestRunner.Program
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
 
-            ProgramBannerEvent(
+            EventHandler.First.ProgramBannerEvent(
                 $"{name} v{version}",
                 copyright);
         }

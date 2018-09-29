@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
-using static TestRunner.Events.EventHandler;
+using EventHandler = TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
 {
@@ -23,7 +23,7 @@ namespace TestRunner.Runners
             TestContext.FullyQualifiedTestClassName = testClass.FullName;
             try
             {
-                TestClassBeginEvent(testClass.FullName);
+                EventHandler.First.TestClassBeginEvent(testClass.FullName);
 
                 bool classIgnored = false;
                 bool classInitializeSucceeded = false;
@@ -35,7 +35,7 @@ namespace TestRunner.Runners
 
                 if (testClass.IsIgnored)
                 {
-                    TestClassIgnoredEvent();
+                    EventHandler.First.TestClassIgnoredEvent();
                     classIgnored = true;
                     ignored = testClass.TestMethods.Count;
                 }
@@ -87,7 +87,7 @@ namespace TestRunner.Runners
                     }
                 }
 
-                TestClassEndEvent(
+                EventHandler.First.TestClassEndEvent(
                     classIgnored,
                     testClass.ClassInitializeMethod != null,
                     classInitializeSucceeded,

@@ -5,111 +5,147 @@ using TestRunner.Infrastructure;
 namespace TestRunner.Events
 {
 
-    public static class EventHandler
+    /// <summary>
+    /// Event handler pipeline
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// This class serves as a "no-op" handler implementation and as the base class for other handlers.
+    /// </para>
+    ///
+    /// <para>
+    /// The static members of this class implement the handler pipeline, to which handlers can be
+    /// <see cref="Prepend(EventHandler)"/>ed or <see cref="Append(EventHandler)"/>ed.
+    /// </para>
+    ///
+    /// <para>
+    /// The TestRunner program invokes event methods on the <see cref="First"/> handler as it runs.  Those methods
+    /// have to opportunity to perform actions before propagating to the next handler in the pipeline.
+    /// </para>
+    /// </remarks>
+    ///
+    public class EventHandler
     {
 
-        public static void ProgramBannerEvent(params string[] lines)
+        static EventHandler()
         {
-            WriteError();
-            WriteHeadingError(lines);
+            Append(new EventHandler());
         }
 
 
-        public static void ProgramUsageEvent(string message)
+        /// <summary>
+        /// The first event handler in the pipeline
+        /// </summary>
+        ///
+        public static EventHandler First { get; private set; }
+
+
+        private static EventHandler Last;
+
+
+        /// <summary>
+        /// Add an event handler to the beginning of the pipeline
+        /// </summary>
+        ///
+        public static void Prepend(EventHandler handler)
         {
-            Guard.NotNull(message, nameof(message));
-            WriteError();
-            WriteError(message);
-            WriteError();
+            Guard.NotNull(handler, nameof(handler));
+            handler.Next = First;
+            First = handler;
+            if (Last == null) Last = handler;
         }
 
 
-        public static void ProgramUserErrorEvent(UserException exception)
+        /// <summary>
+        /// Add an event handler to the end of the pipeline
+        /// </summary>
+        ///
+        public static void Append(EventHandler handler)
         {
-            Guard.NotNull(exception, nameof(exception));
-            WriteError();
-            WriteError(exception.Message);
+            Guard.NotNull(handler, nameof(handler));
+            if (First == null) First = handler;
+            if (Last != null) Last.Next = handler;
+            Last = handler;
         }
 
 
-        public static void ProgramInternalErrorEvent(Exception exception)
+        private EventHandler Next = null;
+
+
+        public virtual void ProgramBannerEvent(params string[] lines)
         {
-            Guard.NotNull(exception, nameof(exception));
-            WriteError();
-            WriteError("An internal error occurred:");
-            WriteError(ExceptionExtensions.FormatException(exception));
+            Next?.ProgramBannerEvent(lines);
         }
 
 
-        public static void TestAssemblyBeginEvent(string path)
+        public virtual void ProgramUsageEvent(string message)
         {
-            Guard.NotNull(path, nameof(path));
-            WriteOut();
-            WriteOut();
-            WriteHeadingOut(path);
+            Next?.ProgramUsageEvent(message);
         }
 
 
-        public static void TestAssemblyNotFoundEvent(string path)
+        public virtual void ProgramUserErrorEvent(UserException exception)
         {
-            Guard.NotNull(path, nameof(path));
-            WriteOut();
-            WriteOut($"Test assembly not found: {path}");
+            Next?.ProgramUserErrorEvent(exception);
         }
 
 
-        public static void TestAssemblyNotDotNetEvent(string path)
+        public virtual void ProgramInternalErrorEvent(Exception exception)
         {
-            Guard.NotNull(path, nameof(path));
-            WriteOut();
-            WriteOut($"Not a .NET assembly: {path}");
+            Next?.ProgramInternalErrorEvent(exception);
         }
 
 
-        public static void TestAssemblyNotTestEvent(string path)
+        public virtual void TestAssemblyBeginEvent(string path)
         {
-            Guard.NotNull(path, nameof(path));
-            WriteOut();
-            WriteOut($"Not a test assembly: {path}");
+            Next?.TestAssemblyBeginEvent(path);
         }
 
 
-        public static void TestAssemblyConfigFileSwitchedEvent(string path)
+        public virtual void TestAssemblyNotFoundEvent(string path)
         {
-            WriteOut();
-            WriteOut("Configuration File:");
-            WriteOut(path);
-
-            if (Type.GetType("Mono.Runtime") != null)
-            {
-                WriteOut();
-                WriteOut("WARNING: Running on Mono, configuration file will probably not take effect");
-                WriteOut("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
-            }
+            Next?.TestAssemblyNotFoundEvent(path);
         }
 
 
-        public static void TestAssemblyEndEvent()
+        public virtual void TestAssemblyNotDotNetEvent(string path)
         {
+            Next?.TestAssemblyNotDotNetEvent(path);
         }
 
 
-        public static void TestClassBeginEvent(string fullName)
+        public virtual void TestAssemblyNotTestEvent(string path)
         {
-            Guard.NotNull(fullName, nameof(fullName));
-            WriteOut();
-            WriteHeadingOut(fullName);
+            Next?.TestAssemblyNotTestEvent(path);
         }
 
 
-        public static void TestClassIgnoredEvent()
+        public virtual void TestAssemblyConfigFileSwitchedEvent(string path)
         {
-            WriteOut();
-            WriteOut("Ignoring all tests because class is decorated with [Ignore]");
+            Next?.TestAssemblyConfigFileSwitchedEvent(path);
         }
 
 
-        public static void TestClassEndEvent(
+        public virtual void TestAssemblyEndEvent()
+        {
+            Next?.TestAssemblyEndEvent();
+        }
+
+
+        public virtual void TestClassBeginEvent(string fullName)
+        {
+            Next?.TestClassBeginEvent(fullName);
+        }
+
+
+        public virtual void TestClassIgnoredEvent()
+        {
+            Next?.TestClassIgnoredEvent();
+        }
+
+
+        public virtual void TestClassEndEvent(
             bool classIgnored,
             bool initializePresent,
             bool initializeSucceeded,
@@ -122,228 +158,149 @@ namespace TestRunner.Events
             bool cleanupSucceeded
         )
         {
-            var initializeResult =
-                initializePresent
-                    ? classIgnored
-                        ? "Ignored"
-                        : initializeSucceeded
-                            ? "Succeeded"
-                            : "Failed"
-                    : "Not present";
-
-            var cleanupResult =
-                cleanupPresent
-                    ? classIgnored
-                        ? "Ignored"
-                        : cleanupSucceeded
-                            ? "Succeeded"
-                            : "Failed"
-                    : "Not present";
-
-            WriteOut();
-            WriteSubheadingOut("Summary");
-            WriteOut();
-            WriteOut($"ClassInitialize: {initializeResult}");
-            WriteOut($"Total:           {testsTotal} tests");
-            WriteOut($"Ran:             {testsRan} tests");
-            WriteOut($"Ignored:         {testsIgnored} tests");
-            WriteOut($"Passed:          {testsPassed} tests");
-            WriteOut($"Failed:          {testsFailed} tests");
-            WriteOut($"ClassCleanup:    {cleanupResult}");
+            Next?.TestClassEndEvent(
+                classIgnored,
+                initializePresent,
+                initializeSucceeded,
+                testsTotal,
+                testsRan,
+                testsIgnored,
+                testsPassed,
+                testsFailed,
+                cleanupPresent,
+                cleanupSucceeded);
         }
 
 
-        public static void TestBeginEvent(string name)
+        public virtual void TestBeginEvent(string name)
         {
-            WriteOut();
-            WriteSubheadingOut(name.Replace("_", " "));
+            Next?.TestBeginEvent(name);
         }
 
 
-        public static void TestIgnoredEvent()
+        public virtual void TestIgnoredEvent()
         {
-            WriteOut();
-            WriteOut("Ignored because [TestMethod] is decorated with [Ignore]");
+            Next?.TestIgnoredEvent();
         }
 
 
-        public static void TestEndEvent(bool passed)
+        public virtual void TestEndEvent(bool passed)
         {
-            WriteOut();
-            WriteOut(passed ? "Passed" : "FAILED");
+            Next?.TestEndEvent(passed);
         }
 
 
-        public static void AssemblyInitializeMethodBeginEvent(MethodInfo method)
+        public virtual void AssemblyInitializeMethodBeginEvent(MethodInfo method)
         {
-            WriteMethodBegin(method, "[AssemblyInitialize]");
+            Next?.AssemblyInitializeMethodBeginEvent(method);
         }
 
 
-        public static void AssemblyInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
+        public virtual void AssemblyInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
+            Next?.AssemblyInitializeMethodEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public static void AssemblyCleanupMethodBeginEvent(MethodInfo method)
+        public virtual void AssemblyCleanupMethodBeginEvent(MethodInfo method)
         {
-            WriteMethodBegin(method, "[AssemblyCleanup]");
+            Next?.AssemblyCleanupMethodBeginEvent(method);
         }
 
 
-        public static void AssemblyCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
+        public virtual void AssemblyCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
+            Next?.AssemblyCleanupMethodEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public static void ClassInitializeMethodBeginEvent(MethodInfo method)
+        public virtual void ClassInitializeMethodBeginEvent(MethodInfo method)
         {
-            WriteMethodBegin(method, "[ClassInitialize]");
+            Next?.ClassInitializeMethodBeginEvent(method);
         }
 
 
-        public static void ClassInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
+        public virtual void ClassInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
+            Next?.ClassInitializeMethodEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public static void ClassCleanupMethodBeginEvent(MethodInfo method)
+        public virtual void ClassCleanupMethodBeginEvent(MethodInfo method)
         {
-            WriteMethodBegin(method, "[ClassCleanup]");
+            Next?.ClassCleanupMethodBeginEvent(method);
         }
 
 
-        public static void ClassCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
+        public virtual void ClassCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
+            Next?.ClassCleanupMethodEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public static void TestContextSetterBeginEvent(MethodInfo method)
+        public virtual void TestContextSetterBeginEvent(MethodInfo method)
         {
-            WriteMethodBegin(method, "");
+            Next?.TestContextSetterBeginEvent(method);
         }
 
 
-        public static void TestContextSetterEndEvent(bool success, long elapsedMilliseconds)
+        public virtual void TestContextSetterEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
+            Next?.TestContextSetterEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public static void TestInitializeMethodBeginEvent(MethodInfo method)
+        public virtual void TestInitializeMethodBeginEvent(MethodInfo method)
         {
-            WriteMethodBegin(method, "[TestInitialize]");
+            Next?.TestInitializeMethodBeginEvent(method);
         }
 
 
-        public static void TestInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
+        public virtual void TestInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
+            Next?.TestInitializeMethodEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public static void TestMethodBeginEvent(MethodInfo method)
+        public virtual void TestMethodBeginEvent(MethodInfo method)
         {
-            WriteMethodBegin(method, "[TestMethod]");
+            Next?.TestMethodBeginEvent(method);
         }
 
 
-        public static void TestMethodEndEvent(bool success, long elapsedMilliseconds)
+        public virtual void TestMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
+            Next?.TestMethodEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public static void TestCleanupMethodBeginEvent(MethodInfo method)
+        public virtual void TestCleanupMethodBeginEvent(MethodInfo method)
         {
-            WriteMethodBegin(method, "[TestCleanup]");
+            Next?.TestCleanupMethodBeginEvent(method);
         }
 
 
-        public static void TestCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
+        public virtual void TestCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
+            Next?.TestCleanupMethodEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public static void MethodExpectedExceptionEvent(Type expected, Exception exception)
+        public virtual void MethodExpectedExceptionEvent(Type expected, Exception exception)
         {
-            Guard.NotNull(expected, nameof(expected));
-            Guard.NotNull(exception, nameof(exception));
-            WriteOut($"  [ExpectedException] {expected.FullName} occurred:");
-            WriteOut(StringExtensions.Indent(ExceptionExtensions.FormatException(exception)));
+            Next?.MethodExpectedExceptionEvent(expected, exception);
         }
 
 
-        public static void MethodUnexpectedExceptionEvent(Exception exception)
+        public virtual void MethodUnexpectedExceptionEvent(Exception exception)
         {
-            Guard.NotNull(exception, nameof(exception));
-            WriteOut(StringExtensions.Indent(ExceptionExtensions.FormatException(exception)));
+            Next?.MethodUnexpectedExceptionEvent(exception);
         }
 
 
-        public static void OutputTraceEvent(string message = "")
+        public virtual void OutputTraceEvent(string message = "")
         {
-            WriteOut(message);
-        }
-
-
-        static void WriteMethodBegin(MethodInfo method, string prefix)
-        {
-            Guard.NotNull(method, nameof(method));
-            Guard.NotNull(prefix, nameof(prefix));
-            prefix = prefix != "" ? prefix + " " : prefix;
-            WriteOut();
-            WriteOut($"{prefix}{method.Name}()");
-        }
-
-
-        static void WriteMethodEnd(bool success, long elapsedMilliseconds)
-        {
-            var result = success ? "Succeeded" : "Failed";
-            WriteOut($"  {result} ({elapsedMilliseconds:N0} ms)");
-        }
-
-
-        static void WriteHeadingOut(params string[] lines)
-        {
-            lines = lines ?? new string[0];
-            lines = StringExtensions.FormatHeading('=', lines);
-            foreach (var line in lines) WriteOut(line);
-        }
-
-
-        static void WriteHeadingError(params string[] lines)
-        {
-            lines = lines ?? new string[0];
-            lines = StringExtensions.FormatHeading('=', lines);
-            foreach (var line in lines) WriteError(line);
-        }
-
-
-        static void WriteSubheadingOut(params string[] lines)
-        {
-            lines = lines ?? new string[0];
-            lines = StringExtensions.FormatHeading('-', lines);
-            foreach (var line in lines) WriteOut(line);
-        }
-
-
-        static void WriteOut(string message = "")
-        {
-            message = message ?? "";
-            foreach (var line in StringExtensions.SplitLines(message)) Console.Out.WriteLine(line);
-        }
-
-
-        static void WriteError(string message = "")
-        {
-            message = message ?? "";
-            foreach (var line in StringExtensions.SplitLines(message)) Console.Error.WriteLine(line);
+            Next?.OutputTraceEvent(message);
         }
 
     }

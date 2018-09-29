@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
-using static TestRunner.Events.EventHandler;
+using EventHandler = TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
 {
@@ -16,11 +16,11 @@ namespace TestRunner.Runners
         static public bool RunAssemblyInitializeMethod(MethodInfo method)
         {
             if (method == null) return true;
-            AssemblyInitializeMethodBeginEvent(method);
+            EventHandler.First.AssemblyInitializeMethodBeginEvent(method);
             StartStopwatch();
             var result = Run(method, null, true, null, false);
             var elapsed = StopStopwatch();
-            AssemblyInitializeMethodEndEvent(result, elapsed);
+            EventHandler.First.AssemblyInitializeMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -28,11 +28,11 @@ namespace TestRunner.Runners
         static public bool RunAssemblyCleanupMethod(MethodInfo method)
         {
             if (method == null) return true;
-            AssemblyCleanupMethodBeginEvent(method);
+            EventHandler.First.AssemblyCleanupMethodBeginEvent(method);
             StartStopwatch();
             var result = Run(method, null, false, null, false);
             var elapsed = StopStopwatch();
-            AssemblyCleanupMethodEndEvent(result, elapsed);
+            EventHandler.First.AssemblyCleanupMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -40,11 +40,11 @@ namespace TestRunner.Runners
         static public bool RunClassInitializeMethod(MethodInfo method)
         {
             if (method == null) return true;
-            ClassInitializeMethodBeginEvent(method);
+            EventHandler.First.ClassInitializeMethodBeginEvent(method);
             StartStopwatch();
             var result = Run(method, null, true, null, false);
             var elapsed = StopStopwatch();
-            ClassInitializeMethodEndEvent(result, elapsed);
+            EventHandler.First.ClassInitializeMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -52,11 +52,11 @@ namespace TestRunner.Runners
         static public bool RunClassCleanupMethod(MethodInfo method)
         {
             if (method == null) return true;
-            ClassCleanupMethodBeginEvent(method);
+            EventHandler.First.ClassCleanupMethodBeginEvent(method);
             StartStopwatch();
             var result = Run(method, null, false, null, false);
             var elapsed = StopStopwatch();
-            ClassCleanupMethodEndEvent(result, elapsed);
+            EventHandler.First.ClassCleanupMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -65,11 +65,11 @@ namespace TestRunner.Runners
         {
             if (method == null) return;
             Guard.NotNull(instance, nameof(instance));
-            TestContextSetterBeginEvent(method);
+            EventHandler.First.TestContextSetterBeginEvent(method);
             StartStopwatch();
             var result = Run(method, instance, true, null, false);
             var elapsed = StopStopwatch();
-            TestContextSetterEndEvent(result, elapsed);
+            EventHandler.First.TestContextSetterEndEvent(result, elapsed);
         }
 
 
@@ -77,11 +77,11 @@ namespace TestRunner.Runners
         {
             if (method == null) return true;
             Guard.NotNull(instance, nameof(instance));
-            TestInitializeMethodBeginEvent(method);
+            EventHandler.First.TestInitializeMethodBeginEvent(method);
             StartStopwatch();
             var result = Run(method, instance, false, null, false);
             var elapsed = StopStopwatch();
-            TestInitializeMethodEndEvent(result, elapsed);
+            EventHandler.First.TestInitializeMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -94,11 +94,11 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(method, nameof(method));
             Guard.NotNull(instance, nameof(instance));
-            TestMethodBeginEvent(method);
+            EventHandler.First.TestMethodBeginEvent(method);
             StartStopwatch();
             var result = Run(method, instance, false, expectedException, expectedExceptionAllowDerived);
             var elapsed = StopStopwatch();
-            TestMethodEndEvent(result, elapsed);
+            EventHandler.First.TestMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -107,11 +107,11 @@ namespace TestRunner.Runners
         {
             if (method == null) return true;
             Guard.NotNull(instance, nameof(instance));
-            TestCleanupMethodBeginEvent(method);
+            EventHandler.First.TestCleanupMethodBeginEvent(method);
             StartStopwatch();
             var result = Run(method, instance, false, null, false);
             var elapsed = StopStopwatch();
-            TestCleanupMethodEndEvent(result, elapsed);
+            EventHandler.First.TestCleanupMethodEndEvent(result, elapsed);
             return result;
         }
 
@@ -152,11 +152,11 @@ namespace TestRunner.Runners
 
                 if (wasExpected)
                 {
-                    MethodExpectedExceptionEvent(expectedException, e);
+                    EventHandler.First.MethodExpectedExceptionEvent(expectedException, e);
                     return true;
                 }
 
-                MethodUnexpectedExceptionEvent(e);
+                EventHandler.First.MethodUnexpectedExceptionEvent(e);
                 return false;
             }
         }
