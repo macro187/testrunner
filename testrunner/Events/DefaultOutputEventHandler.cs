@@ -100,7 +100,17 @@ namespace TestRunner.Events
             Guard.NotNull(exception, nameof(exception));
             WriteError();
             WriteError("An internal error occurred:");
+
+            if (exception is ReflectionTypeLoadException rtle)
+            {
+                foreach (var le in rtle.LoaderExceptions)
+                {
+                    WriteError(ExceptionExtensions.FormatException(le));
+                }
+            }
+
             WriteError(ExceptionExtensions.FormatException(exception));
+
             base.ProgramInternalErrorEvent(exception);
         }
 

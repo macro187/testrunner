@@ -60,23 +60,12 @@ namespace TestRunner.Domain
 
         void FindTestClasses()
         {
-            try
-            {
-                TestClasses =
-                    new ReadOnlyCollection<TestClass>(
-                        Assembly.GetTypes()
-                            .Select(t => TestClass.TryCreate(t))
-                            .Where(t => t != null)
-                            .ToList());
-            }
-            catch (ReflectionTypeLoadException e)
-            {
-                foreach (var le in e.LoaderExceptions)
-                {
-                    WriteLine(ExceptionExtensions.FormatException(le));
-                }
-                throw;
-            }
+            TestClasses =
+                new ReadOnlyCollection<TestClass>(
+                    Assembly.GetTypes()
+                        .Select(t => TestClass.TryCreate(t))
+                        .Where(t => t != null)
+                        .ToList());
         }
 
 
