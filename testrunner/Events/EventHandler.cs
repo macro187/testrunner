@@ -127,9 +127,9 @@ namespace TestRunner.Events
         }
 
 
-        public virtual void TestAssemblyEndEvent()
+        public virtual void TestAssemblyEndEvent(bool success)
         {
-            Next?.TestAssemblyEndEvent();
+            Next?.TestAssemblyEndEvent(success);
         }
 
 

@@ -17,98 +17,101 @@ namespace TestRunner.Runners
         /// Run tests in a test assembly
         /// </summary>
         ///
-        [System.Diagnostics.CodeAnalysis.SuppressMessage(
-            "Microsoft.Reliability",
-            "CA2001:AvoidCallingProblematicMethods",
-            MessageId = "System.Reflection.Assembly.LoadFrom",
-            Justification = "Need to load assemblies in order to run tests")]
-        static public bool Run(string assemblyPath)
+        public static bool Run(string assemblyPath)
         {
             Guard.NotNull(assemblyPath, nameof(assemblyPath));
 
-            EventHandler.First.TestAssemblyBeginEvent(assemblyPath);
-
-            //
-            // Resolve full path to test assembly
-            //
-            string fullAssemblyPath =
-                Path.IsPathRooted(assemblyPath)
-                    ? assemblyPath
-                    : Path.Combine(Environment.CurrentDirectory, assemblyPath);
-            if (!File.Exists(fullAssemblyPath))
-            {
-                EventHandler.First.TestAssemblyNotFoundEvent(fullAssemblyPath);
-                return false;
-            }
-
-            //
-            // Load test assembly
-            //
-            Assembly assembly;
-            try
-            {
-                assembly = Assembly.LoadFrom(fullAssemblyPath);
-            }
-            catch (BadImageFormatException)
-            {
-                EventHandler.First.TestAssemblyNotDotNetEvent(fullAssemblyPath);
-                return true;
-            }
-            var testAssembly = TestAssembly.TryCreate(assembly);
-            if (testAssembly == null)
-            {
-                EventHandler.First.TestAssemblyNotTestEvent(fullAssemblyPath);
-                return true;
-            }
-
-            //
-            // Run the test assembly with System.Diagnostics.Trace output redirected to EventHandler
-            //
             var traceListener = new EventTraceListener();
             Trace.Listeners.Add(traceListener);
-            bool result;
             try
             {
-                result = Run(testAssembly);
+                return Run2(assemblyPath);
             }
             finally
             {
                 Trace.Listeners.Remove(traceListener);
             }
-
-            EventHandler.First.TestAssemblyEndEvent();
-
-            return result;
         }
 
 
-        static bool Run(TestAssembly testAssembly)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Reliability",
+            "CA2001:AvoidCallingProblematicMethods",
+            MessageId = "System.Reflection.Assembly.LoadFrom",
+            Justification = "Need to load assemblies in order to run tests")]
+        static bool Run2(string assemblyPath)
         {
+            var success = false;
             bool assemblyInitializeSucceeded = false;
             int failed = 0;
             bool assemblyCleanupSucceeded = false;
 
-            //
-            // Use the test assembly's .config file if present
-            //
-            ConfigFileSwitcher.SwitchTo(testAssembly.Assembly.Location + ".config");
+            EventHandler.First.TestAssemblyBeginEvent(assemblyPath);
 
-            //
-            // Run [AssemblyInitialize] method
-            //
-            TestContext.FullyQualifiedTestClassName = testAssembly.TestClasses.First().FullName;
-            TestContext.TestName = testAssembly.TestClasses.First().TestMethods.First().Name;
-            TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
-
-            assemblyInitializeSucceeded =
-                MethodRunner.RunAssemblyInitializeMethod(testAssembly.AssemblyInitializeMethod);
-
-            TestContext.FullyQualifiedTestClassName = null;
-            TestContext.TestName = null;
-            TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
-
-            if (assemblyInitializeSucceeded)
+            do
             {
+
+                //
+                // Resolve full path to test assembly file
+                //
+                string fullAssemblyPath =
+                    Path.IsPathRooted(assemblyPath)
+                        ? assemblyPath
+                        : Path.Combine(Environment.CurrentDirectory, assemblyPath);
+
+                if (!File.Exists(fullAssemblyPath))
+                {
+                    EventHandler.First.TestAssemblyNotFoundEvent(fullAssemblyPath);
+                    break;
+                }
+
+                //
+                // Load assembly
+                //
+                Assembly assembly;
+                try
+                {
+                    assembly = Assembly.LoadFrom(fullAssemblyPath);
+                }
+                catch (BadImageFormatException)
+                {
+                    EventHandler.First.TestAssemblyNotDotNetEvent(fullAssemblyPath);
+                    success = true;
+                    break;
+                }
+
+                //
+                // Interpret as test assembly
+                //
+                var testAssembly = TestAssembly.TryCreate(assembly);
+                if (testAssembly == null)
+                {
+                    EventHandler.First.TestAssemblyNotTestEvent(fullAssemblyPath);
+                    success = true;
+                    break;
+                }
+
+                //
+                // Activate the test assembly's .config file if present
+                //
+                ConfigFileSwitcher.SwitchTo(testAssembly.Assembly.Location + ".config");
+
+                //
+                // Run [AssemblyInitialize] method
+                //
+                TestContext.FullyQualifiedTestClassName = testAssembly.TestClasses.First().FullName;
+                TestContext.TestName = testAssembly.TestClasses.First().TestMethods.First().Name;
+                TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
+
+                assemblyInitializeSucceeded =
+                    MethodRunner.RunAssemblyInitializeMethod(testAssembly.AssemblyInitializeMethod);
+
+                TestContext.FullyQualifiedTestClassName = null;
+                TestContext.TestName = null;
+                TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
+
+                if (!assemblyInitializeSucceeded) break;
+
                 //
                 // Run tests in each [TestClass]
                 //
@@ -127,12 +130,14 @@ namespace TestRunner.Runners
                 // Run [AssemblyCleanup] method
                 //
                 assemblyCleanupSucceeded = MethodRunner.RunAssemblyCleanupMethod(testAssembly.AssemblyCleanupMethod);
-            }
 
-            return
-                assemblyInitializeSucceeded &&
-                failed == 0 &&
-                assemblyCleanupSucceeded;
+                success = failed == 0 && assemblyCleanupSucceeded;
+            }
+            while (false);
+
+            EventHandler.First.TestAssemblyEndEvent(success);
+
+            return success;
         }
 
     }

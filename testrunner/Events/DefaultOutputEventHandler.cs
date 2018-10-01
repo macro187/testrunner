@@ -247,9 +247,9 @@ namespace TestRunner.Events
         }
 
 
-        public override void TestAssemblyEndEvent()
+        public override void TestAssemblyEndEvent(bool success)
         {
-            base.TestAssemblyEndEvent();
+            base.TestAssemblyEndEvent(success);
         }
 
 
