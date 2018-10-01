@@ -26,13 +26,15 @@ namespace TestRunner.Infrastructure
             var atts = memberInfo.GetCustomAttributes(tryCreate).ToList();
 
             if (atts.Count > 1)
+            {
+                var memberName = $"{memberInfo.DeclaringType.FullName}.{memberInfo.Name}";
+                if (memberInfo is MethodInfo) memberName += "()";
+
+                var attributeName = typeof(TAttribute).Name;
+                   
                 throw new UserException(
-                    StringExtensions.FormatInvariant(
-                        "{0}(): Encountered more than one [{1}] where only a maximum of one was expected",
-                        memberInfo is MethodInfo
-                            ? memberInfo.DeclaringType.FullName + "." + memberInfo.Name + "()"
-                            : memberInfo.Name,
-                        typeof(TAttribute).Name));
+                    $"{memberName}(): Encountered multiple [{attributeName}] where a maximum of one was expected");
+            }
 
             if (atts.Count == 0)
                 return null;

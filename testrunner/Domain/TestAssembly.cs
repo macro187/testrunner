@@ -77,9 +77,7 @@ namespace TestRunner.Domain
 
             if (methods.Count > 1)
                 throw new UserException(
-                    StringExtensions.FormatInvariant(
-                        "[TestAssembly] {0} contains more than one [AssemblyInitialize] method",
-                        Assembly.FullName));
+                    $"[TestAssembly] {Assembly.FullName} contains more than one [AssemblyInitialize] method");
 
             if (methods.Count == 0)
                 return;
@@ -98,9 +96,7 @@ namespace TestRunner.Domain
 
             if (methods.Count > 1)
                 throw new UserException(
-                    StringExtensions.FormatInvariant(
-                        "[TestAssembly] {0} contains more than one [AssemblyCleanup] method",
-                        Assembly.FullName));
+                    $"[TestAssembly] {Assembly.FullName} contains more than one [AssemblyCleanup] method");
 
             if (methods.Count == 0)
                 return;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using TestRunner.Infrastructure;
 
@@ -33,7 +34,7 @@ namespace TestRunner.Events
         static void WriteHeadingOut(params string[] lines)
         {
             lines = lines ?? new string[0];
-            lines = StringExtensions.FormatHeading('=', lines);
+            lines = FormatHeading('=', lines);
             foreach (var line in lines) WriteOut(line);
         }
 
@@ -41,7 +42,7 @@ namespace TestRunner.Events
         static void WriteHeadingError(params string[] lines)
         {
             lines = lines ?? new string[0];
-            lines = StringExtensions.FormatHeading('=', lines);
+            lines = FormatHeading('=', lines);
             foreach (var line in lines) WriteError(line);
         }
 
@@ -49,7 +50,7 @@ namespace TestRunner.Events
         static void WriteSubheadingOut(params string[] lines)
         {
             lines = lines ?? new string[0];
-            lines = StringExtensions.FormatHeading('-', lines);
+            lines = FormatHeading('-', lines);
             foreach (var line in lines) WriteOut(line);
         }
 
@@ -61,6 +62,13 @@ namespace TestRunner.Events
         }
 
 
+        static void WriteError(string[] lines)
+        {
+            Guard.NotNull(lines, nameof(lines));
+            foreach (var line in lines) WriteError(line);
+        }
+
+
         static void WriteError(string message = "")
         {
             message = message ?? "";
@@ -68,21 +76,39 @@ namespace TestRunner.Events
         }
 
 
+        static string[] FormatHeading(char ruleCharacter, params string[] lines)
+        {
+            if (lines == null) return new string[0];
+            if (lines.Length == 0) return new string [0];
+
+            var longestLine = lines.Max(line => line.Length);
+            var rule = new string(ruleCharacter, longestLine);
+
+            return
+                Enumerable.Empty<string>()
+                    .Concat(new[]{ rule })
+                    .Concat(lines)
+                    .Concat(new[]{ rule })
+                    .ToArray();
+        }
+
+
         public override void ProgramBannerEvent(params string[] lines)
         {
+            WriteError();
             WriteError();
             WriteHeadingError(lines);
             base.ProgramBannerEvent(lines);
         }
 
 
-        public override void ProgramUsageEvent(string message)
+        public override void ProgramUsageEvent(string[] lines)
         {
-            Guard.NotNull(message, nameof(message));
+            Guard.NotNull(lines, nameof(lines));
             WriteError();
-            WriteError(message);
+            WriteError(lines);
             WriteError();
-            base.ProgramUsageEvent(message);
+            base.ProgramUsageEvent(lines);
         }
 
 

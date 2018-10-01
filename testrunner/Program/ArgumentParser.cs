@@ -64,7 +64,7 @@ namespace TestRunner.Program
         /// Produce user-facing command line usage information
         /// </summary>
         ///
-        static public string GetUsage()
+        static public string[] GetUsage()
         {
             var fileName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
             bool isUnix = new[] { PlatformID.Unix, PlatformID.MacOSX }.Contains(Environment.OSVersion.Platform);
@@ -78,28 +78,22 @@ namespace TestRunner.Program
                     : "C:\\path\\to\\";
 
             return
-                StringExtensions.FormatInvariant(
-                    string.Join(
-                        Environment.NewLine,
-                        new[] {
-                            "SYNOPSIS",
-                            "",
-                            "    {0} <assemblypath> [<assemblypath> [...]]",
-                            "",
-                            "OPTIONS",
-                            "",
-                            "    <assemblypath>",
-                            "        Path to a file that may be an assembly containing MSTest unit tests",
-                            "",
-                            "EXAMPLES",
-                            "",
-                            "    {1} {0} TestAssembly.dll AnotherTestAssembly.dll",
-                            "",
-                            "    {1} {0} {2}TestAssembly.dll {2}AnotherTestAssembly.dll",
-                            }),
-                    fileName,
-                    shellPrefix,
-                    examplePath);
+                new[] {
+                    $"SYNOPSIS",
+                    $"",
+                    $"    {fileName} <assemblypath> [<assemblypath> [...]]",
+                    $"",
+                    $"OPTIONS",
+                    $"",
+                    $"    <assemblypath>",
+                    $"        Path to a file that may be an assembly containing MSTest unit tests",
+                    $"",
+                    $"EXAMPLES",
+                    $"",
+                    $"    {shellPrefix} {fileName} TestAssembly.dll AnotherTestAssembly.dll",
+                    $"",
+                    $"    {shellPrefix} {fileName} {examplePath}TestAssembly.dll {examplePath}AnotherTestAssembly.dll",
+                    };
         }
 
 

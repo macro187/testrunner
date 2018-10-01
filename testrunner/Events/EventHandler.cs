@@ -79,9 +79,9 @@ namespace TestRunner.Events
         }
 
 
-        public virtual void ProgramUsageEvent(string message)
+        public virtual void ProgramUsageEvent(string[] lines)
         {
-            Next?.ProgramUsageEvent(message);
+            Next?.ProgramUsageEvent(lines);
         }
 
 

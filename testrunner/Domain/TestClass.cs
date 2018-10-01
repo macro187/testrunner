@@ -150,9 +150,7 @@ namespace TestRunner.Domain
 
             if (methods.Count > 1)
                 throw new UserException(
-                    StringExtensions.FormatInvariant(
-                        "[TestClass] {0} contains more than one [AssemblyInitialize] method",
-                        Type.FullName));
+                    $"[TestClass] {Type.FullName} contains more than one [AssemblyInitialize] method");
 
             if (methods.Count == 0)
                 return;
@@ -170,9 +168,7 @@ namespace TestRunner.Domain
 
             if (methods.Count > 1)
                 throw new UserException(
-                    StringExtensions.FormatInvariant(
-                        "[TestClass] {0} contains more than one [AssemblyCleanup] method",
-                        Type.FullName));
+                    $"[TestClass] {Type.FullName} contains more than one [AssemblyCleanup] method");
 
             if (methods.Count == 0)
                 return;
@@ -190,9 +186,7 @@ namespace TestRunner.Domain
 
             if (methods.Count > 1)
                 throw new UserException(
-                    StringExtensions.FormatInvariant(
-                        "[TestClass] {0} contains more than one [ClassInitialize] method",
-                        Type.FullName));
+                    $"[TestClass] {Type.FullName} contains more than one [ClassInitialize] method");
 
             if (methods.Count == 0)
                 return;
@@ -210,9 +204,7 @@ namespace TestRunner.Domain
 
             if (methods.Count > 1)
                 throw new UserException(
-                    StringExtensions.FormatInvariant(
-                        "[TestClass] {0} contains more than one [ClassCleanup] method",
-                        Type.FullName));
+                    $"[TestClass] {Type.FullName} contains more than one [ClassCleanup] method");
 
             if (methods.Count == 0)
                 return;
@@ -230,9 +222,7 @@ namespace TestRunner.Domain
 
             if (methods.Count > 1)
                 throw new UserException(
-                    StringExtensions.FormatInvariant(
-                        "[TestClass] {0} contains more than one [TestInitialize] method",
-                        Type.FullName));
+                    $"[TestClass] {Type.FullName} contains more than one [TestInitialize] method");
 
             if (methods.Count == 0)
                 return;
@@ -250,9 +240,7 @@ namespace TestRunner.Domain
 
             if (methods.Count > 1)
                 throw new UserException(
-                    StringExtensions.FormatInvariant(
-                        "[TestClass] {0} contains more than one [TestCleanup] method",
-                        Type.FullName));
+                    $"[TestClass] {Type.FullName} contains more than one [TestCleanup] method");
 
             if (methods.Count == 0)
                 return;

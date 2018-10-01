@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Text;
 
@@ -16,12 +17,9 @@ namespace TestRunner.Infrastructure
             sb.AppendLine("Type: " + ex.GetType().FullName);
             if (ex.Data != null)
             {
-                foreach (var key in ex.Data.Keys)
+                foreach (DictionaryEntry de in ex.Data)
                 {
-                    sb.AppendLine(StringExtensions.FormatInvariant(
-                        "Data.{0}: {1}",
-                        key.ToString(),
-                        ex.Data[key].ToString()));
+                    sb.AppendLine($"Data.{de.Key}: {de.Value}");
                 }
             }
             if (!string.IsNullOrWhiteSpace(ex.Source))
