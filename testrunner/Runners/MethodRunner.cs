@@ -13,10 +13,12 @@ namespace TestRunner.Runners
         static readonly Stopwatch Stopwatch = new Stopwatch();
 
 
-        static public bool RunAssemblyInitializeMethod(MethodInfo method)
+        static public bool RunAssemblyInitializeMethod(TestAssembly testAssembly)
         {
+            Guard.NotNull(testAssembly, nameof(testAssembly));
+            var method = testAssembly.AssemblyInitializeMethod;
             if (method == null) return true;
-            EventHandler.First.AssemblyInitializeMethodBeginEvent(method);
+            EventHandler.First.AssemblyInitializeMethodBeginEvent(testAssembly);
             StartStopwatch();
             var success = Run(method, null, true, null, false);
             var elapsed = StopStopwatch();
@@ -37,10 +39,12 @@ namespace TestRunner.Runners
         }
 
 
-        static public bool RunClassInitializeMethod(MethodInfo method)
+        static public bool RunClassInitializeMethod(TestClass testClass)
         {
+            Guard.NotNull(testClass, nameof(testClass));
+            var method = testClass.ClassInitializeMethod;
             if (method == null) return true;
-            EventHandler.First.ClassInitializeMethodBeginEvent(method);
+            EventHandler.First.ClassInitializeMethodBeginEvent(testClass);
             StartStopwatch();
             var success = Run(method, null, true, null, false);
             var elapsed = StopStopwatch();

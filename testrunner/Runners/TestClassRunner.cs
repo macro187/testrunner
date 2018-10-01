@@ -29,11 +29,13 @@ namespace TestRunner.Runners
             int ignored = 0;
             bool classCleanupSucceeded = false;
 
-            TestContext.FullyQualifiedTestClassName = testClass.FullName;
             EventHandler.First.TestClassBeginEvent(testClass.FullName);
 
             do
             {
+                //
+                // Handle [Ignored] [TestClass]
+                //
                 if (testClass.IsIgnored)
                 {
                     classIgnored = true;
@@ -45,14 +47,7 @@ namespace TestRunner.Runners
                 //
                 // Run [ClassInitialize] method
                 //
-                TestContext.TestName = testClass.TestMethods.First().Name;
-                TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
-
-                classInitializeSucceeded = MethodRunner.RunClassInitializeMethod(testClass.ClassInitializeMethod);
-
-                TestContext.TestName = null;
-                TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
-
+                classInitializeSucceeded = MethodRunner.RunClassInitializeMethod(testClass);
                 if (!classInitializeSucceeded) break;
 
                 //
@@ -102,8 +97,6 @@ namespace TestRunner.Runners
                 failed,
                 testClass.ClassCleanupMethod != null,
                 classCleanupSucceeded);
-
-            TestContext.FullyQualifiedTestClassName = null;
 
             return success;
         }

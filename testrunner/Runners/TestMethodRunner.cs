@@ -17,7 +17,7 @@ namespace TestRunner.Runners
         /// </remarks>
         ///
         /// <returns>
-        /// The results of the test
+        /// The outcome of the test
         /// </returns>
         ///
         static public UnitTestOutcome Run(
@@ -26,65 +26,73 @@ namespace TestRunner.Runners
             MethodInfo testCleanupMethod,
             TestClass testClass)
         {
-            TestContext.TestName = testMethod.Name;
-            try
-            {
-                EventHandler.First.TestBeginEvent(testMethod.Name);
+            EventHandler.First.TestBeginEvent(testMethod.Name);
 
+            bool testInitializeSucceeded = false;
+            bool testMethodSucceeded = false;
+            bool testCleanupSucceeded = false;
+            UnitTestOutcome outcome;
+
+            do
+            {
+                //
+                // Handle [Ignored] [TestMethod]
+                //
                 if (testMethod.IsIgnored)
                 {
                     EventHandler.First.TestIgnoredEvent();
-                    return UnitTestOutcome.NotRunnable;
+                    outcome = UnitTestOutcome.NotRunnable;
+                    break;
                 }
 
                 //
-                // Construct an instance of the test class
+                // Create instance of [TestClass]
                 //
-                var testInstance = Activator.CreateInstance(testClass.Type);
+                var instance = Activator.CreateInstance(testClass.Type);
 
                 //
-                // Set the instance's TestContext property, if present
+                // Set TestContext property (if present)
                 //
-                MethodRunner.RunTestContextSetter(testClass.TestContextSetter, testInstance);
+                MethodRunner.RunTestContextSetter(testClass.TestContextSetter, instance);
 
                 //
-                // Invoke [TestInitialize], [TestMethod], and [TestCleanup]
+                // Run [TestInitialize] method
                 //
-                bool testInitializeSucceeded = false;
-                bool testMethodSucceeded = false;
-                bool testCleanupSucceeded = false;
+                testInitializeSucceeded = MethodRunner.RunTestInitializeMethod(testInitializeMethod, instance);
 
-                TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
-
-                testInitializeSucceeded = MethodRunner.RunTestInitializeMethod(testInitializeMethod, testInstance);
-
-                if (testInitializeSucceeded)
+                if (!testInitializeSucceeded)
                 {
-                    testMethodSucceeded =
-                        MethodRunner.RunTestMethod(
-                            testMethod.MethodInfo, testInstance,
-                            testMethod.ExpectedException,
-                            testMethod.AllowDerivedExpectedExceptionTypes);
-
-                    TestContext.CurrentTestOutcome =
-                        testMethodSucceeded
-                            ? UnitTestOutcome.Passed
-                            : UnitTestOutcome.Failed;
-
-                    testCleanupSucceeded = MethodRunner.RunTestCleanupMethod(testCleanupMethod, testInstance);
+                    outcome = UnitTestOutcome.Failed;
+                    break;
                 }
 
-                bool passed = testInitializeSucceeded && testMethodSucceeded && testCleanupSucceeded;
+                //
+                // Run [TestMethod]
+                //
+                testMethodSucceeded =
+                    MethodRunner.RunTestMethod(
+                        testMethod.MethodInfo, instance,
+                        testMethod.ExpectedException,
+                        testMethod.AllowDerivedExpectedExceptionTypes);
 
-                EventHandler.First.TestEndEvent(passed);
+                //
+                // Run [TestCleanup] method
+                //
+                testCleanupSucceeded =
+                    MethodRunner.RunTestCleanupMethod(
+                        testCleanupMethod,
+                        instance);
 
-                return passed ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
+                outcome =
+                    testMethodSucceeded && testCleanupSucceeded
+                        ? UnitTestOutcome.Passed
+                        : UnitTestOutcome.Failed;
             }
-            finally
-            {
-                TestContext.TestName = null;
-                TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
-            }
+            while (false);
+
+            EventHandler.First.TestEndEvent(outcome);
+
+            return outcome;
         }
         
     }

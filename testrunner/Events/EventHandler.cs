@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using TestRunner.Domain;
 using TestRunner.Infrastructure;
 
 namespace TestRunner.Events
@@ -180,15 +181,15 @@ namespace TestRunner.Events
         }
 
 
-        public virtual void TestEndEvent(bool passed)
+        public virtual void TestEndEvent(UnitTestOutcome outcome)
         {
-            Next?.TestEndEvent(passed);
+            Next?.TestEndEvent(outcome);
         }
 
 
-        public virtual void AssemblyInitializeMethodBeginEvent(MethodInfo method)
+        public virtual void AssemblyInitializeMethodBeginEvent(TestAssembly testAssembly)
         {
-            Next?.AssemblyInitializeMethodBeginEvent(method);
+            Next?.AssemblyInitializeMethodBeginEvent(testAssembly);
         }
 
 
@@ -210,9 +211,9 @@ namespace TestRunner.Events
         }
 
 
-        public virtual void ClassInitializeMethodBeginEvent(MethodInfo method)
+        public virtual void ClassInitializeMethodBeginEvent(TestClass testClass)
         {
-            Next?.ClassInitializeMethodBeginEvent(method);
+            Next?.ClassInitializeMethodBeginEvent(testClass);
         }
 
 

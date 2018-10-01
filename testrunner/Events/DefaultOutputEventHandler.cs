@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using TestRunner.Domain;
 using TestRunner.Infrastructure;
 
 namespace TestRunner.Events
@@ -343,18 +344,31 @@ namespace TestRunner.Events
         }
 
 
-        public override void TestEndEvent(bool passed)
+        public override void TestEndEvent(UnitTestOutcome outcome)
         {
             WriteOut();
-            WriteOut(passed ? "Passed" : "FAILED");
-            base.TestEndEvent(passed);
+            switch (outcome)
+            {
+                case UnitTestOutcome.NotRunnable:
+                    WriteOut("Ignored");
+                    break;
+                case UnitTestOutcome.Passed:
+                    WriteOut("Passed");
+                    break;
+                case UnitTestOutcome.Failed:
+                    WriteOut("FAILED");
+                    break;
+                default:
+                    throw new ArgumentException("Unexpected outcome", nameof(outcome));
+            }
+            base.TestEndEvent(outcome);
         }
 
 
-        public override void AssemblyInitializeMethodBeginEvent(MethodInfo method)
+        public override void AssemblyInitializeMethodBeginEvent(TestAssembly testAssembly)
         {
-            WriteMethodBegin(method, "[AssemblyInitialize]");
-            base.AssemblyInitializeMethodBeginEvent(method);
+            WriteMethodBegin(testAssembly.AssemblyInitializeMethod, "[AssemblyInitialize]");
+            base.AssemblyInitializeMethodBeginEvent(testAssembly);
         }
 
 
@@ -379,10 +393,11 @@ namespace TestRunner.Events
         }
 
 
-        public override void ClassInitializeMethodBeginEvent(MethodInfo method)
+        public override void ClassInitializeMethodBeginEvent(TestClass testClass)
         {
-            WriteMethodBegin(method, "[ClassInitialize]");
-            base.ClassInitializeMethodBeginEvent(method);
+            Guard.NotNull(testClass, nameof(testClass));
+            WriteMethodBegin(testClass.ClassInitializeMethod, "[ClassInitialize]");
+            base.ClassInitializeMethodBeginEvent(testClass);
         }
 
 

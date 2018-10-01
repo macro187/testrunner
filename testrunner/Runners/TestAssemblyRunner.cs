@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
@@ -50,7 +49,6 @@ namespace TestRunner.Runners
 
             do
             {
-
                 //
                 // Resolve full path to test assembly file
                 //
@@ -99,17 +97,7 @@ namespace TestRunner.Runners
                 //
                 // Run [AssemblyInitialize] method
                 //
-                TestContext.FullyQualifiedTestClassName = testAssembly.TestClasses.First().FullName;
-                TestContext.TestName = testAssembly.TestClasses.First().TestMethods.First().Name;
-                TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
-
-                assemblyInitializeSucceeded =
-                    MethodRunner.RunAssemblyInitializeMethod(testAssembly.AssemblyInitializeMethod);
-
-                TestContext.FullyQualifiedTestClassName = null;
-                TestContext.TestName = null;
-                TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
-
+                assemblyInitializeSucceeded = MethodRunner.RunAssemblyInitializeMethod(testAssembly);
                 if (!assemblyInitializeSucceeded) break;
 
                 //
