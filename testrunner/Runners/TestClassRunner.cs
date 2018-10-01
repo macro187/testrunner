@@ -20,97 +20,92 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(testClass, nameof(testClass));
 
+            bool success = false;
+            bool classIgnored = false;
+            bool classInitializeSucceeded = false;
+            int ran = 0;
+            int passed = 0;
+            int failed = 0;
+            int ignored = 0;
+            bool classCleanupSucceeded = false;
+
             TestContext.FullyQualifiedTestClassName = testClass.FullName;
-            try
+            EventHandler.First.TestClassBeginEvent(testClass.FullName);
+
+            do
             {
-                EventHandler.First.TestClassBeginEvent(testClass.FullName);
-
-                bool classIgnored = false;
-                bool classInitializeSucceeded = false;
-                int ran = 0;
-                int passed = 0;
-                int failed = 0;
-                int ignored = 0;
-                bool classCleanupSucceeded = false;
-
                 if (testClass.IsIgnored)
                 {
-                    EventHandler.First.TestClassIgnoredEvent();
                     classIgnored = true;
                     ignored = testClass.TestMethods.Count;
+                    success = true;
+                    break;
                 }
-                else
+
+                //
+                // Run [ClassInitialize] method
+                //
+                TestContext.TestName = testClass.TestMethods.First().Name;
+                TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
+
+                classInitializeSucceeded = MethodRunner.RunClassInitializeMethod(testClass.ClassInitializeMethod);
+
+                TestContext.TestName = null;
+                TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
+
+                if (!classInitializeSucceeded) break;
+
+                //
+                // Run [TestMethod]s
+                //
+                foreach (var testMethod in testClass.TestMethods)
                 {
-                    //
-                    // Run [ClassInitialize] method
-                    //
-                    TestContext.TestName = testClass.TestMethods.First().Name;
-                    TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
-
-                    classInitializeSucceeded = MethodRunner.RunClassInitializeMethod(testClass.ClassInitializeMethod);
-
-                    TestContext.TestName = null;
-                    TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
-
-                    if (classInitializeSucceeded)
+                    switch(
+                        TestMethodRunner.Run(
+                            testMethod,
+                            testClass.TestInitializeMethod,
+                            testClass.TestCleanupMethod,
+                            testClass))
                     {
-                        //
-                        // Run [TestMethod]s
-                        //
-                        foreach (var testMethod in testClass.TestMethods)
-                        {
-                            switch(
-                                TestMethodRunner.Run(
-                                    testMethod,
-                                    testClass.TestInitializeMethod,
-                                    testClass.TestCleanupMethod,
-                                    testClass))
-                            {
-                                case UnitTestOutcome.Passed:
-                                    passed++;
-                                    ran++;
-                                    break;
-                                case UnitTestOutcome.Failed:
-                                    failed++;
-                                    ran++;
-                                    break;
-                                case UnitTestOutcome.NotRunnable:
-                                    ignored++;
-                                    break;
-                            }
-                        }
-
-                        //
-                        // Run [ClassCleanup] method
-                        //
-                        classCleanupSucceeded = MethodRunner.RunClassCleanupMethod(testClass.ClassCleanupMethod);
+                        case UnitTestOutcome.Passed:
+                            passed++;
+                            ran++;
+                            break;
+                        case UnitTestOutcome.Failed:
+                            failed++;
+                            ran++;
+                            break;
+                        case UnitTestOutcome.NotRunnable:
+                            ignored++;
+                            break;
                     }
                 }
 
-                EventHandler.First.TestClassEndEvent(
-                    classIgnored,
-                    testClass.ClassInitializeMethod != null,
-                    classInitializeSucceeded,
-                    testClass.TestMethods.Count,
-                    ran,
-                    ignored,
-                    passed,
-                    failed,
-                    testClass.ClassCleanupMethod != null,
-                    classCleanupSucceeded);
+                //
+                // Run [ClassCleanup] method
+                //
+                classCleanupSucceeded = MethodRunner.RunClassCleanupMethod(testClass.ClassCleanupMethod);
 
-                return
-                    classIgnored ||
-                    (
-                        classInitializeSucceeded &&
-                        failed == 0 &&
-                        classCleanupSucceeded
-                    );
+                success = failed == 0 && classCleanupSucceeded;
             }
-            finally
-            {
-                TestContext.FullyQualifiedTestClassName = null;
-            }
+            while (false);
+
+            EventHandler.First.TestClassEndEvent(
+                success,
+                classIgnored,
+                testClass.ClassInitializeMethod != null,
+                classInitializeSucceeded,
+                testClass.TestMethods.Count,
+                ran,
+                ignored,
+                passed,
+                failed,
+                testClass.ClassCleanupMethod != null,
+                classCleanupSucceeded);
+
+            TestContext.FullyQualifiedTestClassName = null;
+
+            return success;
         }
         
     }

@@ -262,15 +262,8 @@ namespace TestRunner.Events
         }
 
 
-        public override void TestClassIgnoredEvent()
-        {
-            WriteOut();
-            WriteOut("Ignoring all tests because class is decorated with [Ignore]");
-            base.TestClassIgnoredEvent();
-        }
-
-
         public override void TestClassEndEvent(
+            bool success,
             bool classIgnored,
             bool initializePresent,
             bool initializeSucceeded,
@@ -303,16 +296,24 @@ namespace TestRunner.Events
 
             WriteOut();
             WriteSubheadingOut("Summary");
+
+            if (classIgnored)
+            {
+                WriteOut();
+                WriteOut("Ignored all tests because class is decorated with [Ignore]");
+            }
+
             WriteOut();
             WriteOut($"ClassInitialize: {initializeResult}");
             WriteOut($"Total:           {testsTotal} tests");
-            WriteOut($"Ran:             {testsRan} tests");
             WriteOut($"Ignored:         {testsIgnored} tests");
+            WriteOut($"Ran:             {testsRan} tests");
             WriteOut($"Passed:          {testsPassed} tests");
             WriteOut($"Failed:          {testsFailed} tests");
             WriteOut($"ClassCleanup:    {cleanupResult}");
 
             base.TestClassEndEvent(
+                success,
                 classIgnored,
                 initializePresent,
                 initializeSucceeded,

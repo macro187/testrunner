@@ -139,13 +139,8 @@ namespace TestRunner.Events
         }
 
 
-        public virtual void TestClassIgnoredEvent()
-        {
-            Next?.TestClassIgnoredEvent();
-        }
-
-
         public virtual void TestClassEndEvent(
+            bool success,
             bool classIgnored,
             bool initializePresent,
             bool initializeSucceeded,
@@ -159,6 +154,7 @@ namespace TestRunner.Events
         )
         {
             Next?.TestClassEndEvent(
+                success,
                 classIgnored,
                 initializePresent,
                 initializeSucceeded,
