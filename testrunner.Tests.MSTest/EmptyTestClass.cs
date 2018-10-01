@@ -4,29 +4,21 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace TestRunner.Tests.MSTest
 {
 
-    [Ignore]
     [TestClass]
-    public class IgnoredMSTestTests
+    public class EmptyTestClass
     {
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
-            Console.WriteLine(MSTestTests.IgnoredClassInitializeMessage);
-        }
-
-
-        [TestMethod]
-        public void IgnoredTestClassMethod()
-        {
-            Console.WriteLine(MSTestTests.IgnoredClassTestMessage);
+            Console.WriteLine(MSTestTests.EmptyClassInitializeMessage);
         }
 
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Console.WriteLine(MSTestTests.IgnoredClassCleanupMessage);
+            Console.WriteLine(MSTestTests.EmptyClassCleanupMessage);
         }
 
     }
