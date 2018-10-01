@@ -165,6 +165,18 @@ namespace TestRunner.Tests
             Assert.IsFalse(
                 results.Output.Contains(MSTest.MSTestTests.IgnoredClassCleanupMessage),
                 "[TestCleanup] on an [Ignore]d [TestClass] ran");
+
+            Assert.IsFalse(
+                results.Output.Contains("TestRunner.Tests.MSTest.EmptyMSTestTests"),
+                "[TestClass] with no [TestMethod]s ran");
+
+            Assert.IsFalse(
+                results.Output.Contains(MSTest.MSTestTests.EmptyClassInitializeMessage),
+                "[TestInitialize] ran on a [TestClass] with no [TestMethod]s");
+
+            Assert.IsFalse(
+                results.Output.Contains(MSTest.MSTestTests.EmptyClassCleanupMessage),
+                "[TestCleanup] ran on a [TestClass] with no [TestMethod]s");
         }
 
 
