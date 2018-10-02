@@ -22,7 +22,7 @@ namespace TestRunner.Events
     ///
     /// <para>
     /// The TestRunner program invokes event methods on the <see cref="First"/> handler as it runs.  Those methods
-    /// have to opportunity to perform actions before propagating to the next handler in the pipeline.
+    /// have the opportunity to perform actions before propagating to the next handler in the pipeline.
     /// </para>
     /// </remarks>
     ///
