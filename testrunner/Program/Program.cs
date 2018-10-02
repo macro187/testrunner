@@ -32,6 +32,7 @@ namespace TestRunner.Program
             Justification = "Required to handle unexpected exceptions")]
         static int Main2(string[] args)
         {
+            EventHandler.Append(new TimingEventHandler());
             EventHandler.Append(new TestContextEventHandler());
             EventHandler.Append(new DefaultOutputEventHandler());
 
