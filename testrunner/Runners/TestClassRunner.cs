@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using TestRunner.Domain;
+﻿using TestRunner.Domain;
 using TestRunner.Infrastructure;
 using EventHandler = TestRunner.Events.EventHandler;
 
