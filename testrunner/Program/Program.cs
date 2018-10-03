@@ -75,18 +75,18 @@ namespace TestRunner.Program
 
             //
             // Parent process: Print the program banner and invoke TestRunner --inproc child processes for each
-            // <testassembly> specified on the command line
+            // <testfile> specified on the command line
             //
             if (!ArgumentParser.InProc)
             {
                 Banner();
                 bool success = true;
-                foreach (var assemblyPath in ArgumentParser.AssemblyPaths)
+                foreach (var testFile in ArgumentParser.TestFiles)
                 {
                     var exitCode = 
                         ProcessExtensions.ExecuteDotnet(
                             ProgramPath,
-                            "--inproc \"" + assemblyPath + "\"")
+                            "--inproc \"" + testFile + "\"")
                         .ExitCode;
 
                     if (exitCode != 0) success = false;
@@ -95,11 +95,11 @@ namespace TestRunner.Program
             }
 
             //
-            // Child process: Run the tests in the specified <testassembly>
+            // Child process: Run the tests in the specified <testfile>
             //
             else
             {
-                return TestAssemblyRunner.Run(ArgumentParser.AssemblyPaths[0]) ? 0 : 1;
+                return TestAssemblyRunner.Run(ArgumentParser.TestFiles[0]) ? 0 : 1;
             }
         }
 

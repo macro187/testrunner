@@ -74,7 +74,7 @@ Synopsis
 ========
 
 ```
-testrunner.exe <testassemblies>
+testrunner.exe <testfile>...
 ```
 
 
@@ -82,25 +82,26 @@ Options
 =======
 
 ```
-<testassemblies> - Path(s) to assembly(s) containing MSTest tests
+<testfile>
+    Path(s) to one or more .NET assembly file(s) containing tests
 ```
 
 
 Exit Status
 ===========
 
-0 if all specified test assemblies succeed, otherwise non-zero.
+0 if all specified test files succeed, non-zero otherwise.
 
-Test assemblies succeed if all test, initialization, and cleanup methods
-run successfully.
+Test files succeed if all test, initialization, and cleanup methods run
+successfully.
 
-Test assemblies succeed if they contain no tests.
+Test files succeed if they contain no tests.
 
-Test assemblies succeed if they are not .NET assemblies.
+Test files succeed if they are not .NET assemblies.
 
-Test assemblies fail if any test, initialization, or cleanup methods fail.
+Test files fail if any test, initialization, or cleanup methods fail.
 
-Test assemblies fail if the file does not exist.
+Test files fail if they do not exist.
 
 
 Examples

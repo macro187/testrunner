@@ -49,15 +49,15 @@ namespace TestRunner.Program
         /// Path(s) to test assemblies listed on the command line
         /// </summary>
         ///
-        static public IList<string> AssemblyPaths
+        static public IList<string> TestFiles
         {
             get
             {
-                return new ReadOnlyCollection<string>(_assemblyPaths);
+                return new ReadOnlyCollection<string>(_testFiles);
             }
         }
 
-        static List<string> _assemblyPaths;
+        static List<string> _testFiles;
 
 
         /// <summary>
@@ -68,10 +68,12 @@ namespace TestRunner.Program
         {
             var fileName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
             bool isUnix = new[] { PlatformID.Unix, PlatformID.MacOSX }.Contains(Environment.OSVersion.Platform);
+
             var shellPrefix =
                 isUnix
                     ? "$"
                     : "C:\\>";
+
             var examplePath =
                 isUnix
                     ? "/path/to/"
@@ -81,12 +83,12 @@ namespace TestRunner.Program
                 new[] {
                     $"SYNOPSIS",
                     $"",
-                    $"    {fileName} <assemblypath> [<assemblypath> [...]]",
+                    $"    {fileName} <testfile>...",
                     $"",
                     $"OPTIONS",
                     $"",
-                    $"    <assemblypath>",
-                    $"        Path to a file that may be an assembly containing MSTest unit tests",
+                    $"    <testfile>",
+                    $"        Path(s) to one or more .NET assembly file(s) containg tests",
                     $"",
                     $"EXAMPLES",
                     $"",
@@ -106,7 +108,7 @@ namespace TestRunner.Program
             Success = false;
             ErrorMessage = "";
             InProc = false;
-            _assemblyPaths = new List<string>();
+            _testFiles = new List<string>();
             Parse(new Queue<string>(args));
         }
 
@@ -131,18 +133,18 @@ namespace TestRunner.Program
 
             while (args.Count > 0)
             {
-                _assemblyPaths.Add(args.Dequeue());
+                _testFiles.Add(args.Dequeue());
             }
 
-            if (AssemblyPaths.Count == 0)
+            if (TestFiles.Count == 0)
             {
-                ErrorMessage = "No <assemblypath>s specified";
+                ErrorMessage = "No <testfile>s specified";
                 return;
             }
 
-            if (InProc && AssemblyPaths.Count > 1)
+            if (InProc && TestFiles.Count > 1)
             {
-                ErrorMessage = "Only one <assemblypath> allowed when --inproc";
+                ErrorMessage = "Only one <testfile> allowed when --inproc";
                 return;
             }
 
