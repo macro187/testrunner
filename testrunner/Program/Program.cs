@@ -73,6 +73,12 @@ namespace TestRunner.Program
                 throw new UserException(ArgumentParser.ErrorMessage);
             }
 
+            if (ArgumentParser.Help)
+            {
+                EventHandler.First.ProgramUsageEvent(ArgumentParser.GetUsage());
+                return 0;
+            }
+
             //
             // Parent process: Print the program banner and invoke TestRunner --inproc child processes for each
             // <testfile> specified on the command line

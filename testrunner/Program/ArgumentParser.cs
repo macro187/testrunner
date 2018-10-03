@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using TestRunner.Infrastructure;
 
 namespace TestRunner.Program
 {
@@ -38,6 +37,21 @@ namespace TestRunner.Program
         }
 
 
+        /// <summary>
+        /// Was the --help option specified?
+        /// </summary>
+        ///
+        static public bool Help
+        {
+            get;
+            private set;
+        }
+
+
+        /// <summary>
+        /// Was the --inproc option specified?
+        /// </summary>
+        ///
         static public bool InProc
         {
             get;
@@ -84,11 +98,15 @@ namespace TestRunner.Program
                     $"SYNOPSIS",
                     $"",
                     $"    {fileName} <testfile>...",
+                    $"    {fileName} --help",
                     $"",
                     $"OPTIONS",
                     $"",
                     $"    <testfile>",
                     $"        Path(s) to one or more .NET assembly file(s) containg tests",
+                    $"",
+                    $"    --help",
+                    $"        Show usage information",
                     $"",
                     $"EXAMPLES",
                     $"",
@@ -115,6 +133,13 @@ namespace TestRunner.Program
 
         static void Parse(Queue<string> args)
         {
+            if (args.Count == 1 && args.Peek() == "--help")
+            {
+                Help = true;
+                Success = true;
+                return;
+            }
+
             for (;;)
             {
                 if (args.Count == 0) break;
@@ -125,6 +150,11 @@ namespace TestRunner.Program
                     case "--inproc":
                         InProc = true;
                         break;
+
+                    case "--help":
+                        ErrorMessage = "Unexpected switch " + s;
+                        return;
+
                     default:
                         ErrorMessage = "Unrecognised switch " + s;
                         return;

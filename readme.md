@@ -75,6 +75,7 @@ Synopsis
 
 ```
 testrunner.exe <testfile>...
+testrunner.exe --help
 ```
 
 
@@ -84,6 +85,9 @@ Options
 ```
 <testfile>
     Path(s) to one or more .NET assembly file(s) containing tests
+
+--help
+    Show usage information
 ```
 
 
