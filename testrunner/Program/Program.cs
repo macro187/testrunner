@@ -32,10 +32,6 @@ namespace TestRunner.Program
             Justification = "Required to handle unexpected exceptions")]
         static int Main2(string[] args)
         {
-            EventHandler.Append(new TimingEventHandler());
-            EventHandler.Append(new TestContextEventHandler());
-            EventHandler.Append(new DefaultOutputEventHandler());
-
             try
             {
                 return Main3(args);
@@ -63,10 +59,23 @@ namespace TestRunner.Program
 
         static int Main3(string[] args)
         {
+            EventHandler.Append(new TimingEventHandler());
+            EventHandler.Append(new TestContextEventHandler());
+
             //
             // Parse arguments
             //
             ArgumentParser.Parse(args);
+
+            switch(ArgumentParser.OutputFormat)
+            {
+                case OutputFormat.Human:
+                    EventHandler.Append(new HumanOutputEventHandler());
+                    break;
+                default:
+                    throw new Exception($"Unrecognised <outputformat> from parser {ArgumentParser.OutputFormat}");
+            }
+
             if (!ArgumentParser.Success)
             {
                 EventHandler.First.ProgramUsageEvent(ArgumentParser.GetUsage());

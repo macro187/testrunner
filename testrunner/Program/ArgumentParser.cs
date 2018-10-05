@@ -14,7 +14,7 @@ namespace TestRunner.Program
     ///
     static class ArgumentParser
     {
-        
+
         /// <summary>
         /// Were the command line arguments valid?
         /// </summary>
@@ -31,6 +31,17 @@ namespace TestRunner.Program
         /// </summary>
         ///
         static public string ErrorMessage
+        {
+            get;
+            private set;
+        }
+
+
+        /// <summary>
+        /// The specifed --outputformat option (default: human)
+        /// </summary>
+        ///
+        static public OutputFormat OutputFormat
         {
             get;
             private set;
@@ -97,13 +108,20 @@ namespace TestRunner.Program
                 new[] {
                     $"SYNOPSIS",
                     $"",
-                    $"    {fileName} <testfile>...",
+                    $"    {fileName} [options] <testfile>...",
                     $"    {fileName} --help",
+                    $"",
+                    $"DESCRIPTION",
+                    $"",
+                    $"    Run all tests in <testfile>(s)",
                     $"",
                     $"OPTIONS",
                     $"",
-                    $"    <testfile>",
-                    $"        Path(s) to one or more .NET assembly file(s) containg tests",
+                    $"    --outputformat <outputformat>",
+                    $"        Set the output format",
+                    $"",
+                    $"        human",
+                    $"            Human-readable (default)",
                     $"",
                     $"    --help",
                     $"        Show usage information",
@@ -125,7 +143,9 @@ namespace TestRunner.Program
         {
             Success = false;
             ErrorMessage = "";
+            OutputFormat = OutputFormat.Human;
             InProc = false;
+            Help = false;
             _testFiles = new List<string>();
             Parse(new Queue<string>(args));
         }
@@ -147,16 +167,21 @@ namespace TestRunner.Program
                 var s = args.Dequeue();
                 switch (s)
                 {
+                    case "--outputformat":
+                        ParseOutputFormat(args);
+                        if (ErrorMessage != "") return;
+                        break;
+
                     case "--inproc":
                         InProc = true;
                         break;
 
                     case "--help":
-                        ErrorMessage = "Unexpected switch " + s;
+                        ErrorMessage = $"Unexpected switch {s}";
                         return;
 
                     default:
-                        ErrorMessage = "Unrecognised switch " + s;
+                        ErrorMessage = $"Unrecognised switch {s}";
                         return;
                 }
             }
@@ -179,6 +204,28 @@ namespace TestRunner.Program
             }
 
             Success = true;
+        }
+
+
+        static void ParseOutputFormat(Queue<string> args)
+        {
+            if (args.Count == 0)
+            {
+                ErrorMessage = "Expected <outputformat>";
+                return;
+            }
+
+            var outputformat = args.Dequeue();
+
+            switch (outputformat)
+            {
+                case "human":
+                    OutputFormat = OutputFormat.Human;
+                    break;
+                default:
+                    ErrorMessage = $"Unrecognised <outputformat> {outputformat}";
+                    break;
+            }
         }
 
     }

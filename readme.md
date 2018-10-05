@@ -74,8 +74,16 @@ Synopsis
 ========
 
 ```
-testrunner.exe <testfile>...
+testrunner.exe [options] <testfile>...
 testrunner.exe --help
+```
+
+
+Description
+===========
+
+```
+Run all tests in <testfile>(s)
 ```
 
 
@@ -83,8 +91,11 @@ Options
 =======
 
 ```
-<testfile>
-    Path(s) to one or more .NET assembly file(s) containing tests
+--outputformat <outputformat>
+    Set the output format
+
+    human
+        Human-readable (default)
 
 --help
     Show usage information

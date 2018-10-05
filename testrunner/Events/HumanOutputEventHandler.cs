@@ -10,11 +10,10 @@ namespace TestRunner.Events
 {
 
     /// <summary>
-    /// Event handler that produces default human-readable output to <see cref="Console.Out"/> and
-    /// <see cref="Console.Error"/>
+    /// Event handler that produces output in human-readable format
     /// </summary>
     ///
-    public class DefaultOutputEventHandler : EventHandler
+    public class HumanOutputEventHandler : EventHandler
     {
 
         static void WriteMethodBegin(MethodInfo method, string prefix)
