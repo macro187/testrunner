@@ -2,6 +2,16 @@ TestRunner Changelog
 ====================
 
 
+v1.8.0
+------
+
+Add --outputformat command line option
+
+Add --help command line option
+
+Correctly consider \[Ignore\]d \[TestClass\]es to be successful
+
+
 v1.7.1
 ------
 
