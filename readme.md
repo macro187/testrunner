@@ -38,8 +38,13 @@ Supports test attributes
 and
 [\[Ignore\]](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.ignoreattribute).
 
-Supports [TestContext](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testcontext)
-members `CurrentTestOutcome`, `FullyQualifiedTestClassName`, and `TestName`.
+Supports
+[TestContext](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testcontext)
+members
+[CurrentTestOutcome](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcontext.currenttestoutcome.aspx),
+[FullyQualifiedTestClassName](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcontext.fullyqualifiedtestclassname.aspx),
+and
+[TestName](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcontext.testname.aspx).
 
 Supports test assembly **.config files**.
 
