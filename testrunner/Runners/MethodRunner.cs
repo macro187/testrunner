@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using TestRunner.Domain;
+using TestRunner.Events;
 using TestRunner.Infrastructure;
-using EventHandler = TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
 {
@@ -14,9 +14,9 @@ namespace TestRunner.Runners
             Guard.NotNull(testAssembly, nameof(testAssembly));
             var method = testAssembly.AssemblyInitializeMethod;
             if (method == null) return true;
-            EventHandler.First.AssemblyInitializeMethodBeginEvent(testAssembly);
+            EventHandlers.First.Handle(new AssemblyInitializeMethodBeginEvent() { TestAssembly = testAssembly });
             var success = Run(method, null, true, null, false);
-            EventHandler.First.AssemblyInitializeMethodEndEvent(success, -1);
+            EventHandlers.First.Handle(new AssemblyInitializeMethodEndEvent() { Success = success });
             return success;
         }
 
@@ -24,9 +24,9 @@ namespace TestRunner.Runners
         static public bool RunAssemblyCleanupMethod(MethodInfo method)
         {
             if (method == null) return true;
-            EventHandler.First.AssemblyCleanupMethodBeginEvent(method);
+            EventHandlers.First.Handle(new AssemblyCleanupMethodBeginEvent() { Method = method });
             var success = Run(method, null, false, null, false);
-            EventHandler.First.AssemblyCleanupMethodEndEvent(success, -1);
+            EventHandlers.First.Handle(new AssemblyCleanupMethodEndEvent() { Success = success });
             return success;
         }
 
@@ -36,9 +36,9 @@ namespace TestRunner.Runners
             Guard.NotNull(testClass, nameof(testClass));
             var method = testClass.ClassInitializeMethod;
             if (method == null) return true;
-            EventHandler.First.ClassInitializeMethodBeginEvent(testClass);
+            EventHandlers.First.Handle(new ClassInitializeMethodBeginEvent() { TestClass = testClass });
             var success = Run(method, null, true, null, false);
-            EventHandler.First.ClassInitializeMethodEndEvent(success, -1);
+            EventHandlers.First.Handle(new ClassInitializeMethodEndEvent() { Success = success });
             return success;
         }
 
@@ -46,9 +46,9 @@ namespace TestRunner.Runners
         static public bool RunClassCleanupMethod(MethodInfo method)
         {
             if (method == null) return true;
-            EventHandler.First.ClassCleanupMethodBeginEvent(method);
+            EventHandlers.First.Handle(new ClassCleanupMethodBeginEvent() { Method = method });
             var success = Run(method, null, false, null, false);
-            EventHandler.First.ClassCleanupMethodEndEvent(success, -1);
+            EventHandlers.First.Handle(new ClassCleanupMethodEndEvent() { Success = success });
             return success;
         }
 
@@ -57,9 +57,9 @@ namespace TestRunner.Runners
         {
             if (method == null) return;
             Guard.NotNull(instance, nameof(instance));
-            EventHandler.First.TestContextSetterBeginEvent(method);
+            EventHandlers.First.Handle(new TestContextSetterBeginEvent() { Method = method });
             var success = Run(method, instance, true, null, false);
-            EventHandler.First.TestContextSetterEndEvent(success, -1);
+            EventHandlers.First.Handle(new TestContextSetterEndEvent() { Success = success });
         }
 
 
@@ -67,9 +67,9 @@ namespace TestRunner.Runners
         {
             if (method == null) return true;
             Guard.NotNull(instance, nameof(instance));
-            EventHandler.First.TestInitializeMethodBeginEvent(method);
+            EventHandlers.First.Handle(new TestInitializeMethodBeginEvent() { Method = method });
             var success = Run(method, instance, false, null, false);
-            EventHandler.First.TestInitializeMethodEndEvent(success, -1);
+            EventHandlers.First.Handle(new TestInitializeMethodEndEvent() { Success = success });
             return success;
         }
 
@@ -82,9 +82,9 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(method, nameof(method));
             Guard.NotNull(instance, nameof(instance));
-            EventHandler.First.TestMethodBeginEvent(method);
+            EventHandlers.First.Handle(new TestMethodBeginEvent() { Method = method });
             var success = Run(method, instance, false, expectedException, expectedExceptionAllowDerived);
-            EventHandler.First.TestMethodEndEvent(success, -1);
+            EventHandlers.First.Handle(new TestMethodEndEvent() { Success = success });
             return success;
         }
 
@@ -93,9 +93,9 @@ namespace TestRunner.Runners
         {
             if (method == null) return true;
             Guard.NotNull(instance, nameof(instance));
-            EventHandler.First.TestCleanupMethodBeginEvent(method);
+            EventHandlers.First.Handle(new TestCleanupMethodBeginEvent() { Method = method });
             var success = Run(method, instance, false, null, false);
-            EventHandler.First.TestCleanupMethodEndEvent(success, -1);
+            EventHandlers.First.Handle(new TestCleanupMethodEndEvent() { Success = success });
             return success;
         }
 
@@ -136,11 +136,15 @@ namespace TestRunner.Runners
 
                 if (wasExpected)
                 {
-                    EventHandler.First.MethodExpectedExceptionEvent(expectedException, e);
+                    EventHandlers.First.Handle(
+                        new MethodExpectedExceptionEvent() {
+                            Expected = expectedException,
+                            Exception = e,
+                        });
                     return true;
                 }
 
-                EventHandler.First.MethodUnexpectedExceptionEvent(e);
+                EventHandlers.First.Handle(new MethodUnexpectedExceptionEvent() { Exception = e });
                 return false;
             }
         }

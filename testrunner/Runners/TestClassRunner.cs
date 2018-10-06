@@ -1,6 +1,6 @@
 ﻿using TestRunner.Domain;
+using TestRunner.Events;
 using TestRunner.Infrastructure;
-using EventHandler = TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
 {
@@ -28,7 +28,7 @@ namespace TestRunner.Runners
             int ignored = 0;
             bool classCleanupSucceeded = false;
 
-            EventHandler.First.TestClassBeginEvent(testClass.FullName);
+            EventHandlers.First.Handle(new TestClassBeginEvent() { FullName = testClass.FullName });
 
             do
             {
@@ -84,18 +84,20 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandler.First.TestClassEndEvent(
-                success,
-                classIgnored,
-                testClass.ClassInitializeMethod != null,
-                classInitializeSucceeded,
-                testClass.TestMethods.Count,
-                ran,
-                ignored,
-                passed,
-                failed,
-                testClass.ClassCleanupMethod != null,
-                classCleanupSucceeded);
+            EventHandlers.First.Handle(
+                new TestClassEndEvent() {
+                    Success = success,
+                    ClassIgnored = classIgnored,
+                    InitializePresent = testClass.ClassInitializeMethod != null,
+                    InitializeSucceeded = classInitializeSucceeded,
+                    TestsTotal = testClass.TestMethods.Count,
+                    TestsRan = ran,
+                    TestsIgnored = ignored,
+                    TestsPassed = passed,
+                    TestsFailed = failed,
+                    CleanupPresent = testClass.ClassCleanupMethod != null,
+                    CleanupSucceeded = classCleanupSucceeded
+                });
 
             return success;
         }

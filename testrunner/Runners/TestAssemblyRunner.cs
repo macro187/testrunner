@@ -5,7 +5,6 @@ using System.Reflection;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
 using TestRunner.Events;
-using EventHandler = TestRunner.Events.EventHandler;
 
 namespace TestRunner.Runners
 {
@@ -45,7 +44,7 @@ namespace TestRunner.Runners
             int failed = 0;
             bool assemblyCleanupSucceeded = false;
 
-            EventHandler.First.TestAssemblyBeginEvent(assemblyPath);
+            EventHandlers.First.Handle(new TestAssemblyBeginEvent() { Path = assemblyPath });
 
             do
             {
@@ -59,7 +58,7 @@ namespace TestRunner.Runners
 
                 if (!File.Exists(fullAssemblyPath))
                 {
-                    EventHandler.First.TestAssemblyNotFoundEvent(fullAssemblyPath);
+                    EventHandlers.First.Handle(new TestAssemblyNotFoundEvent() { Path = fullAssemblyPath });
                     break;
                 }
 
@@ -73,7 +72,7 @@ namespace TestRunner.Runners
                 }
                 catch (BadImageFormatException)
                 {
-                    EventHandler.First.TestAssemblyNotDotNetEvent(fullAssemblyPath);
+                    EventHandlers.First.Handle(new TestAssemblyNotDotNetEvent() { Path = fullAssemblyPath });
                     success = true;
                     break;
                 }
@@ -84,7 +83,7 @@ namespace TestRunner.Runners
                 var testAssembly = TestAssembly.TryCreate(assembly);
                 if (testAssembly == null)
                 {
-                    EventHandler.First.TestAssemblyNotTestEvent(fullAssemblyPath);
+                    EventHandlers.First.Handle(new TestAssemblyNotTestEvent() { Path = fullAssemblyPath });
                     success = true;
                     break;
                 }
@@ -123,7 +122,7 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandler.First.TestAssemblyEndEvent(success);
+            EventHandlers.First.Handle(new TestAssemblyEndEvent() { Success = success });
 
             return success;
         }

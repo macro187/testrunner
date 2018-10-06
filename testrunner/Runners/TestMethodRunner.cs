@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using TestRunner.Domain;
-using EventHandler = TestRunner.Events.EventHandler;
+using TestRunner.Events;
 
 namespace TestRunner.Runners
 {
@@ -26,7 +26,7 @@ namespace TestRunner.Runners
             MethodInfo testCleanupMethod,
             TestClass testClass)
         {
-            EventHandler.First.TestBeginEvent(testMethod.Name);
+            EventHandlers.First.Handle(new TestBeginEvent() { Name = testMethod.Name });
 
             bool testInitializeSucceeded = false;
             bool testMethodSucceeded = false;
@@ -40,7 +40,7 @@ namespace TestRunner.Runners
                 //
                 if (testMethod.IsIgnored)
                 {
-                    EventHandler.First.TestIgnoredEvent();
+                    EventHandlers.First.Handle(new TestIgnoredEvent());
                     outcome = UnitTestOutcome.NotRunnable;
                     break;
                 }
@@ -90,7 +90,7 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandler.First.TestEndEvent(outcome);
+            EventHandlers.First.Handle(new TestEndEvent() { Outcome = outcome });
 
             return outcome;
         }

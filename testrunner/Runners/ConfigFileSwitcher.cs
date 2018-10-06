@@ -4,7 +4,7 @@ using System;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using EventHandler = TestRunner.Events.EventHandler;
+using TestRunner.Events;
 #endif
 
 namespace TestRunner.Runners
@@ -57,7 +57,7 @@ namespace TestRunner.Runners
                 currentField.SetValue(null, null);
             }
 
-            EventHandler.First.TestAssemblyConfigFileSwitchedEvent(configPath);
+            EventHandlers.First.Handle(new TestAssemblyConfigFileSwitchedEvent() { Path = configPath });
             #endif
         }
         

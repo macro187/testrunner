@@ -1,7 +1,4 @@
-﻿using System;
-using System.Reflection;
-using TestRunner.Infrastructure;
-using TestRunner.Domain;
+﻿using TestRunner.Domain;
 using System.Linq;
 
 namespace TestRunner.Events
@@ -14,247 +11,70 @@ namespace TestRunner.Events
     public class TestContextEventHandler : EventHandler
     {
 
-        public override void ProgramBannerEvent(params string[] lines)
+        protected override void Handle(TestClassBeginEvent e)
         {
-            base.ProgramBannerEvent(lines);
+            TestContext.FullyQualifiedTestClassName = e.FullName;
         }
 
 
-        public override void ProgramUsageEvent(string[] lines)
-        {
-            base.ProgramUsageEvent(lines);
-        }
-
-
-        public override void ProgramUserErrorEvent(UserException exception)
-        {
-            base.ProgramUserErrorEvent(exception);
-        }
-
-
-        public override void ProgramInternalErrorEvent(Exception exception)
-        {
-            base.ProgramInternalErrorEvent(exception);
-        }
-
-
-        public override void TestAssemblyBeginEvent(string path)
-        {
-            base.TestAssemblyBeginEvent(path);
-        }
-
-
-        public override void TestAssemblyNotFoundEvent(string path)
-        {
-            base.TestAssemblyNotFoundEvent(path);
-        }
-
-
-        public override void TestAssemblyNotDotNetEvent(string path)
-        {
-            base.TestAssemblyNotDotNetEvent(path);
-        }
-
-
-        public override void TestAssemblyNotTestEvent(string path)
-        {
-            base.TestAssemblyNotTestEvent(path);
-        }
-
-
-        public override void TestAssemblyConfigFileSwitchedEvent(string path)
-        {
-            base.TestAssemblyConfigFileSwitchedEvent(path);
-        }
-
-
-        public override void TestAssemblyEndEvent(bool success)
-        {
-            base.TestAssemblyEndEvent(success);
-        }
-
-
-        public override void TestClassBeginEvent(string fullName)
-        {
-            TestContext.FullyQualifiedTestClassName = fullName;
-            base.TestClassBeginEvent(fullName);
-        }
-
-
-        public override void TestClassEndEvent(
-            bool success,
-            bool classIgnored,
-            bool initializePresent,
-            bool initializeSucceeded,
-            int testsTotal,
-            int testsRan,
-            int testsIgnored,
-            int testsPassed,
-            int testsFailed,
-            bool cleanupPresent,
-            bool cleanupSucceeded
-        )
+        protected override void Handle(TestClassEndEvent e)
         {
             TestContext.FullyQualifiedTestClassName = null;
-            base.TestClassEndEvent(
-                success,
-                classIgnored,
-                initializePresent,
-                initializeSucceeded,
-                testsTotal,
-                testsRan,
-                testsIgnored,
-                testsPassed,
-                testsFailed,
-                cleanupPresent,
-                cleanupSucceeded);
         }
 
 
-        public override void TestBeginEvent(string name)
+        protected override void Handle(TestBeginEvent e)
         {
-            TestContext.TestName = name;
-            base.TestBeginEvent(name);
+            TestContext.TestName = e.Name;
         }
 
 
-        public override void TestIgnoredEvent()
-        {
-            base.TestIgnoredEvent();
-        }
-
-
-        public override void TestEndEvent(UnitTestOutcome outcome)
+        protected override void Handle(TestEndEvent e)
         {
             TestContext.TestName = null;
             TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
-            base.TestEndEvent(outcome);
         }
 
 
-        public override void AssemblyInitializeMethodBeginEvent(TestAssembly testAssembly)
+        protected override void Handle(AssemblyInitializeMethodBeginEvent e)
         {
-            TestContext.FullyQualifiedTestClassName = testAssembly.TestClasses.First().FullName;
-            TestContext.TestName = testAssembly.TestClasses.First().TestMethods.First().Name;
+            TestContext.FullyQualifiedTestClassName = e.TestAssembly.TestClasses.First().FullName;
+            TestContext.TestName = e.TestAssembly.TestClasses.First().TestMethods.First().Name;
             TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
-            base.AssemblyInitializeMethodBeginEvent(testAssembly);
         }
 
 
-        public override void AssemblyInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(AssemblyInitializeMethodEndEvent e)
         {
             TestContext.FullyQualifiedTestClassName = null;
             TestContext.TestName = null;
             TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
-            base.AssemblyInitializeMethodEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public override void AssemblyCleanupMethodBeginEvent(MethodInfo method)
+        protected override void Handle(ClassInitializeMethodBeginEvent e)
         {
-            base.AssemblyCleanupMethodBeginEvent(method);
-        }
-
-
-        public override void AssemblyCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
-        {
-            base.AssemblyCleanupMethodEndEvent(success, elapsedMilliseconds);
-        }
-
-
-        public override void ClassInitializeMethodBeginEvent(TestClass testClass)
-        {
-            TestContext.TestName = testClass.TestMethods.First().Name;
+            TestContext.TestName = e.TestClass.TestMethods.First().Name;
             TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
-            base.ClassInitializeMethodBeginEvent(testClass);
         }
 
 
-        public override void ClassInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(ClassInitializeMethodEndEvent e)
         {
             TestContext.TestName = null;
             TestContext.CurrentTestOutcome = UnitTestOutcome.Unknown;
-            base.ClassInitializeMethodEndEvent(success, elapsedMilliseconds);
         }
 
 
-        public override void ClassCleanupMethodBeginEvent(MethodInfo method)
-        {
-            base.ClassCleanupMethodBeginEvent(method);
-        }
-
-
-        public override void ClassCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
-        {
-            base.ClassCleanupMethodEndEvent(success, elapsedMilliseconds);
-        }
-
-
-        public override void TestContextSetterBeginEvent(MethodInfo method)
-        {
-            base.TestContextSetterBeginEvent(method);
-        }
-
-
-        public override void TestContextSetterEndEvent(bool success, long elapsedMilliseconds)
-        {
-            base.TestContextSetterEndEvent(success, elapsedMilliseconds);
-        }
-
-
-        public override void TestInitializeMethodBeginEvent(MethodInfo method)
+        protected override void Handle(TestInitializeMethodBeginEvent e)
         {
             TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
-            base.TestInitializeMethodBeginEvent(method);
         }
 
 
-        public override void TestInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(TestMethodEndEvent e)
         {
-            base.TestInitializeMethodEndEvent(success, elapsedMilliseconds);
-        }
-
-
-        public override void TestMethodBeginEvent(MethodInfo method)
-        {
-            base.TestMethodBeginEvent(method);
-        }
-
-
-        public override void TestMethodEndEvent(bool success, long elapsedMilliseconds)
-        {
-            TestContext.CurrentTestOutcome = success ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
-            base.TestMethodEndEvent(success, elapsedMilliseconds);
-        }
-
-
-        public override void TestCleanupMethodBeginEvent(MethodInfo method)
-        {
-            base.TestCleanupMethodBeginEvent(method);
-        }
-
-
-        public override void TestCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
-        {
-            base.TestCleanupMethodEndEvent(success, elapsedMilliseconds);
-        }
-
-
-        public override void MethodExpectedExceptionEvent(Type expected, Exception exception)
-        {
-            base.MethodExpectedExceptionEvent(expected, exception);
-        }
-
-
-        public override void MethodUnexpectedExceptionEvent(Exception exception)
-        {
-            base.MethodUnexpectedExceptionEvent(exception);
-        }
-
-
-        public override void OutputTraceEvent(string message = "")
-        {
-            base.OutputTraceEvent(message);
+            TestContext.CurrentTestOutcome = e.Success ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
         }
 
     }

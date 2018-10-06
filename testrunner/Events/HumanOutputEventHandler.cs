@@ -146,41 +146,35 @@ namespace TestRunner.Events
         }
 
 
-        public override void ProgramBannerEvent(params string[] lines)
+        protected override void Handle(ProgramBannerEvent e)
         {
             WriteError();
             WriteError();
-            WriteHeadingError(lines);
-            base.ProgramBannerEvent(lines);
+            WriteHeadingError(e.Lines);
         }
 
 
-        public override void ProgramUsageEvent(string[] lines)
+        protected override void Handle(ProgramUsageEvent e)
         {
-            Guard.NotNull(lines, nameof(lines));
             WriteError();
-            WriteError(lines);
+            WriteError(e.Lines);
             WriteError();
-            base.ProgramUsageEvent(lines);
         }
 
 
-        public override void ProgramUserErrorEvent(UserException exception)
+        protected override void Handle(ProgramUserErrorEvent e)
         {
-            Guard.NotNull(exception, nameof(exception));
             WriteError();
-            WriteError(exception.Message);
-            base.ProgramUserErrorEvent(exception);
+            WriteError(e.Exception.Message);
         }
 
 
-        public override void ProgramInternalErrorEvent(Exception exception)
+        protected override void Handle(ProgramInternalErrorEvent e)
         {
-            Guard.NotNull(exception, nameof(exception));
             WriteError();
             WriteError("An internal error occurred:");
 
-            if (exception is ReflectionTypeLoadException rtle)
+            if (e.Exception is ReflectionTypeLoadException rtle)
             {
                 foreach (var le in rtle.LoaderExceptions)
                 {
@@ -188,53 +182,44 @@ namespace TestRunner.Events
                 }
             }
 
-            WriteError(FormatException(exception));
+            WriteError(FormatException(e.Exception));
 
-            base.ProgramInternalErrorEvent(exception);
         }
 
 
-        public override void TestAssemblyBeginEvent(string path)
+        protected override void Handle(TestAssemblyBeginEvent e)
         {
-            Guard.NotNull(path, nameof(path));
             WriteOut();
-            WriteHeadingOut(path);
-            base.TestAssemblyBeginEvent(path);
+            WriteHeadingOut(e.Path);
         }
 
 
-        public override void TestAssemblyNotFoundEvent(string path)
+        protected override void Handle(TestAssemblyNotFoundEvent e)
         {
-            Guard.NotNull(path, nameof(path));
             WriteOut();
-            WriteOut($"Test assembly not found: {path}");
-            base.TestAssemblyNotFoundEvent(path);
+            WriteOut($"Test assembly not found: {e.Path}");
         }
 
 
-        public override void TestAssemblyNotDotNetEvent(string path)
+        protected override void Handle(TestAssemblyNotDotNetEvent e)
         {
-            Guard.NotNull(path, nameof(path));
             WriteOut();
-            WriteOut($"Not a .NET assembly: {path}");
-            base.TestAssemblyNotDotNetEvent(path);
+            WriteOut($"Not a .NET assembly: {e.Path}");
         }
 
 
-        public override void TestAssemblyNotTestEvent(string path)
+        protected override void Handle(TestAssemblyNotTestEvent e)
         {
-            Guard.NotNull(path, nameof(path));
             WriteOut();
-            WriteOut($"Not a test assembly: {path}");
-            base.TestAssemblyNotTestEvent(path);
+            WriteOut($"Not a test assembly: {e.Path}");
         }
 
 
-        public override void TestAssemblyConfigFileSwitchedEvent(string path)
+        protected override void Handle(TestAssemblyConfigFileSwitchedEvent e)
         {
             WriteOut();
             WriteOut("Configuration File:");
-            WriteOut(path);
+            WriteOut(e.Path);
 
             if (Type.GetType("Mono.Runtime") != null)
             {
@@ -243,53 +228,37 @@ namespace TestRunner.Events
                 WriteOut("See https://bugzilla.xamarin.com/show_bug.cgi?id=15741");
             }
 
-            base.TestAssemblyConfigFileSwitchedEvent(path);
         }
 
 
-        public override void TestAssemblyEndEvent(bool success)
+        protected override void Handle(TestAssemblyEndEvent e)
         {
-            base.TestAssemblyEndEvent(success);
         }
 
 
-        public override void TestClassBeginEvent(string fullName)
+        protected override void Handle(TestClassBeginEvent e)
         {
-            Guard.NotNull(fullName, nameof(fullName));
             WriteOut();
-            WriteHeadingOut(fullName);
-            base.TestClassBeginEvent(fullName);
+            WriteHeadingOut(e.FullName);
         }
 
 
-        public override void TestClassEndEvent(
-            bool success,
-            bool classIgnored,
-            bool initializePresent,
-            bool initializeSucceeded,
-            int testsTotal,
-            int testsRan,
-            int testsIgnored,
-            int testsPassed,
-            int testsFailed,
-            bool cleanupPresent,
-            bool cleanupSucceeded
-        )
+        protected override void Handle(TestClassEndEvent e)
         {
             var initializeResult =
-                initializePresent
-                    ? classIgnored
+                e.InitializePresent
+                    ? e.ClassIgnored
                         ? "Ignored"
-                        : initializeSucceeded
+                        : e.InitializeSucceeded
                             ? "Succeeded"
                             : "Failed"
                     : "Not present";
 
             var cleanupResult =
-                cleanupPresent
-                    ? classIgnored
+                e.CleanupPresent
+                    ? e.ClassIgnored
                         ? "Ignored"
-                        : cleanupSucceeded
+                        : e.CleanupSucceeded
                             ? "Succeeded"
                             : "Failed"
                     : "Not present";
@@ -297,7 +266,7 @@ namespace TestRunner.Events
             WriteOut();
             WriteSubheadingOut("Summary");
 
-            if (classIgnored)
+            if (e.ClassIgnored)
             {
                 WriteOut();
                 WriteOut("Ignored all tests because class is decorated with [Ignore]");
@@ -305,48 +274,33 @@ namespace TestRunner.Events
 
             WriteOut();
             WriteOut($"ClassInitialize: {initializeResult}");
-            WriteOut($"Total:           {testsTotal} tests");
-            WriteOut($"Ignored:         {testsIgnored} tests");
-            WriteOut($"Ran:             {testsRan} tests");
-            WriteOut($"Passed:          {testsPassed} tests");
-            WriteOut($"Failed:          {testsFailed} tests");
+            WriteOut($"Total:           {e.TestsTotal} tests");
+            WriteOut($"Ignored:         {e.TestsIgnored} tests");
+            WriteOut($"Ran:             {e.TestsRan} tests");
+            WriteOut($"Passed:          {e.TestsPassed} tests");
+            WriteOut($"Failed:          {e.TestsFailed} tests");
             WriteOut($"ClassCleanup:    {cleanupResult}");
-
-            base.TestClassEndEvent(
-                success,
-                classIgnored,
-                initializePresent,
-                initializeSucceeded,
-                testsTotal,
-                testsRan,
-                testsIgnored,
-                testsPassed,
-                testsFailed,
-                cleanupPresent,
-                cleanupSucceeded);
         }
 
 
-        public override void TestBeginEvent(string name)
+        protected override void Handle(TestBeginEvent e)
         {
             WriteOut();
-            WriteSubheadingOut(name.Replace("_", " "));
-            base.TestBeginEvent(name);
+            WriteSubheadingOut(e.Name.Replace("_", " "));
         }
 
 
-        public override void TestIgnoredEvent()
+        protected override void Handle(TestIgnoredEvent e)
         {
             WriteOut();
             WriteOut("Ignored because [TestMethod] is decorated with [Ignore]");
-            base.TestIgnoredEvent();
         }
 
 
-        public override void TestEndEvent(UnitTestOutcome outcome)
+        protected override void Handle(TestEndEvent e)
         {
             WriteOut();
-            switch (outcome)
+            switch (e.Outcome)
             {
                 case UnitTestOutcome.NotRunnable:
                     WriteOut("Ignored");
@@ -358,147 +312,123 @@ namespace TestRunner.Events
                     WriteOut("FAILED");
                     break;
                 default:
-                    throw new ArgumentException("Unexpected outcome", nameof(outcome));
+                    throw new ArgumentException("Unexpected outcome", nameof(e));
             }
-            base.TestEndEvent(outcome);
         }
 
 
-        public override void AssemblyInitializeMethodBeginEvent(TestAssembly testAssembly)
+        protected override void Handle(AssemblyInitializeMethodBeginEvent e)
         {
-            WriteMethodBegin(testAssembly.AssemblyInitializeMethod, "[AssemblyInitialize]");
-            base.AssemblyInitializeMethodBeginEvent(testAssembly);
+            WriteMethodBegin(e.TestAssembly.AssemblyInitializeMethod, "[AssemblyInitialize]");
         }
 
 
-        public override void AssemblyInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(AssemblyInitializeMethodEndEvent e)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
-            base.AssemblyInitializeMethodEndEvent(success, elapsedMilliseconds);
+            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
         }
 
 
-        public override void AssemblyCleanupMethodBeginEvent(MethodInfo method)
+        protected override void Handle(AssemblyCleanupMethodBeginEvent e)
         {
-            WriteMethodBegin(method, "[AssemblyCleanup]");
-            base.AssemblyCleanupMethodBeginEvent(method);
+            WriteMethodBegin(e.Method, "[AssemblyCleanup]");
         }
 
 
-        public override void AssemblyCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(AssemblyCleanupMethodEndEvent e)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
-            base.AssemblyCleanupMethodEndEvent(success, elapsedMilliseconds);
+            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
         }
 
 
-        public override void ClassInitializeMethodBeginEvent(TestClass testClass)
+        protected override void Handle(ClassInitializeMethodBeginEvent e)
         {
-            Guard.NotNull(testClass, nameof(testClass));
-            WriteMethodBegin(testClass.ClassInitializeMethod, "[ClassInitialize]");
-            base.ClassInitializeMethodBeginEvent(testClass);
+            WriteMethodBegin(e.TestClass.ClassInitializeMethod, "[ClassInitialize]");
         }
 
 
-        public override void ClassInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(ClassInitializeMethodEndEvent e)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
-            base.ClassInitializeMethodEndEvent(success, elapsedMilliseconds);
+            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
         }
 
 
-        public override void ClassCleanupMethodBeginEvent(MethodInfo method)
+        protected override void Handle(ClassCleanupMethodBeginEvent e)
         {
-            WriteMethodBegin(method, "[ClassCleanup]");
-            base.ClassCleanupMethodBeginEvent(method);
+            WriteMethodBegin(e.Method, "[ClassCleanup]");
         }
 
 
-        public override void ClassCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(ClassCleanupMethodEndEvent e)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
-            base.ClassCleanupMethodEndEvent(success, elapsedMilliseconds);
+            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
         }
 
 
-        public override void TestContextSetterBeginEvent(MethodInfo method)
+        protected override void Handle(TestContextSetterBeginEvent e)
         {
-            WriteMethodBegin(method, "");
-            base.TestContextSetterBeginEvent(method);
+            WriteMethodBegin(e.Method, "");
         }
 
 
-        public override void TestContextSetterEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(TestContextSetterEndEvent e)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
-            base.TestContextSetterEndEvent(success, elapsedMilliseconds);
+            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
         }
 
 
-        public override void TestInitializeMethodBeginEvent(MethodInfo method)
+        protected override void Handle(TestInitializeMethodBeginEvent e)
         {
-            WriteMethodBegin(method, "[TestInitialize]");
-            base.TestInitializeMethodBeginEvent(method);
+            WriteMethodBegin(e.Method, "[TestInitialize]");
         }
 
 
-        public override void TestInitializeMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(TestInitializeMethodEndEvent e)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
-            base.TestInitializeMethodEndEvent(success, elapsedMilliseconds);
+            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
         }
 
 
-        public override void TestMethodBeginEvent(MethodInfo method)
+        protected override void Handle(TestMethodBeginEvent e)
         {
-            WriteMethodBegin(method, "[TestMethod]");
-            base.TestMethodBeginEvent(method);
+            WriteMethodBegin(e.Method, "[TestMethod]");
         }
 
 
-        public override void TestMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(TestMethodEndEvent e)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
-            base.TestMethodEndEvent(success, elapsedMilliseconds);
+            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
         }
 
 
-        public override void TestCleanupMethodBeginEvent(MethodInfo method)
+        protected override void Handle(TestCleanupMethodBeginEvent e)
         {
-            WriteMethodBegin(method, "[TestCleanup]");
-            base.TestCleanupMethodBeginEvent(method);
+            WriteMethodBegin(e.Method, "[TestCleanup]");
         }
 
 
-        public override void TestCleanupMethodEndEvent(bool success, long elapsedMilliseconds)
+        protected override void Handle(TestCleanupMethodEndEvent e)
         {
-            WriteMethodEnd(success, elapsedMilliseconds);
-            base.TestCleanupMethodEndEvent(success, elapsedMilliseconds);
+            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
         }
 
 
-        public override void MethodExpectedExceptionEvent(Type expected, Exception exception)
+        protected override void Handle(MethodExpectedExceptionEvent e)
         {
-            Guard.NotNull(expected, nameof(expected));
-            Guard.NotNull(exception, nameof(exception));
-            WriteOut($"  [ExpectedException] {expected.FullName} occurred:");
-            WriteOut(StringExtensions.Indent(FormatException(exception)));
-            base.MethodExpectedExceptionEvent(expected, exception);
+            WriteOut($"  [ExpectedException] {e.Expected.FullName} occurred:");
+            WriteOut(StringExtensions.Indent(FormatException(e.Exception)));
         }
 
 
-        public override void MethodUnexpectedExceptionEvent(Exception exception)
+        protected override void Handle(MethodUnexpectedExceptionEvent e)
         {
-            Guard.NotNull(exception, nameof(exception));
-            WriteOut(StringExtensions.Indent(FormatException(exception)));
-            base.MethodUnexpectedExceptionEvent(exception);
+            WriteOut(StringExtensions.Indent(FormatException(e.Exception)));
         }
 
 
-        public override void OutputTraceEvent(string message = "")
+        protected override void Handle(OutputTraceEvent e)
         {
-            WriteOut(message);
-            base.OutputTraceEvent(message);
+            WriteOut(e.Message);
         }
 
     }

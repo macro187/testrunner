@@ -42,7 +42,7 @@ namespace TestRunner.Program
             //
             catch (UserException ue)
             {
-                EventHandler.First.ProgramUserErrorEvent(ue);
+                EventHandlers.First.Handle(new ProgramUserErrorEvent() { Exception = ue });
                 return 1;
             }
 
@@ -51,7 +51,7 @@ namespace TestRunner.Program
             //
             catch (Exception e)
             {
-                EventHandler.First.ProgramInternalErrorEvent(e);
+                EventHandlers.First.Handle(new ProgramInternalErrorEvent() { Exception = e });
                 return 1;
             }
         }
@@ -59,8 +59,8 @@ namespace TestRunner.Program
 
         static int Main3(string[] args)
         {
-            EventHandler.Append(new TimingEventHandler());
-            EventHandler.Append(new TestContextEventHandler());
+            EventHandlers.Append(new TimingEventHandler());
+            EventHandlers.Append(new TestContextEventHandler());
 
             //
             // Parse arguments
@@ -70,7 +70,7 @@ namespace TestRunner.Program
             switch(ArgumentParser.OutputFormat)
             {
                 case OutputFormat.Human:
-                    EventHandler.Append(new HumanOutputEventHandler());
+                    EventHandlers.Append(new HumanOutputEventHandler());
                     break;
                 default:
                     throw new Exception($"Unrecognised <outputformat> from parser {ArgumentParser.OutputFormat}");
@@ -78,13 +78,13 @@ namespace TestRunner.Program
 
             if (!ArgumentParser.Success)
             {
-                EventHandler.First.ProgramUsageEvent(ArgumentParser.GetUsage());
+                EventHandlers.First.Handle(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
                 throw new UserException(ArgumentParser.ErrorMessage);
             }
 
             if (ArgumentParser.Help)
             {
-                EventHandler.First.ProgramUsageEvent(ArgumentParser.GetUsage());
+                EventHandlers.First.Handle(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
                 return 0;
             }
 
@@ -129,9 +129,13 @@ namespace TestRunner.Program
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
 
-            EventHandler.First.ProgramBannerEvent(
-                $"{name} v{version}",
-                copyright);
+            EventHandlers.First.Handle(
+                new ProgramBannerEvent() {
+                    Lines = new[]{
+                        $"{name} v{version}",
+                        copyright,
+                    }
+                });
         }
 
     }
