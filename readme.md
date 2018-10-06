@@ -41,10 +41,10 @@ and
 Supports
 [TestContext](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testcontext)
 members
-[CurrentTestOutcome](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcontext.currenttestoutcome.aspx),
-[FullyQualifiedTestClassName](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcontext.fullyqualifiedtestclassname.aspx),
+[CurrentTestOutcome](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testcontext.currenttestoutcome),
+[FullyQualifiedTestClassName](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testcontext.fullyqualifiedtestclassname),
 and
-[TestName](https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.testtools.unittesting.testcontext.testname.aspx).
+[TestName](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testcontext.testname).
 
 Supports test assembly **.config files**.
 
