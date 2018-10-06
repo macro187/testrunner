@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
-    <Version>1.7.2-master</Version>
-    <AssemblyFileVersion>1.7.2.0</AssemblyFileVersion>
+    <Version>1.8.0-master</Version>
+    <AssemblyFileVersion>1.8.0.0</AssemblyFileVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
