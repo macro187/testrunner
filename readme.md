@@ -52,14 +52,17 @@ Supports test assembly **.config files**.
 Limitations
 ===========
 
-Partial test attribute coverage (see Features).
+Some test attributes are unsupported.  Unsupported attributes are ignored and
+have no effect.
 
-Partial `TestContext` coverage on .NET Framework (see Features).
+Some
+[TestContext](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.visualstudio.testtools.unittesting.testcontext)
+members are unsupported.  Unsupported members return `null` at runtime.
 
-Test assembly `.config` files don't work on Mono because of a
-[bug in Mono](https://bugzilla.xamarin.com/show_bug.cgi?id=15741).
+Test assembly `.config` files don't work on Mono.
+[Issue #17](https://github.com/macro187/testrunner/issues/17).
 
-`<bindingRedirect>`s in test assembly `.config` files may not work.
+`<bindingRedirect>`s in test assembly `.config` files have no effect.
 
 
 Requirements
