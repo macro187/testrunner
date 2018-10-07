@@ -41,7 +41,7 @@ namespace TestRunner.Program
         /// The specifed --outputformat option (default: human)
         /// </summary>
         ///
-        static public OutputFormat OutputFormat
+        static public string OutputFormat
         {
             get;
             private set;
@@ -143,7 +143,7 @@ namespace TestRunner.Program
         {
             Success = false;
             ErrorMessage = "";
-            OutputFormat = OutputFormat.Human;
+            OutputFormat = OutputFormats.Human;
             InProc = false;
             Help = false;
             _testFiles = new List<string>();
@@ -215,15 +215,15 @@ namespace TestRunner.Program
                 return;
             }
 
-            var outputformat = args.Dequeue();
+            var s = args.Dequeue();
 
-            switch (outputformat)
+            switch (s)
             {
-                case "human":
-                    OutputFormat = OutputFormat.Human;
+                case OutputFormats.Human:
+                    OutputFormat = s;
                     break;
                 default:
-                    ErrorMessage = $"Unrecognised <outputformat> {outputformat}";
+                    ErrorMessage = $"Unrecognised <outputformat> {s}";
                     break;
             }
         }

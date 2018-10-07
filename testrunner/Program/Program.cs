@@ -69,7 +69,7 @@ namespace TestRunner.Program
 
             switch(ArgumentParser.OutputFormat)
             {
-                case OutputFormat.Human:
+                case OutputFormats.Human:
                     EventHandlers.Append(new HumanOutputEventHandler());
                     break;
                 default:
@@ -101,7 +101,7 @@ namespace TestRunner.Program
                     var exitCode = 
                         ProcessExtensions.ExecuteDotnet(
                             ProgramPath,
-                            "--inproc \"" + testFile + "\"")
+                            $"--inproc --outputformat {ArgumentParser.OutputFormat} \"{testFile}\"")
                         .ExitCode;
 
                     if (exitCode != 0) success = false;

@@ -5,9 +5,9 @@
     /// Program output formats
     /// </summary>
     ///
-    public enum OutputFormat
+    public static class OutputFormats
     {
-        Human,
+        public const string Human = "human";
     }
 
 }
