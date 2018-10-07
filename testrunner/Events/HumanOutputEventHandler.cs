@@ -16,13 +16,13 @@ namespace TestRunner.Events
     public class HumanOutputEventHandler : EventHandler
     {
 
-        static void WriteMethodBegin(MethodInfo method, string prefix)
+        static void WriteMethodBegin(string name, string prefix)
         {
-            Guard.NotNull(method, nameof(method));
+            Guard.NotNull(name, nameof(name));
             Guard.NotNull(prefix, nameof(prefix));
             prefix = prefix != "" ? prefix + " " : prefix;
             WriteOut();
-            WriteOut($"{prefix}{method.Name}()");
+            WriteOut($"{prefix}{name}()");
         }
 
 
@@ -95,18 +95,15 @@ namespace TestRunner.Events
         }
 
 
-        static string FormatException(Exception ex)
+        static string FormatException(ExceptionInfo ex)
         {
             if (ex == null) return "";
             var sb = new StringBuilder();
             sb.AppendLine(ex.Message);
-            sb.AppendLine("Type: " + ex.GetType().FullName);
-            if (ex.Data != null)
+            sb.AppendLine($"Type: {ex.FullName}");
+            foreach (var kvp in ex.Data)
             {
-                foreach (DictionaryEntry de in ex.Data)
-                {
-                    sb.AppendLine($"Data.{de.Key}: {de.Value}");
-                }
+                sb.AppendLine($"Data.{kvp.Key}: {kvp.Value}");
             }
             if (!string.IsNullOrWhiteSpace(ex.Source))
             {
@@ -116,10 +113,15 @@ namespace TestRunner.Events
             {
                 sb.AppendLine("HelpLink: " + ex.HelpLink);
             }
-            if (!string.IsNullOrWhiteSpace(ex.StackTrace))
+            if (ex.StackTrace.Count > 0)
             {
                 sb.AppendLine("StackTrace:");
-                sb.AppendLine(StringExtensions.Indent(FormatStackTrace(ex.StackTrace)));
+                foreach (var frame in ex.StackTrace)
+                {
+                    sb.AppendLine("  " + frame.At);
+                    if (frame.In == "") continue;
+                    sb.AppendLine("    " + frame.In);
+                }
             }
             if (ex.InnerException != null)
             {
@@ -165,7 +167,7 @@ namespace TestRunner.Events
         protected override void Handle(ProgramUserErrorEvent e)
         {
             WriteError();
-            WriteError(e.Exception.Message);
+            WriteError(e.Message);
         }
 
 
@@ -173,17 +175,7 @@ namespace TestRunner.Events
         {
             WriteError();
             WriteError("An internal error occurred:");
-
-            if (e.Exception is ReflectionTypeLoadException rtle)
-            {
-                foreach (var le in rtle.LoaderExceptions)
-                {
-                    WriteError(FormatException(le));
-                }
-            }
-
             WriteError(FormatException(e.Exception));
-
         }
 
 
@@ -319,7 +311,7 @@ namespace TestRunner.Events
 
         protected override void Handle(AssemblyInitializeMethodBeginEvent e)
         {
-            WriteMethodBegin(e.TestAssembly.AssemblyInitializeMethod, "[AssemblyInitialize]");
+            WriteMethodBegin(e.MethodName, "[AssemblyInitialize]");
         }
 
 
@@ -331,7 +323,7 @@ namespace TestRunner.Events
 
         protected override void Handle(AssemblyCleanupMethodBeginEvent e)
         {
-            WriteMethodBegin(e.Method, "[AssemblyCleanup]");
+            WriteMethodBegin(e.MethodName, "[AssemblyCleanup]");
         }
 
 
@@ -343,7 +335,7 @@ namespace TestRunner.Events
 
         protected override void Handle(ClassInitializeMethodBeginEvent e)
         {
-            WriteMethodBegin(e.TestClass.ClassInitializeMethod, "[ClassInitialize]");
+            WriteMethodBegin(e.MethodName, "[ClassInitialize]");
         }
 
 
@@ -355,7 +347,7 @@ namespace TestRunner.Events
 
         protected override void Handle(ClassCleanupMethodBeginEvent e)
         {
-            WriteMethodBegin(e.Method, "[ClassCleanup]");
+            WriteMethodBegin(e.MethodName, "[ClassCleanup]");
         }
 
 
@@ -367,7 +359,7 @@ namespace TestRunner.Events
 
         protected override void Handle(TestContextSetterBeginEvent e)
         {
-            WriteMethodBegin(e.Method, "");
+            WriteMethodBegin(e.MethodName, "");
         }
 
 
@@ -379,7 +371,7 @@ namespace TestRunner.Events
 
         protected override void Handle(TestInitializeMethodBeginEvent e)
         {
-            WriteMethodBegin(e.Method, "[TestInitialize]");
+            WriteMethodBegin(e.MethodName, "[TestInitialize]");
         }
 
 
@@ -391,7 +383,7 @@ namespace TestRunner.Events
 
         protected override void Handle(TestMethodBeginEvent e)
         {
-            WriteMethodBegin(e.Method, "[TestMethod]");
+            WriteMethodBegin(e.MethodName, "[TestMethod]");
         }
 
 
@@ -403,7 +395,7 @@ namespace TestRunner.Events
 
         protected override void Handle(TestCleanupMethodBeginEvent e)
         {
-            WriteMethodBegin(e.Method, "[TestCleanup]");
+            WriteMethodBegin(e.MethodName, "[TestCleanup]");
         }
 
 
@@ -415,7 +407,7 @@ namespace TestRunner.Events
 
         protected override void Handle(MethodExpectedExceptionEvent e)
         {
-            WriteOut($"  [ExpectedException] {e.Expected.FullName} occurred:");
+            WriteOut($"  [ExpectedException] {e.ExpectedFullName} occurred:");
             WriteOut(StringExtensions.Indent(FormatException(e.Exception)));
         }
 

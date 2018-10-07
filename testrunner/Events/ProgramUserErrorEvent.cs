@@ -1,9 +1,7 @@
-﻿using TestRunner.Infrastructure;
-
-namespace TestRunner.Events
+﻿namespace TestRunner.Events
 {
     public class ProgramUserErrorEvent : TestRunnerEvent
     {
-        public UserException Exception { get; set; }
+        public string Message { get; set; }
     }
 }

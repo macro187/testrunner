@@ -6,6 +6,7 @@ using TestRunner.Infrastructure;
 using TestRunner.Runners;
 using TestRunner.Events;
 using EventHandler = TestRunner.Events.EventHandler;
+using TestRunner.Domain;
 
 namespace TestRunner.Program
 {
@@ -42,7 +43,7 @@ namespace TestRunner.Program
             //
             catch (UserException ue)
             {
-                EventHandlers.First.Handle(new ProgramUserErrorEvent() { Exception = ue });
+                EventHandlers.First.Handle(new ProgramUserErrorEvent() { Message = ue.Message });
                 return 1;
             }
 
@@ -51,7 +52,22 @@ namespace TestRunner.Program
             //
             catch (Exception e)
             {
-                EventHandlers.First.Handle(new ProgramInternalErrorEvent() { Exception = e });
+                EventHandlers.First.Handle(
+                    new ProgramInternalErrorEvent() {
+                        Exception = new ExceptionInfo(e)
+                    });
+
+                if (e is ReflectionTypeLoadException rtle)
+                {
+                    foreach (var le in rtle.LoaderExceptions)
+                    {
+                        EventHandlers.First.Handle(
+                            new ProgramInternalErrorEvent() {
+                                Exception = new ExceptionInfo(le)
+                            });
+                    }
+                }
+
                 return 1;
             }
         }

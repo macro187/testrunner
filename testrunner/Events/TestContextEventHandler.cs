@@ -38,8 +38,8 @@ namespace TestRunner.Events
 
         protected override void Handle(AssemblyInitializeMethodBeginEvent e)
         {
-            TestContext.FullyQualifiedTestClassName = e.TestAssembly.TestClasses.First().FullName;
-            TestContext.TestName = e.TestAssembly.TestClasses.First().TestMethods.First().Name;
+            TestContext.FullyQualifiedTestClassName = e.FirstTestClassFullName;
+            TestContext.TestName = e.FirstTestMethodName;
             TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
         }
 
@@ -54,7 +54,7 @@ namespace TestRunner.Events
 
         protected override void Handle(ClassInitializeMethodBeginEvent e)
         {
-            TestContext.TestName = e.TestClass.TestMethods.First().Name;
+            TestContext.TestName = e.FirstTestMethodName;
             TestContext.CurrentTestOutcome = UnitTestOutcome.InProgress;
         }
 

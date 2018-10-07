@@ -1,9 +1,7 @@
-﻿using System.Reflection;
-
-namespace TestRunner.Events
+﻿namespace TestRunner.Events
 {
     public class TestContextSetterBeginEvent : TestRunnerEvent
     {
-        public MethodInfo Method;
+        public string MethodName;
     }
 }

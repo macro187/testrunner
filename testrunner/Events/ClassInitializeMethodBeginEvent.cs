@@ -1,9 +1,8 @@
-﻿using TestRunner.Domain;
-
-namespace TestRunner.Events
+﻿namespace TestRunner.Events
 {
     public class ClassInitializeMethodBeginEvent : TestRunnerEvent
     {
-        public TestClass TestClass;
+        public string MethodName { get; set; }
+        public string FirstTestMethodName { get; set; }
     }
 }

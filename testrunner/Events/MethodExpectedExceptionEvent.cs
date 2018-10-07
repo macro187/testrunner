@@ -1,10 +1,10 @@
-﻿using System;
+﻿using TestRunner.Domain;
 
 namespace TestRunner.Events
 {
     public class MethodExpectedExceptionEvent : TestRunnerEvent
     {
-        public Type Expected { get; set; }
-        public Exception Exception { get; set; }
+        public string ExpectedFullName { get; set; }
+        public ExceptionInfo Exception { get; set; }
     }
 }

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using TestRunner.Domain;
 
 namespace TestRunner.Events
 {
     public class MethodUnexpectedExceptionEvent : TestRunnerEvent
     {
-        public Exception Exception { get; set; }
+        public ExceptionInfo Exception { get; set; }
     }
 }
