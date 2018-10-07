@@ -9,7 +9,7 @@ namespace TestRunner.Events
         public EventHandler Next { get; set; }
 
 
-        public void Handle(TestRunnerEvent e)
+        public virtual void Handle(TestRunnerEvent e)
         {
             Guard.NotNull(e, nameof(e));
 

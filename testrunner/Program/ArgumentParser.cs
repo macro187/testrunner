@@ -121,7 +121,10 @@ namespace TestRunner.Program
                     $"        Set the output format",
                     $"",
                     $"        human",
-                    $"            Human-readable (default)",
+                    $"            Human-readable text format (default)",
+                    $"",
+                    $"        machine",
+                    $"            Machine-readable JSON-based format (experimental)",
                     $"",
                     $"    --help",
                     $"        Show usage information",
@@ -220,6 +223,7 @@ namespace TestRunner.Program
             switch (s)
             {
                 case OutputFormats.Human:
+                case OutputFormats.Machine:
                     OutputFormat = s;
                     break;
                 default:

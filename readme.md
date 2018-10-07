@@ -108,7 +108,10 @@ Options
     Set the output format
 
     human
-        Human-readable (default)
+        Human-readable text format (default)
+
+    machine
+        Machine-readable JSON-based format (default)
 
 --help
     Show usage information

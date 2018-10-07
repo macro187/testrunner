@@ -88,6 +88,9 @@ namespace TestRunner.Program
                 case OutputFormats.Human:
                     EventHandlers.Append(new HumanOutputEventHandler());
                     break;
+                case OutputFormats.Machine:
+                    EventHandlers.Append(new MachineOutputEventHandler());
+                    break;
                 default:
                     throw new Exception($"Unrecognised <outputformat> from parser {ArgumentParser.OutputFormat}");
             }
