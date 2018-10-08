@@ -1,6 +1,6 @@
 ﻿namespace TestRunner.Events
 {
-    public class OutputTraceEvent : TestRunnerEvent
+    public class TraceOutputEvent : TestRunnerEvent
     {
         public string Message { get; set; }
     }

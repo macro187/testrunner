@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using TestRunner.Domain;
 using TestRunner.Infrastructure;
@@ -418,7 +416,19 @@ namespace TestRunner.Events
         }
 
 
-        protected override void Handle(OutputTraceEvent e)
+        protected override void Handle(StandardOutputEvent e)
+        {
+            WriteOut(e.Message);
+        }
+
+
+        protected override void Handle(ErrorOutputEvent e)
+        {
+            WriteError(e.Message);
+        }
+
+
+        protected override void Handle(TraceOutputEvent e)
         {
             WriteOut(e.Message);
         }

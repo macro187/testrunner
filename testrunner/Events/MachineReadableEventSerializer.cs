@@ -16,6 +16,8 @@ namespace TestRunner.Events
     public static class MachineReadableEventSerializer
     {
 
+        const string Prefix = "[TestRunnerEvent] ";
+
         static readonly DataContractJsonSerializerSettings JsonSerializerSettings =
             new DataContractJsonSerializerSettings() {
                 EmitTypeInformation = EmitTypeInformation.Never,
@@ -58,7 +60,9 @@ namespace TestRunner.Events
                     typeof(TestCleanupMethodEndEvent),
                     typeof(MethodExpectedExceptionEvent),
                     typeof(MethodUnexpectedExceptionEvent),
-                    typeof(OutputTraceEvent),
+                    typeof(StandardOutputEvent),
+                    typeof(ErrorOutputEvent),
+                    typeof(TraceOutputEvent),
                 },
             };
 
@@ -72,28 +76,36 @@ namespace TestRunner.Events
             Guard.NotNull(e, nameof(e));
             var name = e.GetType().Name;
             var json = SerializeJson(e);
-            return $"{name} {json}";
+            return $"{Prefix}{name} {json}";
         }
 
 
         /// <summary>
-        /// Deserialize a line of text into a <see cref="TestRunnerEvent"/>
+        /// Try to deserialize a line of text into a <see cref="TestRunnerEvent"/>
         /// </summary>
         ///
+        /// <returns>
+        /// A <see cref="TestRunnerEvent"/>
+        /// - OR -
+        /// <c>null</c> if <paramref name="line"/> does not appear to be a serialized event
+        /// </returns>
+        ///
         /// <exception cref="Exception">
-        /// Deserialization fails for any reason
+        /// <paramref name="line"/> appears to be a serialized event but deserialization fails
         /// </exception>
         ///
-        public static TestRunnerEvent Deserialize(string line)
+        public static TestRunnerEvent TryDeserialize(string line)
         {
             Guard.NotNull(line, nameof(line));
+            if (!line.StartsWith(Prefix, StringComparison.Ordinal)) return null;
+            line = line.Substring(Prefix.Length);
             var i = line.IndexOf(' ');
             if (i < 0) throw new FormatException("No space separator in serialized event");
             var name = line.Substring(0, i);
             if (string.IsNullOrWhiteSpace(name)) throw new FormatException("No event name in serialized event");
             var json = line.Substring(i + 1);
             if (string.IsNullOrWhiteSpace(json)) throw new FormatException("No event data in serialized event");
-            var type = Type.GetType(name);
+            var type = Type.GetType($"TestRunner.Events.{name}");
             if (type == null) throw new FormatException($"Unknown serialized event '{name}'");
             return DeserializeJson(type, json);
         }

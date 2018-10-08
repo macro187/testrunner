@@ -5,8 +5,8 @@ using System.Reflection;
 using TestRunner.Infrastructure;
 using TestRunner.Runners;
 using TestRunner.Events;
-using EventHandler = TestRunner.Events.EventHandler;
 using TestRunner.Domain;
+using System.Collections.Generic;
 
 namespace TestRunner.Program
 {
@@ -78,9 +78,6 @@ namespace TestRunner.Program
             EventHandlers.Append(new TimingEventHandler());
             EventHandlers.Append(new TestContextEventHandler());
 
-            //
-            // Parse arguments
-            //
             ArgumentParser.Parse(args);
 
             switch(ArgumentParser.OutputFormat)
@@ -107,34 +104,62 @@ namespace TestRunner.Program
                 return 0;
             }
 
-            //
-            // Parent process: Print the program banner and invoke TestRunner --inproc child processes for each
-            // <testfile> specified on the command line
-            //
             if (!ArgumentParser.InProc)
             {
-                Banner();
-                bool success = true;
-                foreach (var testFile in ArgumentParser.TestFiles)
-                {
-                    var exitCode = 
-                        ProcessExtensions.ExecuteDotnet(
-                            ProgramPath,
-                            $"--inproc --outputformat {ArgumentParser.OutputFormat} \"{testFile}\"")
-                        .ExitCode;
-
-                    if (exitCode != 0) success = false;
-                }
-                return success ? 0 : 1;
+                return ParentProcess(ArgumentParser.TestFiles);
             }
-
-            //
-            // Child process: Run the tests in the specified <testfile>
-            //
             else
             {
-                return TestAssemblyRunner.Run(ArgumentParser.TestFiles[0]) ? 0 : 1;
+                return ChildProcess(ArgumentParser.TestFiles[0]);
             }
+        }
+
+
+        /// <summary>
+        /// Parent process: Print the program banner and invoke TestRunner --inproc child processes for each
+        /// <testfile> specified on the command line
+        /// </summary>
+        //
+        static int ParentProcess(IList<string> testFiles)
+        {
+            Banner();
+            bool success = true;
+            foreach (var testFile in ArgumentParser.TestFiles)
+            {
+                var exitCode =
+                    ProcessExtensions.ExecuteDotnet(
+                        ProgramPath,
+                        $"--inproc --outputformat machine \"{testFile}\"",
+                        (proc, line) => {
+                            var e = MachineReadableEventSerializer.TryDeserialize(line);
+                            EventHandlers.First.Handle(
+                                e ??
+                                new StandardOutputEvent() {
+                                    ProcessId = proc.Id,
+                                    Message = line,
+                                });
+                        },
+                        (proc, line) => {
+                            EventHandlers.First.Handle(
+                                new ErrorOutputEvent() {
+                                    ProcessId = proc.Id,
+                                    Message = line,
+                                });
+                        });
+
+                if (exitCode != 0) success = false;
+            }
+            return success ? 0 : 1;
+        }
+
+
+        /// <summary>
+        /// Child process: Run the tests in the specified <testfile>
+        /// </summary>
+        //
+        static int ChildProcess(string testFile)
+        {
+            return TestAssemblyRunner.Run(testFile) ? 0 : 1;
         }
 
 

@@ -59,7 +59,9 @@ namespace TestRunner.Events
         protected virtual void Handle(TestCleanupMethodEndEvent e) {}
         protected virtual void Handle(MethodExpectedExceptionEvent e) {}
         protected virtual void Handle(MethodUnexpectedExceptionEvent e) {}
-        protected virtual void Handle(OutputTraceEvent e) {}
+        protected virtual void Handle(StandardOutputEvent e) {}
+        protected virtual void Handle(ErrorOutputEvent e) {}
+        protected virtual void Handle(TraceOutputEvent e) {}
 
     }
 }

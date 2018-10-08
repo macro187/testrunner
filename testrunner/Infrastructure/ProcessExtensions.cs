@@ -37,23 +37,61 @@ namespace TestRunner.Infrastructure
                 arguments = fileName + " " + arguments;
                 fileName = DotnetDriver;
             }
-
             return Execute(fileName, arguments);
         }
 
 
-        public static ProcessExecuteResults Execute(string fileName, string arguments)
+        public static int ExecuteDotnet(
+            string fileName,
+            string arguments,
+            Action<Process, string> onStandardOutput,
+            Action<Process, string> onErrorOutput)
         {
-            Guard.NotNull(fileName, nameof(fileName));
-            Guard.NotNull(arguments, nameof(arguments));
+            if (DotnetDriver != null)
+            {
+                arguments = fileName + " " + arguments;
+                fileName = DotnetDriver;
+            }
+            return Execute(fileName, arguments, onStandardOutput, onErrorOutput);
+        }
 
-            bool echoCommandLine = false;
-            bool echoOutput = true;
 
+        static ProcessExecuteResults Execute(string fileName, string arguments)
+        {
             var standardOutput = new StringBuilder();
             var errorOutput = new StringBuilder();
             var output = new StringBuilder();
-            int exitCode;
+            var exitCode = Execute(
+                fileName,
+                arguments,
+                (_, line) => {
+                    Console.Out.WriteLine(line);
+                    standardOutput.AppendLine(line);
+                    output.AppendLine(line);
+                },
+                (_, line) => {
+                    Console.Error.WriteLine(line);
+                    errorOutput.AppendLine(line);
+                    output.AppendLine(line);
+                });
+            return new ProcessExecuteResults(
+                standardOutput.ToString(),
+                errorOutput.ToString(),
+                output.ToString(),
+                exitCode);
+        }
+
+
+        static int Execute(
+            string fileName,
+            string arguments,
+            Action<Process, string> onStandardOutput,
+            Action<Process, string> onErrorOutput)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+            Guard.NotNull(arguments, nameof(arguments));
+            Guard.NotNull(onStandardOutput, nameof(onStandardOutput));
+            Guard.NotNull(onErrorOutput, nameof(onErrorOutput));
 
             using (var proc = new Process())
             {
@@ -63,67 +101,26 @@ namespace TestRunner.Infrastructure
                 proc.StartInfo.Arguments = arguments;
                 proc.StartInfo.UseShellExecute = false;
                 proc.StartInfo.RedirectStandardOutput = true;
-                proc.OutputDataReceived += (s,e) => {
-                    if (echoOutput)
-                    {
-                        Console.Out.WriteLine(e.Data ?? "");
-                    }
-                    standardOutput.AppendLine(e.Data ?? "");
-                    output.AppendLine(e.Data ?? "");
+                proc.StartInfo.RedirectStandardError = true;
+                proc.OutputDataReceived += (_,e) => {
+                    onStandardOutput(proc, e.Data ?? "");
                 };
-                proc.ErrorDataReceived += (s,e) => {
-                    if (echoOutput)
-                    {
-                        Console.Error.WriteLine(e.Data ?? "");
-                    }
-                    errorOutput.AppendLine(e.Data ?? "");
-                    output.AppendLine(e.Data ?? "");
+                proc.ErrorDataReceived += (_,e) => {
+                    onErrorOutput(proc, e.Data ?? "");
                 };
                 proc.EnableRaisingEvents = true;
-                proc.Exited += (s,e) => exited = true;
+                proc.Exited += (_,__) => {
+                    exited = true;
+                };
 
-                if (echoCommandLine)
-                {
-                    Console.Out.WriteLine("{0} {1}", fileName, arguments);
-                }
                 proc.Start();
                 proc.BeginOutputReadLine();
                 while (!exited) Thread.Yield();
                 proc.WaitForExit();
 
-                exitCode = proc.ExitCode;
+                return proc.ExitCode;
             }
-
-            return new ProcessExecuteResults(
-                standardOutput.ToString(),
-                errorOutput.ToString(),
-                output.ToString(),
-                exitCode);
         }
 
     }
-
-
-    public class ProcessExecuteResults
-    {
-
-        public ProcessExecuteResults(string standardOutput, string errorOutput, string output, int exitCode)
-        {
-            Guard.NotNull(standardOutput, nameof(standardOutput));
-            Guard.NotNull(errorOutput, nameof(errorOutput));
-            Guard.NotNull(output, nameof(output));
-
-            StandardOutput = standardOutput;
-            ErrorOutput = errorOutput;
-            Output = output;
-            ExitCode = exitCode;
-        }
-
-        public string StandardOutput { get; private set; }
-        public string ErrorOutput { get; private set; }
-        public string Output { get; private set; }
-        public int ExitCode { get; private set; }
-
-    }
-
 }
