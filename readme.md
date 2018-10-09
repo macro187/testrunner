@@ -111,7 +111,7 @@ Options
         Human-readable text format (default)
 
     machine
-        Machine-readable JSON-based format (default)
+        Machine-readable JSON-based format (experimental)
 
 --help
     Show usage information
