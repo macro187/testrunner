@@ -146,6 +146,6 @@ EXAMPLES
 History
 =======
 
-Forked from \<<https://testrunner.codeplex.com/>\> revision 87713 on September
-24th, 2016.
+Forked from [Bernd Rickenberg](https://github.com/rickenberg)'s
+<https://testrunner.codeplex.com/> revision 87713 on September 24th, 2016.
 
