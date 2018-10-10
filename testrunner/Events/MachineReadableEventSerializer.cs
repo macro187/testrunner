@@ -31,6 +31,8 @@ namespace TestRunner.Events
                     typeof(ProgramUsageEvent),
                     typeof(ProgramUserErrorEvent),
                     typeof(ProgramInternalErrorEvent),
+                    typeof(TestRunBeginEvent),
+                    typeof(TestRunEndEvent),
                     typeof(TestAssemblyBeginEvent),
                     typeof(TestAssemblyNotFoundEvent),
                     typeof(TestAssemblyNotDotNetEvent),

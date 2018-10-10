@@ -123,6 +123,7 @@ namespace TestRunner.Program
         static int ParentProcess(IList<string> testFiles)
         {
             Banner();
+            EventHandlers.First.Handle(new TestRunBeginEvent() {});
             bool success = true;
             foreach (var testFile in ArgumentParser.TestFiles)
             {
@@ -149,6 +150,7 @@ namespace TestRunner.Program
 
                 if (exitCode != 0) success = false;
             }
+            EventHandlers.First.Handle(new TestRunEndEvent() { Success = success });
             return success ? 0 : 1;
         }
 

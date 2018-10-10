@@ -30,6 +30,8 @@ namespace TestRunner.Events
         protected virtual void Handle(ProgramUsageEvent e) {}
         protected virtual void Handle(ProgramUserErrorEvent e) {}
         protected virtual void Handle(ProgramInternalErrorEvent e) {}
+        protected virtual void Handle(TestRunBeginEvent e) {}
+        protected virtual void Handle(TestRunEndEvent e) {}
         protected virtual void Handle(TestAssemblyBeginEvent e) {}
         protected virtual void Handle(TestAssemblyNotFoundEvent e) {}
         protected virtual void Handle(TestAssemblyNotDotNetEvent e) {}
