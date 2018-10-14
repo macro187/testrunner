@@ -20,11 +20,7 @@ namespace TestRunner.Runners
         /// The outcome of the test
         /// </returns>
         ///
-        static public UnitTestOutcome Run(
-            TestMethod testMethod,
-            MethodInfo testInitializeMethod,
-            MethodInfo testCleanupMethod,
-            TestClass testClass)
+        static public UnitTestOutcome Run(TestClass testClass, TestMethod testMethod)
         {
             EventHandlers.Raise(new TestBeginEvent() { Name = testMethod.Name });
 
@@ -58,7 +54,8 @@ namespace TestRunner.Runners
                 //
                 // Run [TestInitialize] method
                 //
-                testInitializeSucceeded = MethodRunner.RunTestInitializeMethod(testInitializeMethod, instance);
+                testInitializeSucceeded =
+                    MethodRunner.RunTestInitializeMethod(testClass.TestInitializeMethod, instance);
 
                 if (!testInitializeSucceeded)
                 {
@@ -79,9 +76,7 @@ namespace TestRunner.Runners
                 // Run [TestCleanup] method
                 //
                 testCleanupSucceeded =
-                    MethodRunner.RunTestCleanupMethod(
-                        testCleanupMethod,
-                        instance);
+                    MethodRunner.RunTestCleanupMethod(testClass.TestCleanupMethod, instance);
 
                 outcome =
                     testMethodSucceeded && testCleanupSucceeded
