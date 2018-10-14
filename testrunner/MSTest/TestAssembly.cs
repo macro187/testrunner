@@ -61,7 +61,7 @@ namespace TestRunner.MSTest
             TestClasses =
                 new ReadOnlyCollection<TestClass>(
                     Assembly.GetTypes()
-                        .Select(t => TestClass.TryCreate(t))
+                        .Select(t => TestClass.TryCreate(this, t))
                         .Where(t => t != null)
                         .ToList());
         }

@@ -116,7 +116,7 @@ namespace TestRunner.Runners
                 //
                 // Run [AssemblyCleanup] method
                 //
-                assemblyCleanupSucceeded = MethodRunner.RunAssemblyCleanupMethod(testAssembly.AssemblyCleanupMethod);
+                assemblyCleanupSucceeded = MethodRunner.RunAssemblyCleanupMethod(testAssembly);
 
                 success = failed == 0 && assemblyCleanupSucceeded;
             }

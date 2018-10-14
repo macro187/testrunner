@@ -8,20 +8,32 @@ namespace TestRunner.MSTest
     public class TestMethod
     {
 
-        internal static TestMethod TryCreate(MethodInfo methodInfo)
+        internal static TestMethod TryCreate(TestClass testClass, MethodInfo methodInfo)
         {
             Guard.NotNull(methodInfo, nameof(methodInfo));
-            return methodInfo.HasCustomAttribute(TestMethodAttribute.TryCreate) ? new TestMethod(methodInfo) : null;
+            Guard.NotNull(testClass, nameof(testClass));
+            return
+                methodInfo.HasCustomAttribute(TestMethodAttribute.TryCreate)
+                    ? new TestMethod(testClass, methodInfo)
+                    : null;
         }
 
 
-        TestMethod(MethodInfo methodInfo)
+        TestMethod(TestClass testClass, MethodInfo methodInfo)
         {
+            TestClass = testClass;
             MethodInfo = methodInfo;
             IsIgnored = MethodInfo.HasCustomAttribute(IgnoreAttribute.TryCreate);
             var eea = methodInfo.GetCustomAttribute(ExpectedExceptionAttribute.TryCreate);
             ExpectedException = eea != null ? eea.ExceptionType : null;
             AllowDerivedExpectedExceptionTypes = eea != null ? eea.AllowDerivedTypes : false;
+        }
+
+
+        public TestClass TestClass
+        {
+            get;
+            private set;
         }
 
 

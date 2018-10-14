@@ -54,7 +54,7 @@ namespace TestRunner.Runners
                 //
                 foreach (var testMethod in testClass.TestMethods)
                 {
-                    switch(TestMethodRunner.Run(testClass, testMethod))
+                    switch(TestMethodRunner.Run(testMethod))
                     {
                         case UnitTestOutcome.Passed:
                             passed++;
@@ -73,7 +73,7 @@ namespace TestRunner.Runners
                 //
                 // Run [ClassCleanup] method
                 //
-                classCleanupSucceeded = MethodRunner.RunClassCleanupMethod(testClass.ClassCleanupMethod);
+                classCleanupSucceeded = MethodRunner.RunClassCleanupMethod(testClass);
 
                 success = failed == 0 && classCleanupSucceeded;
             }

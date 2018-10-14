@@ -11,18 +11,20 @@ namespace TestRunner.MSTest
     public class TestClass
     {
 
-        internal static TestClass TryCreate(Type type)
+        internal static TestClass TryCreate(TestAssembly testAssembly, Type type)
         {
+            Guard.NotNull(testAssembly, nameof(testAssembly));
             Guard.NotNull(type, nameof(type));
             if (!type.HasCustomAttribute(TestClassAttribute.TryCreate)) return null;
-            var testClass = new TestClass(type);
+            var testClass = new TestClass(testAssembly, type);
             if (testClass.TestMethods.Count == 0) return null;
             return testClass;
         }
 
 
-        TestClass(Type testClass)
+        TestClass(TestAssembly testAssembly, Type testClass)
         {
+            TestAssembly = testAssembly;
             Type = testClass;
             IsIgnored = Type.HasCustomAttribute(IgnoreAttribute.TryCreate);
             FindTestMethods();
@@ -33,6 +35,13 @@ namespace TestRunner.MSTest
             FindTestInitializeMethod();
             FindTestCleanupMethod();
             FindTestContextSetter();
+        }
+
+
+        public TestAssembly TestAssembly
+        {
+            get;
+            private set;
         }
 
 
@@ -138,7 +147,7 @@ namespace TestRunner.MSTest
             TestMethods =
                 new ReadOnlyCollection<TestMethod>(
                     Type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                        .Select(m => TestMethod.TryCreate(m))
+                        .Select(m => TestMethod.TryCreate(this, m))
                         .Where(m => m != null)
                         .ToList());
         }

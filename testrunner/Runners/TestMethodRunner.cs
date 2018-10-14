@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using TestRunner.MSTest;
 using TestRunner.Events;
 
@@ -20,7 +19,7 @@ namespace TestRunner.Runners
         /// The outcome of the test
         /// </returns>
         ///
-        static public UnitTestOutcome Run(TestClass testClass, TestMethod testMethod)
+        static public UnitTestOutcome Run(TestMethod testMethod)
         {
             EventHandlers.Raise(new TestBeginEvent() { Name = testMethod.Name });
 
@@ -44,18 +43,17 @@ namespace TestRunner.Runners
                 //
                 // Create instance of [TestClass]
                 //
-                var instance = Activator.CreateInstance(testClass.Type);
+                var instance = Activator.CreateInstance(testMethod.TestClass.Type);
 
                 //
                 // Set TestContext property (if present)
                 //
-                MethodRunner.RunTestContextSetter(testClass.TestContextSetter, instance);
+                MethodRunner.RunTestContextSetter(testMethod.TestClass, instance);
 
                 //
                 // Run [TestInitialize] method
                 //
-                testInitializeSucceeded =
-                    MethodRunner.RunTestInitializeMethod(testClass.TestInitializeMethod, instance);
+                testInitializeSucceeded = MethodRunner.RunTestInitializeMethod(testMethod.TestClass, instance);
 
                 if (!testInitializeSucceeded)
                 {
@@ -66,17 +64,12 @@ namespace TestRunner.Runners
                 //
                 // Run [TestMethod]
                 //
-                testMethodSucceeded =
-                    MethodRunner.RunTestMethod(
-                        testMethod.MethodInfo, instance,
-                        testMethod.ExpectedException,
-                        testMethod.AllowDerivedExpectedExceptionTypes);
+                testMethodSucceeded = MethodRunner.RunTestMethod(testMethod, instance);
 
                 //
                 // Run [TestCleanup] method
                 //
-                testCleanupSucceeded =
-                    MethodRunner.RunTestCleanupMethod(testClass.TestCleanupMethod, instance);
+                testCleanupSucceeded = MethodRunner.RunTestCleanupMethod(testMethod.TestClass, instance);
 
                 outcome =
                     testMethodSucceeded && testCleanupSucceeded

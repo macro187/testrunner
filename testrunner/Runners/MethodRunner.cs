@@ -28,8 +28,10 @@ namespace TestRunner.Runners
         }
 
 
-        static public bool RunAssemblyCleanupMethod(MethodInfo method)
+        static public bool RunAssemblyCleanupMethod(TestAssembly testAssembly)
         {
+            Guard.NotNull(testAssembly, nameof(testAssembly));
+            var method = testAssembly.AssemblyCleanupMethod;
             if (method == null) return true;
             EventHandlers.Raise(new AssemblyCleanupMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, null, false, null, false);
@@ -54,8 +56,10 @@ namespace TestRunner.Runners
         }
 
 
-        static public bool RunClassCleanupMethod(MethodInfo method)
+        static public bool RunClassCleanupMethod(TestClass testClass)
         {
+            Guard.NotNull(testClass, nameof(testClass));
+            var method = testClass.ClassCleanupMethod;
             if (method == null) return true;
             EventHandlers.Raise(new ClassCleanupMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, null, false, null, false);
@@ -64,20 +68,24 @@ namespace TestRunner.Runners
         }
 
 
-        static public void RunTestContextSetter(MethodInfo method, object instance)
+        static public void RunTestContextSetter(TestClass testClass, object instance)
         {
-            if (method == null) return;
+            Guard.NotNull(testClass, nameof(testClass));
             Guard.NotNull(instance, nameof(instance));
+            var method = testClass.TestContextSetter;
+            if (method == null) return;
             EventHandlers.Raise(new TestContextSetterBeginEvent() { MethodName = method.Name });
             var success = Run(method, instance, true, null, false);
             EventHandlers.Raise(new TestContextSetterEndEvent() { Success = success });
         }
 
 
-        static public bool RunTestInitializeMethod(MethodInfo method, object instance)
+        static public bool RunTestInitializeMethod(TestClass testClass, object instance)
         {
-            if (method == null) return true;
+            Guard.NotNull(testClass, nameof(testClass));
             Guard.NotNull(instance, nameof(instance));
+            var method = testClass.TestInitializeMethod;
+            if (method == null) return true;
             EventHandlers.Raise(new TestInitializeMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, instance, false, null, false);
             EventHandlers.Raise(new TestInitializeMethodEndEvent() { Success = success });
@@ -85,25 +93,28 @@ namespace TestRunner.Runners
         }
 
 
-        static public bool RunTestMethod(
-            MethodInfo method,
-            object instance,
-            Type expectedException,
-            bool expectedExceptionAllowDerived)
+        static public bool RunTestMethod(TestMethod testMethod, object instance)
         {
-            Guard.NotNull(method, nameof(method));
+            Guard.NotNull(testMethod, nameof(testMethod));
             Guard.NotNull(instance, nameof(instance));
-            EventHandlers.Raise(new TestMethodBeginEvent() { MethodName = method.Name });
-            var success = Run(method, instance, false, expectedException, expectedExceptionAllowDerived);
+            EventHandlers.Raise(new TestMethodBeginEvent() { MethodName = testMethod.Name });
+            var success = Run(
+                testMethod.MethodInfo,
+                instance,
+                false,
+                testMethod.ExpectedException,
+                testMethod.AllowDerivedExpectedExceptionTypes);
             EventHandlers.Raise(new TestMethodEndEvent() { Success = success });
             return success;
         }
 
 
-        static public bool RunTestCleanupMethod(MethodInfo method, object instance)
+        static public bool RunTestCleanupMethod(TestClass testClass, object instance)
         {
-            if (method == null) return true;
+            Guard.NotNull(testClass, nameof(testClass));
             Guard.NotNull(instance, nameof(instance));
+            var method = testClass.TestCleanupMethod;
+            if (method == null) return true;
             EventHandlers.Raise(new TestCleanupMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, instance, false, null, false);
             EventHandlers.Raise(new TestCleanupMethodEndEvent() { Success = success });
