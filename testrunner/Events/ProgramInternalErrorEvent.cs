@@ -1,4 +1,4 @@
-﻿using TestRunner.MSTest;
+﻿using TestRunner.Results;
 
 namespace TestRunner.Events
 {

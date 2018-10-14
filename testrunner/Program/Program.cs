@@ -7,6 +7,7 @@ using TestRunner.Runners;
 using TestRunner.Events;
 using TestRunner.MSTest;
 using System.Collections.Generic;
+using TestRunner.Results;
 
 namespace TestRunner.Program
 {

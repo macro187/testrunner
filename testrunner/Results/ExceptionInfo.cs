@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TestRunner.Infrastructure;
 
-namespace TestRunner.MSTest
+namespace TestRunner.Results
 {
     public class ExceptionInfo
     {

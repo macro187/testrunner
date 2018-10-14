@@ -1,4 +1,4 @@
-﻿namespace TestRunner.MSTest
+﻿namespace TestRunner.Results
 {
     public class StackFrameInfo
     {

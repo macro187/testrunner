@@ -4,6 +4,7 @@ using System.Reflection;
 using TestRunner.MSTest;
 using TestRunner.Events;
 using TestRunner.Infrastructure;
+using TestRunner.Results;
 
 namespace TestRunner.Runners
 {
