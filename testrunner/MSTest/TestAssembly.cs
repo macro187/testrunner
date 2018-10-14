@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using TestRunner.Infrastructure;
 
-namespace TestRunner.Domain
+namespace TestRunner.MSTest
 {
 
     public class TestAssembly

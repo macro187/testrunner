@@ -5,7 +5,7 @@ using System.Reflection;
 using TestRunner.Infrastructure;
 using TestRunner.Runners;
 using TestRunner.Events;
-using TestRunner.Domain;
+using TestRunner.MSTest;
 using System.Collections.Generic;
 
 namespace TestRunner.Program

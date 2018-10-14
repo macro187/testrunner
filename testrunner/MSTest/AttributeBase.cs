@@ -1,7 +1,7 @@
 ﻿using System;
 using TestRunner.Infrastructure;
 
-namespace TestRunner.Domain
+namespace TestRunner.MSTest
 {
     public abstract class AttributeBase
     {

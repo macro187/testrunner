@@ -8,12 +8,12 @@ using System.Reflection;
 using System.Reflection.Emit;
 using TestRunner.Infrastructure;
 
-namespace TestRunner.Domain
+namespace TestRunner.MSTest
 {
 
     /// <summary>
     /// Provides a dynamically created <see cref="Microsoft.VisualStudio.TestTools.UnitTesting.TestContext"/> instance
-    /// that behaves as a proxy to <see cref="TestRunner.Domain.TestContext"/>
+    /// that behaves as a proxy to <see cref="TestRunner.MSTest.TestContext"/>
     /// </summary>
     ///
     static class TestContextProxy

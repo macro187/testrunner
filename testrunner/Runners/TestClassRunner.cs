@@ -1,4 +1,4 @@
-﻿using TestRunner.Domain;
+﻿using TestRunner.MSTest;
 using TestRunner.Events;
 using TestRunner.Infrastructure;
 

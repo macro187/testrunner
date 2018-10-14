@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using TestRunner.Domain;
+using TestRunner.MSTest;
 using TestRunner.Infrastructure;
 
 namespace TestRunner.Events

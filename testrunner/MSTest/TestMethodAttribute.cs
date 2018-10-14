@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TestRunner.Domain
+namespace TestRunner.MSTest
 {
 
     class TestMethodAttribute : AttributeBase

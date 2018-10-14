@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using TestRunner.Domain;
+using TestRunner.MSTest;
 using TestRunner.Infrastructure;
 using TestRunner.Events;
 
