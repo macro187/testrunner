@@ -92,6 +92,11 @@ namespace TestRunner.Program
                     throw new Exception($"Unrecognised <outputformat> from parser {ArgumentParser.OutputFormat}");
             }
 
+            EventHandlers.First.Handle(
+                new ProgramBannerEvent() {
+                    Lines = Banner(),
+                });
+
             if (!ArgumentParser.Success)
             {
                 EventHandlers.First.Handle(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
@@ -106,23 +111,21 @@ namespace TestRunner.Program
 
             if (!ArgumentParser.InProc)
             {
-                return ParentProcess(ArgumentParser.TestFiles);
+                return RunFiles(ArgumentParser.TestFiles);
             }
             else
             {
-                return ChildProcess(ArgumentParser.TestFiles[0]);
+                return RunFile(ArgumentParser.TestFiles[0]);
             }
         }
 
 
         /// <summary>
-        /// Parent process: Print the program banner and invoke TestRunner --inproc child processes for each
-        /// <testfile> specified on the command line
+        /// Run one or more test file(s) by reinvoking a TestRunner --inproc child processes for each
         /// </summary>
         //
-        static int ParentProcess(IList<string> testFiles)
+        static int RunFiles(IList<string> testFiles)
         {
-            Banner();
             EventHandlers.First.Handle(new TestRunBeginEvent() {});
             bool success = true;
             foreach (var testFile in ArgumentParser.TestFiles)
@@ -156,10 +159,10 @@ namespace TestRunner.Program
 
 
         /// <summary>
-        /// Child process: Run the tests in the specified <testfile>
+        /// Run an individual test file in-process
         /// </summary>
         //
-        static int ChildProcess(string testFile)
+        static int RunFile(string testFile)
         {
             return TestAssemblyRunner.Run(testFile) ? 0 : 1;
         }
@@ -169,19 +172,16 @@ namespace TestRunner.Program
         /// Print program information
         /// </summary>
         ///
-        static void Banner()
+        static string[] Banner()
         {
             var name = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName;
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
 
-            EventHandlers.First.Handle(
-                new ProgramBannerEvent() {
-                    Lines = new[]{
-                        $"{name} v{version}",
-                        copyright,
-                    }
-                });
+            return new[]{
+                $"{name} v{version}",
+                copyright,
+            };
         }
 
     }
