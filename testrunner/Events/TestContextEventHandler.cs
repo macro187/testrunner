@@ -74,7 +74,7 @@ namespace TestRunner.Events
 
         protected override void Handle(TestMethodEndEvent e)
         {
-            TestContext.CurrentTestOutcome = e.Success ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
+            TestContext.CurrentTestOutcome = e.Result.Success ? UnitTestOutcome.Passed : UnitTestOutcome.Failed;
         }
 
     }

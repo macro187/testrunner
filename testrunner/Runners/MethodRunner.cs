@@ -23,7 +23,7 @@ namespace TestRunner.Runners
                     FirstTestMethodName = testAssembly.TestClasses.First().TestMethods.First().Name,
                 });
             var success = Run(method, null, true, null, false);
-            EventHandlers.Raise(new AssemblyInitializeMethodEndEvent() { Success = success });
+            EventHandlers.Raise(new AssemblyInitializeMethodEndEvent());
             return success;
         }
 
@@ -35,7 +35,7 @@ namespace TestRunner.Runners
             if (method == null) return true;
             EventHandlers.Raise(new AssemblyCleanupMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, null, false, null, false);
-            EventHandlers.Raise(new AssemblyCleanupMethodEndEvent() { Success = success });
+            EventHandlers.Raise(new AssemblyCleanupMethodEndEvent());
             return success;
         }
 
@@ -51,7 +51,7 @@ namespace TestRunner.Runners
                     FirstTestMethodName = testClass.TestMethods.First().Name,
                 });
             var success = Run(method, null, true, null, false);
-            EventHandlers.Raise(new ClassInitializeMethodEndEvent() { Success = success });
+            EventHandlers.Raise(new ClassInitializeMethodEndEvent());
             return success;
         }
 
@@ -63,7 +63,7 @@ namespace TestRunner.Runners
             if (method == null) return true;
             EventHandlers.Raise(new ClassCleanupMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, null, false, null, false);
-            EventHandlers.Raise(new ClassCleanupMethodEndEvent() { Success = success });
+            EventHandlers.Raise(new ClassCleanupMethodEndEvent());
             return success;
         }
 
@@ -76,7 +76,7 @@ namespace TestRunner.Runners
             if (method == null) return;
             EventHandlers.Raise(new TestContextSetterBeginEvent() { MethodName = method.Name });
             var success = Run(method, instance, true, null, false);
-            EventHandlers.Raise(new TestContextSetterEndEvent() { Success = success });
+            EventHandlers.Raise(new TestContextSetterEndEvent());
         }
 
 
@@ -88,7 +88,7 @@ namespace TestRunner.Runners
             if (method == null) return true;
             EventHandlers.Raise(new TestInitializeMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, instance, false, null, false);
-            EventHandlers.Raise(new TestInitializeMethodEndEvent() { Success = success });
+            EventHandlers.Raise(new TestInitializeMethodEndEvent());
             return success;
         }
 
@@ -104,7 +104,7 @@ namespace TestRunner.Runners
                 false,
                 testMethod.ExpectedException,
                 testMethod.AllowDerivedExpectedExceptionTypes);
-            EventHandlers.Raise(new TestMethodEndEvent() { Success = success });
+            EventHandlers.Raise(new TestMethodEndEvent());
             return success;
         }
 
@@ -117,7 +117,7 @@ namespace TestRunner.Runners
             if (method == null) return true;
             EventHandlers.Raise(new TestCleanupMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, instance, false, null, false);
-            EventHandlers.Raise(new TestCleanupMethodEndEvent() { Success = success });
+            EventHandlers.Raise(new TestCleanupMethodEndEvent());
             return success;
         }
 
@@ -131,44 +131,48 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(method, nameof(method));
 
-            var parameters = takesTestContext ? new object[] { TestContextProxy.Proxy } : null;
+            Exception exception = null;
+            bool exceptionWasExpected = true;
 
+            var parameters = takesTestContext ? new object[] { TestContextProxy.Proxy } : null;
             try
             {
                 method.Invoke(instance, parameters);
-                return true;
             }
 
             catch (TargetInvocationException tie)
             {
-                var e = tie.InnerException;
+                exception = tie.InnerException;
 
                 var isExactExpectedException =
                     expectedException != null &&
-                    e.GetType() == expectedException;
+                    exception.GetType() == expectedException;
 
                 var isDerivedExpectedException =
                     expectedException != null &&
                     expectedExceptionAllowDerived &&
-                    e.GetType().IsSubclassOf(expectedException);
+                    exception.GetType().IsSubclassOf(expectedException);
 
-                bool wasExpected =
-                    isExactExpectedException ||
-                    isDerivedExpectedException;
+                exceptionWasExpected = isExactExpectedException || isDerivedExpectedException;
 
-                if (wasExpected)
+                if (exceptionWasExpected)
                 {
                     EventHandlers.Raise(
                         new MethodExpectedExceptionEvent() {
                             ExpectedFullName = expectedException.FullName,
-                            Exception = new ExceptionInfo(e),
+                            Exception = new ExceptionInfo(exception),
                         });
-                    return true;
                 }
-
-                EventHandlers.Raise(new MethodUnexpectedExceptionEvent() { Exception = new ExceptionInfo(e) });
-                return false;
+                else
+                {
+                    EventHandlers.Raise(
+                        new MethodUnexpectedExceptionEvent() {
+                            Exception = new ExceptionInfo(exception)
+                        });
+                }
             }
+
+            return exception == null || exceptionWasExpected;
         }
         
     }

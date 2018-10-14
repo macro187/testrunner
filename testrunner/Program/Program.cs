@@ -76,7 +76,7 @@ namespace TestRunner.Program
 
         static int Main3(string[] args)
         {
-            EventHandlers.Append(new TimingEventHandler());
+            EventHandlers.Append(new MethodResultEventHandler());
             EventHandlers.Append(new TestContextEventHandler());
 
             ArgumentParser.Parse(args);

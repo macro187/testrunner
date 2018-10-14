@@ -1,8 +1,6 @@
 ﻿namespace TestRunner.Events
 {
-    public class TestMethodEndEvent : TestRunnerEvent
+    public class TestMethodEndEvent : MethodEndEvent
     {
-        public bool Success { get; set; }
-        public long ElapsedMilliseconds { get; set; }
     }
 }

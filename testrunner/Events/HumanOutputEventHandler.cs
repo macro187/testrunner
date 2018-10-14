@@ -316,7 +316,7 @@ namespace TestRunner.Events
 
         protected override void Handle(AssemblyInitializeMethodEndEvent e)
         {
-            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
+            WriteMethodEnd(e.Result.Success, e.Result.ElapsedMilliseconds);
         }
 
 
@@ -328,7 +328,7 @@ namespace TestRunner.Events
 
         protected override void Handle(AssemblyCleanupMethodEndEvent e)
         {
-            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
+            WriteMethodEnd(e.Result.Success, e.Result.ElapsedMilliseconds);
         }
 
 
@@ -340,7 +340,7 @@ namespace TestRunner.Events
 
         protected override void Handle(ClassInitializeMethodEndEvent e)
         {
-            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
+            WriteMethodEnd(e.Result.Success, e.Result.ElapsedMilliseconds);
         }
 
 
@@ -352,7 +352,7 @@ namespace TestRunner.Events
 
         protected override void Handle(ClassCleanupMethodEndEvent e)
         {
-            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
+            WriteMethodEnd(e.Result.Success, e.Result.ElapsedMilliseconds);
         }
 
 
@@ -364,7 +364,7 @@ namespace TestRunner.Events
 
         protected override void Handle(TestContextSetterEndEvent e)
         {
-            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
+            WriteMethodEnd(e.Result.Success, e.Result.ElapsedMilliseconds);
         }
 
 
@@ -376,7 +376,7 @@ namespace TestRunner.Events
 
         protected override void Handle(TestInitializeMethodEndEvent e)
         {
-            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
+            WriteMethodEnd(e.Result.Success, e.Result.ElapsedMilliseconds);
         }
 
 
@@ -388,7 +388,7 @@ namespace TestRunner.Events
 
         protected override void Handle(TestMethodEndEvent e)
         {
-            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
+            WriteMethodEnd(e.Result.Success, e.Result.ElapsedMilliseconds);
         }
 
 
@@ -400,7 +400,7 @@ namespace TestRunner.Events
 
         protected override void Handle(TestCleanupMethodEndEvent e)
         {
-            WriteMethodEnd(e.Success, e.ElapsedMilliseconds);
+            WriteMethodEnd(e.Result.Success, e.Result.ElapsedMilliseconds);
         }
 
 

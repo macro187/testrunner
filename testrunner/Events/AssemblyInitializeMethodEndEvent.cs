@@ -1,8 +1,8 @@
-﻿namespace TestRunner.Events
+﻿using TestRunner.Results;
+
+namespace TestRunner.Events
 {
-    public class AssemblyInitializeMethodEndEvent : TestRunnerEvent
+    public class AssemblyInitializeMethodEndEvent : MethodEndEvent
     {
-        public bool Success { get; set; }
-        public long ElapsedMilliseconds { get; set; }
     }
 }
