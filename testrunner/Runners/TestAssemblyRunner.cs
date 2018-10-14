@@ -44,7 +44,7 @@ namespace TestRunner.Runners
             int failed = 0;
             bool assemblyCleanupSucceeded = false;
 
-            EventHandlers.First.Handle(new TestAssemblyBeginEvent() { Path = assemblyPath });
+            EventHandlers.Raise(new TestAssemblyBeginEvent() { Path = assemblyPath });
 
             do
             {
@@ -58,7 +58,7 @@ namespace TestRunner.Runners
 
                 if (!File.Exists(fullAssemblyPath))
                 {
-                    EventHandlers.First.Handle(new TestAssemblyNotFoundEvent() { Path = fullAssemblyPath });
+                    EventHandlers.Raise(new TestAssemblyNotFoundEvent() { Path = fullAssemblyPath });
                     break;
                 }
 
@@ -72,7 +72,7 @@ namespace TestRunner.Runners
                 }
                 catch (BadImageFormatException)
                 {
-                    EventHandlers.First.Handle(new TestAssemblyNotDotNetEvent() { Path = fullAssemblyPath });
+                    EventHandlers.Raise(new TestAssemblyNotDotNetEvent() { Path = fullAssemblyPath });
                     success = true;
                     break;
                 }
@@ -83,7 +83,7 @@ namespace TestRunner.Runners
                 var testAssembly = TestAssembly.TryCreate(assembly);
                 if (testAssembly == null)
                 {
-                    EventHandlers.First.Handle(new TestAssemblyNotTestEvent() { Path = fullAssemblyPath });
+                    EventHandlers.Raise(new TestAssemblyNotTestEvent() { Path = fullAssemblyPath });
                     success = true;
                     break;
                 }
@@ -122,7 +122,7 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandlers.First.Handle(new TestAssemblyEndEvent() { Success = success });
+            EventHandlers.Raise(new TestAssemblyEndEvent() { Success = success });
 
             return success;
         }

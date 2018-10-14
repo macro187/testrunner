@@ -43,7 +43,7 @@ namespace TestRunner.Program
             //
             catch (UserException ue)
             {
-                EventHandlers.First.Handle(new ProgramUserErrorEvent() { Message = ue.Message });
+                EventHandlers.Raise(new ProgramUserErrorEvent() { Message = ue.Message });
                 return 1;
             }
 
@@ -52,7 +52,7 @@ namespace TestRunner.Program
             //
             catch (Exception e)
             {
-                EventHandlers.First.Handle(
+                EventHandlers.Raise(
                     new ProgramInternalErrorEvent() {
                         Exception = new ExceptionInfo(e)
                     });
@@ -61,7 +61,7 @@ namespace TestRunner.Program
                 {
                     foreach (var le in rtle.LoaderExceptions)
                     {
-                        EventHandlers.First.Handle(
+                        EventHandlers.Raise(
                             new ProgramInternalErrorEvent() {
                                 Exception = new ExceptionInfo(le)
                             });
@@ -92,20 +92,20 @@ namespace TestRunner.Program
                     throw new Exception($"Unrecognised <outputformat> from parser {ArgumentParser.OutputFormat}");
             }
 
-            EventHandlers.First.Handle(
+            EventHandlers.Raise(
                 new ProgramBannerEvent() {
                     Lines = Banner(),
                 });
 
             if (!ArgumentParser.Success)
             {
-                EventHandlers.First.Handle(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
+                EventHandlers.Raise(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
                 throw new UserException(ArgumentParser.ErrorMessage);
             }
 
             if (ArgumentParser.Help)
             {
-                EventHandlers.First.Handle(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
+                EventHandlers.Raise(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
                 return 0;
             }
 
@@ -126,7 +126,7 @@ namespace TestRunner.Program
         //
         static int RunFiles(IList<string> testFiles)
         {
-            EventHandlers.First.Handle(new TestRunBeginEvent() {});
+            EventHandlers.Raise(new TestRunBeginEvent() {});
             bool success = true;
             foreach (var testFile in ArgumentParser.TestFiles)
             {
@@ -136,7 +136,7 @@ namespace TestRunner.Program
                         $"--inproc --outputformat machine \"{testFile}\"",
                         (proc, line) => {
                             var e = MachineReadableEventSerializer.TryDeserialize(line);
-                            EventHandlers.First.Handle(
+                            EventHandlers.Raise(
                                 e ??
                                 new StandardOutputEvent() {
                                     ProcessId = proc.Id,
@@ -144,7 +144,7 @@ namespace TestRunner.Program
                                 });
                         },
                         (proc, line) => {
-                            EventHandlers.First.Handle(
+                            EventHandlers.Raise(
                                 new ErrorOutputEvent() {
                                     ProcessId = proc.Id,
                                     Message = line,
@@ -153,7 +153,7 @@ namespace TestRunner.Program
 
                 if (exitCode != 0) success = false;
             }
-            EventHandlers.First.Handle(new TestRunEndEvent() { Success = success });
+            EventHandlers.Raise(new TestRunEndEvent() { Success = success });
             return success ? 0 : 1;
         }
 

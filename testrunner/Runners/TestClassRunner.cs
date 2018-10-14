@@ -28,7 +28,7 @@ namespace TestRunner.Runners
             int ignored = 0;
             bool classCleanupSucceeded = false;
 
-            EventHandlers.First.Handle(new TestClassBeginEvent() { FullName = testClass.FullName });
+            EventHandlers.Raise(new TestClassBeginEvent() { FullName = testClass.FullName });
 
             do
             {
@@ -84,7 +84,7 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandlers.First.Handle(
+            EventHandlers.Raise(
                 new TestClassEndEvent() {
                     Success = success,
                     ClassIgnored = classIgnored,

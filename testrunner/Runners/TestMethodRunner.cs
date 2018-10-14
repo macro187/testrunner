@@ -26,7 +26,7 @@ namespace TestRunner.Runners
             MethodInfo testCleanupMethod,
             TestClass testClass)
         {
-            EventHandlers.First.Handle(new TestBeginEvent() { Name = testMethod.Name });
+            EventHandlers.Raise(new TestBeginEvent() { Name = testMethod.Name });
 
             bool testInitializeSucceeded = false;
             bool testMethodSucceeded = false;
@@ -40,7 +40,7 @@ namespace TestRunner.Runners
                 //
                 if (testMethod.IsIgnored)
                 {
-                    EventHandlers.First.Handle(new TestIgnoredEvent());
+                    EventHandlers.Raise(new TestIgnoredEvent());
                     outcome = UnitTestOutcome.NotRunnable;
                     break;
                 }
@@ -90,7 +90,7 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandlers.First.Handle(new TestEndEvent() { Outcome = outcome });
+            EventHandlers.Raise(new TestEndEvent() { Outcome = outcome });
 
             return outcome;
         }

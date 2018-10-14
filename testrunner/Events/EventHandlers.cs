@@ -8,8 +8,8 @@ namespace TestRunner.Events
     /// </summary>
     ///
     /// <remarks>
-    /// The TestRunner program reports events to the <see cref="First"/> event handler in the pipeline as it runs.
-    /// Each handler has the opportunity to perform actions before propagating to the next one.
+    /// The TestRunner program raises events as it runs.  Each handler in the pipeline has the opportunity to perform
+    /// actions and/or modify the event before propagating to the next one.
     /// </remarks>
     ///
     public static class EventHandlers
@@ -21,14 +21,20 @@ namespace TestRunner.Events
         }
 
 
-        /// <summary>
-        /// The first event handler in the pipeline
-        /// </summary>
-        ///
-        public static EventHandler First { get; private set; }
+        private static EventHandler First;
 
 
         private static EventHandler Last;
+
+
+        /// <summary>
+        /// Raise an event
+        /// </summary>
+        ///
+        public static void Raise(TestRunnerEvent e)
+        {
+            First.Handle(e);
+        }
 
 
         /// <summary>
