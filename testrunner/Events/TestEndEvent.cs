@@ -1,9 +1,9 @@
-﻿using TestRunner.MSTest;
+﻿using TestRunner.Results;
 
 namespace TestRunner.Events
 {
     public class TestEndEvent : TestRunnerEvent
     {
-        public UnitTestOutcome Outcome { get; set; }
+        public TestResult Result { get; set; } = new TestResult();
     }
 }

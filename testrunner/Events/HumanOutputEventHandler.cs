@@ -291,20 +291,10 @@ namespace TestRunner.Events
         protected override void Handle(TestEndEvent e)
         {
             WriteOut();
-            switch (e.Outcome)
-            {
-                case UnitTestOutcome.NotRunnable:
-                    WriteOut("Ignored");
-                    break;
-                case UnitTestOutcome.Passed:
-                    WriteOut("Passed");
-                    break;
-                case UnitTestOutcome.Failed:
-                    WriteOut("FAILED");
-                    break;
-                default:
-                    throw new ArgumentException("Unexpected outcome", nameof(e));
-            }
+            WriteOut(
+                e.Result.Ignored ? "Ignored"
+                : e.Result.Success ? "Passed"
+                : "FAILED");
         }
 
 

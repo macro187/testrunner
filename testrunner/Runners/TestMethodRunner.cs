@@ -78,7 +78,7 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandlers.Raise(new TestEndEvent() { Outcome = outcome });
+            EventHandlers.Raise(new TestEndEvent());
 
             return outcome;
         }
