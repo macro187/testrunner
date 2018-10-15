@@ -20,12 +20,6 @@ namespace TestRunner.Runners
             Guard.NotNull(testClass, nameof(testClass));
 
             bool success = false;
-            bool classIgnored = false;
-            bool classInitializeSucceeded = false;
-            int ran = 0;
-            int passed = 0;
-            int failed = 0;
-            int ignored = 0;
             bool classCleanupSucceeded = false;
 
             EventHandlers.Raise(new TestClassBeginEvent() { FullName = testClass.FullName });
@@ -37,8 +31,7 @@ namespace TestRunner.Runners
                 //
                 if (testClass.IsIgnored)
                 {
-                    classIgnored = true;
-                    ignored = testClass.TestMethods.Count;
+                    EventHandlers.Raise(new TestClassIgnoredEvent());
                     success = true;
                     break;
                 }
@@ -46,28 +39,15 @@ namespace TestRunner.Runners
                 //
                 // Run [ClassInitialize] method
                 //
-                classInitializeSucceeded = MethodRunner.RunClassInitializeMethod(testClass);
-                if (!classInitializeSucceeded) break;
+                if (!MethodRunner.RunClassInitializeMethod(testClass)) break;
 
                 //
                 // Run [TestMethod]s
                 //
+                var anyFailed = false;
                 foreach (var testMethod in testClass.TestMethods)
                 {
-                    switch(TestMethodRunner.Run(testMethod))
-                    {
-                        case UnitTestOutcome.Passed:
-                            passed++;
-                            ran++;
-                            break;
-                        case UnitTestOutcome.Failed:
-                            failed++;
-                            ran++;
-                            break;
-                        case UnitTestOutcome.NotRunnable:
-                            ignored++;
-                            break;
-                    }
+                    if (!TestMethodRunner.Run(testMethod)) anyFailed = true;
                 }
 
                 //
@@ -75,24 +55,11 @@ namespace TestRunner.Runners
                 //
                 classCleanupSucceeded = MethodRunner.RunClassCleanupMethod(testClass);
 
-                success = failed == 0 && classCleanupSucceeded;
+                success = !anyFailed && classCleanupSucceeded;
             }
             while (false);
 
-            EventHandlers.Raise(
-                new TestClassEndEvent() {
-                    Success = success,
-                    ClassIgnored = classIgnored,
-                    InitializePresent = testClass.ClassInitializeMethod != null,
-                    InitializeSucceeded = classInitializeSucceeded,
-                    TestsTotal = testClass.TestMethods.Count,
-                    TestsRan = ran,
-                    TestsIgnored = ignored,
-                    TestsPassed = passed,
-                    TestsFailed = failed,
-                    CleanupPresent = testClass.ClassCleanupMethod != null,
-                    CleanupSucceeded = classCleanupSucceeded
-                });
+            EventHandlers.Raise(new TestClassEndEvent());
 
             return success;
         }

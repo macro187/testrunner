@@ -78,6 +78,7 @@ namespace TestRunner.Program
         {
             EventHandlers.Append(new MethodResultEventHandler());
             EventHandlers.Append(new TestResultEventHandler());
+            EventHandlers.Append(new TestClassResultEventHandler());
             EventHandlers.Append(new TestContextEventHandler());
 
             ArgumentParser.Parse(args);

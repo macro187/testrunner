@@ -15,18 +15,11 @@ namespace TestRunner.Runners
         /// If the test method is decorated with [Ignore], nothing is run
         /// </remarks>
         ///
-        /// <returns>
-        /// The outcome of the test
-        /// </returns>
-        ///
-        static public UnitTestOutcome Run(TestMethod testMethod)
+        static public bool Run(TestMethod testMethod)
         {
             EventHandlers.Raise(new TestBeginEvent() { Name = testMethod.Name });
 
-            bool testInitializeSucceeded = false;
-            bool testMethodSucceeded = false;
-            bool testCleanupSucceeded = false;
-            UnitTestOutcome outcome;
+            var success = false;
 
             do
             {
@@ -36,7 +29,7 @@ namespace TestRunner.Runners
                 if (testMethod.IsIgnored)
                 {
                     EventHandlers.Raise(new TestIgnoredEvent());
-                    outcome = UnitTestOutcome.NotRunnable;
+                    success = true;
                     break;
                 }
 
@@ -53,34 +46,25 @@ namespace TestRunner.Runners
                 //
                 // Run [TestInitialize] method
                 //
-                testInitializeSucceeded = MethodRunner.RunTestInitializeMethod(testMethod.TestClass, instance);
-
-                if (!testInitializeSucceeded)
-                {
-                    outcome = UnitTestOutcome.Failed;
-                    break;
-                }
+                if (!MethodRunner.RunTestInitializeMethod(testMethod.TestClass, instance)) break;
 
                 //
                 // Run [TestMethod]
                 //
-                testMethodSucceeded = MethodRunner.RunTestMethod(testMethod, instance);
+                var testMethodSucceeded = MethodRunner.RunTestMethod(testMethod, instance);
 
                 //
                 // Run [TestCleanup] method
                 //
-                testCleanupSucceeded = MethodRunner.RunTestCleanupMethod(testMethod.TestClass, instance);
+                var testCleanupSucceeded = MethodRunner.RunTestCleanupMethod(testMethod.TestClass, instance);
 
-                outcome =
-                    testMethodSucceeded && testCleanupSucceeded
-                        ? UnitTestOutcome.Passed
-                        : UnitTestOutcome.Failed;
+                success = testMethodSucceeded && testCleanupSucceeded;
             }
             while (false);
 
             EventHandlers.Raise(new TestEndEvent());
 
-            return outcome;
+            return success;
         }
         
     }

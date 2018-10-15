@@ -41,6 +41,7 @@ namespace TestRunner.Events
                     typeof(TestAssemblyConfigFileSwitchedEvent),
                     typeof(TestAssemblyEndEvent),
                     typeof(TestClassBeginEvent),
+                    typeof(TestClassIgnoredEvent),
                     typeof(TestClassEndEvent),
                     typeof(TestBeginEvent),
                     typeof(TestIgnoredEvent),

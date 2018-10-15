@@ -237,19 +237,19 @@ namespace TestRunner.Events
         protected override void Handle(TestClassEndEvent e)
         {
             var initializeResult =
-                e.InitializePresent
-                    ? e.ClassIgnored
+                e.Result.InitializePresent
+                    ? e.Result.ClassIgnored
                         ? "Ignored"
-                        : e.InitializeSucceeded
+                        : e.Result.InitializeSucceeded
                             ? "Succeeded"
                             : "Failed"
                     : "Not present";
 
             var cleanupResult =
-                e.CleanupPresent
-                    ? e.ClassIgnored
+                e.Result.CleanupPresent
+                    ? e.Result.ClassIgnored
                         ? "Ignored"
-                        : e.CleanupSucceeded
+                        : e.Result.CleanupSucceeded
                             ? "Succeeded"
                             : "Failed"
                     : "Not present";
@@ -257,7 +257,7 @@ namespace TestRunner.Events
             WriteOut();
             WriteSubheadingOut("Summary");
 
-            if (e.ClassIgnored)
+            if (e.Result.ClassIgnored)
             {
                 WriteOut();
                 WriteOut("Ignored all tests because class is decorated with [Ignore]");
@@ -265,11 +265,11 @@ namespace TestRunner.Events
 
             WriteOut();
             WriteOut($"ClassInitialize: {initializeResult}");
-            WriteOut($"Total:           {e.TestsTotal} tests");
-            WriteOut($"Ignored:         {e.TestsIgnored} tests");
-            WriteOut($"Ran:             {e.TestsRan} tests");
-            WriteOut($"Passed:          {e.TestsPassed} tests");
-            WriteOut($"Failed:          {e.TestsFailed} tests");
+            WriteOut($"Total:           {e.Result.TestsTotal} tests");
+            WriteOut($"Ignored:         {e.Result.TestsIgnored} tests");
+            WriteOut($"Ran:             {e.Result.TestsRan} tests");
+            WriteOut($"Passed:          {e.Result.TestsPassed} tests");
+            WriteOut($"Failed:          {e.Result.TestsFailed} tests");
             WriteOut($"ClassCleanup:    {cleanupResult}");
         }
 

@@ -39,6 +39,7 @@ namespace TestRunner.Events
         protected virtual void Handle(TestAssemblyConfigFileSwitchedEvent e) {}
         protected virtual void Handle(TestAssemblyEndEvent e) {}
         protected virtual void Handle(TestClassBeginEvent e) {}
+        protected virtual void Handle(TestClassIgnoredEvent e) {}
         protected virtual void Handle(TestClassEndEvent e) {}
         protected virtual void Handle(TestBeginEvent e) {}
         protected virtual void Handle(TestIgnoredEvent e) {}
