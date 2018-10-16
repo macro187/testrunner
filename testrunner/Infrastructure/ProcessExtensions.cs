@@ -115,6 +115,7 @@ namespace TestRunner.Infrastructure
 
                 proc.Start();
                 proc.BeginOutputReadLine();
+                proc.BeginErrorReadLine();
                 while (!exited) Thread.Yield();
                 proc.WaitForExit();
 
