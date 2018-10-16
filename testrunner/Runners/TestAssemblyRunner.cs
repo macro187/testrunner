@@ -40,9 +40,6 @@ namespace TestRunner.Runners
         static bool Run2(string assemblyPath)
         {
             var success = false;
-            bool assemblyInitializeSucceeded = false;
-            int failed = 0;
-            bool assemblyCleanupSucceeded = false;
 
             EventHandlers.Raise(new TestAssemblyBeginEvent() { Path = assemblyPath });
 
@@ -96,33 +93,27 @@ namespace TestRunner.Runners
                 //
                 // Run [AssemblyInitialize] method
                 //
-                assemblyInitializeSucceeded = MethodRunner.RunAssemblyInitializeMethod(testAssembly);
-                if (!assemblyInitializeSucceeded) break;
+                if (!MethodRunner.RunAssemblyInitializeMethod(testAssembly)) break;
 
                 //
                 // Run tests in each [TestClass]
                 //
-                if (assemblyInitializeSucceeded)
+                var noFailed = true;
+                foreach (var testClass in testAssembly.TestClasses)
                 {
-                    foreach (var testClass in testAssembly.TestClasses)
-                    {
-                        if (!TestClassRunner.Run(testClass))
-                        {
-                            failed++;
-                        }
-                    }
+                    if (!TestClassRunner.Run(testClass)) noFailed = false;
                 }
 
                 //
                 // Run [AssemblyCleanup] method
                 //
-                assemblyCleanupSucceeded = MethodRunner.RunAssemblyCleanupMethod(testAssembly);
+                var assemblyCleanupSucceeded = MethodRunner.RunAssemblyCleanupMethod(testAssembly);
 
-                success = failed == 0 && assemblyCleanupSucceeded;
+                success = noFailed && assemblyCleanupSucceeded;
             }
             while (false);
 
-            EventHandlers.Raise(new TestAssemblyEndEvent() { Success = success });
+            EventHandlers.Raise(new TestAssemblyEndEvent());
 
             return success;
         }

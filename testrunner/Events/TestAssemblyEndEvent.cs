@@ -1,7 +1,9 @@
-﻿namespace TestRunner.Events
+﻿using TestRunner.Results;
+
+namespace TestRunner.Events
 {
     public class TestAssemblyEndEvent : TestRunnerEvent
     {
-        public bool Success { get; set; }
+        public TestAssemblyResult Result { get; set; } = new TestAssemblyResult();
     }
 }

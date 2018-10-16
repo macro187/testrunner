@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using TestRunner.MSTest;
 using TestRunner.Infrastructure;
 using TestRunner.Results;
 

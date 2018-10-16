@@ -5,7 +5,6 @@ using System.Reflection;
 using TestRunner.Infrastructure;
 using TestRunner.Runners;
 using TestRunner.Events;
-using TestRunner.MSTest;
 using System.Collections.Generic;
 using TestRunner.Results;
 
@@ -79,6 +78,7 @@ namespace TestRunner.Program
             EventHandlers.Append(new MethodResultEventHandler());
             EventHandlers.Append(new TestResultEventHandler());
             EventHandlers.Append(new TestClassResultEventHandler());
+            EventHandlers.Append(new TestAssemblyResultEventHandler());
             EventHandlers.Append(new TestContextEventHandler());
 
             ArgumentParser.Parse(args);
