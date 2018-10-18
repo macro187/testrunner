@@ -167,7 +167,12 @@ namespace TestRunner.Program
         //
         static int RunFile(string testFile)
         {
-            return TestAssemblyRunner.Run(testFile) ? 0 : 1;
+            var eventHandler = new LastTestAssemblyResultEventHandler();
+            using (EventHandlers.Append(eventHandler))
+            {
+                TestAssemblyRunner.Run(testFile);
+            }
+            return eventHandler.LastTestAssemblyResult.Success ? 0 : 1;
         }
 
 

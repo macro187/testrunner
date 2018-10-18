@@ -11,16 +11,9 @@ namespace TestRunner.Runners
         /// Run tests in a [TestClass]
         /// </summary>
         ///
-        /// <returns>
-        /// Whether everything in <paramref name="testClass"/> succeeded
-        /// </returns>
-        ///
-        static public bool Run(TestClass testClass)
+        static public void Run(TestClass testClass)
         {
             Guard.NotNull(testClass, nameof(testClass));
-
-            bool success = false;
-            bool classCleanupSucceeded = false;
 
             EventHandlers.Raise(new TestClassBeginEvent() { FullName = testClass.FullName });
 
@@ -32,7 +25,6 @@ namespace TestRunner.Runners
                 if (testClass.IsIgnored)
                 {
                     EventHandlers.Raise(new TestClassIgnoredEvent());
-                    success = true;
                     break;
                 }
 
@@ -44,24 +36,19 @@ namespace TestRunner.Runners
                 //
                 // Run [TestMethod]s
                 //
-                var anyFailed = false;
                 foreach (var testMethod in testClass.TestMethods)
                 {
-                    if (!TestMethodRunner.Run(testMethod)) anyFailed = true;
+                    TestMethodRunner.Run(testMethod);
                 }
 
                 //
                 // Run [ClassCleanup] method
                 //
-                classCleanupSucceeded = MethodRunner.RunClassCleanupMethod(testClass);
-
-                success = !anyFailed && classCleanupSucceeded;
+                MethodRunner.RunClassCleanupMethod(testClass);
             }
             while (false);
 
             EventHandlers.Raise(new TestClassEndEvent());
-
-            return success;
         }
         
     }

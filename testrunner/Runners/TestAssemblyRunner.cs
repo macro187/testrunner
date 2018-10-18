@@ -19,11 +19,9 @@ namespace TestRunner.Runners
             "CA2001:AvoidCallingProblematicMethods",
             MessageId = "System.Reflection.Assembly.LoadFrom",
             Justification = "Need to load assemblies in order to run tests")]
-        public static bool Run(string assemblyPath)
+        public static void Run(string assemblyPath)
         {
             Guard.NotNull(assemblyPath, nameof(assemblyPath));
-
-            var success = false;
 
             EventHandlers.Raise(new TestAssemblyBeginEvent() { Path = assemblyPath });
 
@@ -54,7 +52,6 @@ namespace TestRunner.Runners
                 catch (BadImageFormatException)
                 {
                     EventHandlers.Raise(new TestAssemblyNotDotNetEvent() { Path = fullAssemblyPath });
-                    success = true;
                     break;
                 }
 
@@ -65,7 +62,6 @@ namespace TestRunner.Runners
                 if (testAssembly == null)
                 {
                     EventHandlers.Raise(new TestAssemblyNotTestEvent() { Path = fullAssemblyPath });
-                    success = true;
                     break;
                 }
 
@@ -82,24 +78,19 @@ namespace TestRunner.Runners
                 //
                 // Run tests in each [TestClass]
                 //
-                var noFailed = true;
                 foreach (var testClass in testAssembly.TestClasses)
                 {
-                    if (!TestClassRunner.Run(testClass)) noFailed = false;
+                    TestClassRunner.Run(testClass);
                 }
 
                 //
                 // Run [AssemblyCleanup] method
                 //
-                var assemblyCleanupSucceeded = MethodRunner.RunAssemblyCleanupMethod(testAssembly);
-
-                success = noFailed && assemblyCleanupSucceeded;
+                MethodRunner.RunAssemblyCleanupMethod(testAssembly);
             }
             while (false);
 
             EventHandlers.Raise(new TestAssemblyEndEvent());
-
-            return success;
         }
 
     }

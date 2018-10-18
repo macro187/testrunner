@@ -15,11 +15,9 @@ namespace TestRunner.Runners
         /// If the test method is decorated with [Ignore], nothing is run
         /// </remarks>
         ///
-        static public bool Run(TestMethod testMethod)
+        static public void Run(TestMethod testMethod)
         {
             EventHandlers.Raise(new TestBeginEvent() { Name = testMethod.Name });
-
-            var success = false;
 
             do
             {
@@ -29,7 +27,6 @@ namespace TestRunner.Runners
                 if (testMethod.IsIgnored)
                 {
                     EventHandlers.Raise(new TestIgnoredEvent());
-                    success = true;
                     break;
                 }
 
@@ -51,20 +48,16 @@ namespace TestRunner.Runners
                 //
                 // Run [TestMethod]
                 //
-                var testMethodSucceeded = MethodRunner.RunTestMethod(testMethod, instance);
+                MethodRunner.RunTestMethod(testMethod, instance);
 
                 //
                 // Run [TestCleanup] method
                 //
-                var testCleanupSucceeded = MethodRunner.RunTestCleanupMethod(testMethod.TestClass, instance);
-
-                success = testMethodSucceeded && testCleanupSucceeded;
+                MethodRunner.RunTestCleanupMethod(testMethod.TestClass, instance);
             }
             while (false);
 
             EventHandlers.Raise(new TestEndEvent());
-
-            return success;
         }
         
     }
