@@ -5,6 +5,7 @@ using TestRunner.MSTest;
 using TestRunner.Events;
 using TestRunner.Infrastructure;
 using TestRunner.Results;
+using System.Diagnostics;
 
 namespace TestRunner.Runners
 {
@@ -131,48 +132,56 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(method, nameof(method));
 
+            var parameters = takesTestContext ? new object[] { TestContextProxy.Proxy } : null;
+
             Exception exception = null;
             bool exceptionWasExpected = true;
 
-            var parameters = takesTestContext ? new object[] { TestContextProxy.Proxy } : null;
+            var traceListener = new EventTraceListener();
+            Trace.Listeners.Add(traceListener);
             try
             {
                 method.Invoke(instance, parameters);
             }
-
             catch (TargetInvocationException tie)
             {
                 exception = tie.InnerException;
-
-                var isExactExpectedException =
-                    expectedException != null &&
-                    exception.GetType() == expectedException;
-
-                var isDerivedExpectedException =
-                    expectedException != null &&
-                    expectedExceptionAllowDerived &&
-                    exception.GetType().IsSubclassOf(expectedException);
-
-                exceptionWasExpected = isExactExpectedException || isDerivedExpectedException;
-
-                if (exceptionWasExpected)
-                {
-                    EventHandlers.Raise(
-                        new MethodExpectedExceptionEvent() {
-                            ExpectedFullName = expectedException.FullName,
-                            Exception = new ExceptionInfo(exception),
-                        });
-                }
-                else
-                {
-                    EventHandlers.Raise(
-                        new MethodUnexpectedExceptionEvent() {
-                            Exception = new ExceptionInfo(exception)
-                        });
-                }
+            }
+            finally
+            {
+                Trace.Listeners.Remove(traceListener);
             }
 
-            return exception == null || exceptionWasExpected;
+            if (exception == null) return true;
+
+            var isExactExpectedException =
+                expectedException != null &&
+                exception.GetType() == expectedException;
+
+            var isDerivedExpectedException =
+                expectedException != null &&
+                expectedExceptionAllowDerived &&
+                exception.GetType().IsSubclassOf(expectedException);
+
+            exceptionWasExpected = isExactExpectedException || isDerivedExpectedException;
+
+            if (exceptionWasExpected)
+            {
+                EventHandlers.Raise(
+                    new MethodExpectedExceptionEvent() {
+                        ExpectedFullName = expectedException.FullName,
+                        Exception = new ExceptionInfo(exception),
+                    });
+            }
+            else
+            {
+                EventHandlers.Raise(
+                    new MethodUnexpectedExceptionEvent() {
+                        Exception = new ExceptionInfo(exception)
+                    });
+            }
+
+            return exceptionWasExpected;
         }
         
     }
