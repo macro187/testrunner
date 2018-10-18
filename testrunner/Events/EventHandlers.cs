@@ -1,4 +1,5 @@
-﻿using TestRunner.Infrastructure;
+﻿using System;
+using TestRunner.Infrastructure;
 
 namespace TestRunner.Events
 {
@@ -41,12 +42,17 @@ namespace TestRunner.Events
         /// Add an event handler to the beginning of the pipeline
         /// </summary>
         ///
-        public static void Prepend(EventHandler handler)
+        /// <returns>
+        /// An <see cref="IDisposable"/> that, when disposed, removes <paramref name="handler"/> from the pipeline
+        /// </returns>
+        ///
+        public static IDisposable Prepend(EventHandler handler)
         {
             Guard.NotNull(handler, nameof(handler));
             handler.Next = First;
             First = handler;
             if (Last == null) Last = handler;
+            return new Disposable(() => Remove(handler));
         }
 
 
@@ -54,12 +60,45 @@ namespace TestRunner.Events
         /// Add an event handler to the end of the pipeline
         /// </summary>
         ///
-        public static void Append(EventHandler handler)
+        /// <returns>
+        /// An <see cref="IDisposable"/> that, when disposed, removes <paramref name="handler"/> from the pipeline
+        /// </returns>
+        ///
+        public static IDisposable Append(EventHandler handler)
         {
             Guard.NotNull(handler, nameof(handler));
             if (First == null) First = handler;
             if (Last != null) Last.Next = handler;
             Last = handler;
+            return new Disposable(() => Remove(handler));
+        }
+
+
+        static void Remove(EventHandler handler)
+        {
+            Guard.NotNull(handler, nameof(handler));
+
+            for (EventHandler h = First, prev = null; h != null; prev = h, h = h.Next)
+            {
+                if (h != handler) continue;
+
+                if (handler == First)
+                {
+                    First = handler.Next;
+                }
+
+                if (prev != null)
+                {
+                    prev.Next = handler.Next;
+                }
+
+                if (handler == Last)
+                {
+                    Last = prev;
+                }
+
+                handler.Next = null;
+            }
         }
 
     }
