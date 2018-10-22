@@ -23,7 +23,7 @@ namespace TestRunner.Infrastructure
 
         void IDisposable.Dispose()
         {
-            if (disposed) throw new ObjectDisposedException(nameof(Disposable));
+            if (disposed) return;
             disposeAction();
             disposed = true;
         }
