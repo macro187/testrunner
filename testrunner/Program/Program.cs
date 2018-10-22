@@ -17,70 +17,65 @@ namespace TestRunner.Program
         static readonly string ProgramName = Path.GetFileName(ProgramPath);
 
 
+        /// <summary>
+        /// 1. Run the program and exit assertively killing any background threads
+        /// </summary>
+        ///
         [STAThread]
         static void Main(string[] args)
         {
-            //
-            // Exit the program immediately, killing off any background threads
-            //
             Environment.Exit(Main2(args));
         }
 
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage(
-            "Microsoft.Design",
-            "CA1031:DoNotCatchGeneralExceptionTypes",
-            Justification = "Required to handle unexpected exceptions")]
+        /// <summary>
+        /// 2. Set up required event handlers
+        /// </summary>
+        ///
         static int Main2(string[] args)
-        {
-            try
-            {
-                return Main3(args);
-            }
-
-            //
-            // Handle user-facing errors
-            //
-            catch (UserException ue)
-            {
-                EventHandlers.Raise(new ProgramUserErrorEvent() { Message = ue.Message });
-                return 1;
-            }
-
-            //
-            // Handle internal errors
-            //
-            catch (Exception e)
-            {
-                EventHandlers.Raise(
-                    new ProgramInternalErrorEvent() {
-                        Exception = new ExceptionInfo(e)
-                    });
-
-                if (e is ReflectionTypeLoadException rtle)
-                {
-                    foreach (var le in rtle.LoaderExceptions)
-                    {
-                        EventHandlers.Raise(
-                            new ProgramInternalErrorEvent() {
-                                Exception = new ExceptionInfo(le)
-                            });
-                    }
-                }
-
-                return 1;
-            }
-        }
-
-
-        static int Main3(string[] args)
         {
             EventHandlers.Append(new MethodResultEventHandler());
             EventHandlers.Append(new TestResultEventHandler());
             EventHandlers.Append(new TestClassResultEventHandler());
             EventHandlers.Append(new TestAssemblyResultEventHandler());
             EventHandlers.Append(new TestContextEventHandler());
+            return Main3(args);
+        }
 
+
+        /// <summary>
+        /// 3. Set up error handlers
+        /// </summary>
+        ///
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Design",
+            "CA1031:DoNotCatchGeneralExceptionTypes",
+            Justification = "Required to handle unexpected exceptions")]
+        static int Main3(string[] args)
+        {
+            try
+            {
+                return Main4(args);
+            }
+            catch (UserException ue)
+            {
+                HandleUserException(ue);
+                return 1;
+            }
+            catch (Exception e)
+            {
+                HandleInternalException(e);
+                return 1;
+            }
+        }
+
+
+        /// <summary>
+        /// 4. Parse arguments and take action
+        /// </summary>
+        ///
+        static int Main4(string[] args)
+        {
             ArgumentParser.Parse(args);
 
             switch(ArgumentParser.OutputFormat)
@@ -95,66 +90,37 @@ namespace TestRunner.Program
                     throw new Exception($"Unrecognised <outputformat> from parser {ArgumentParser.OutputFormat}");
             }
 
-            EventHandlers.Raise(
-                new ProgramBannerEvent() {
-                    Lines = Banner(),
-                });
-
             if (!ArgumentParser.Success)
             {
-                EventHandlers.Raise(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
-                throw new UserException(ArgumentParser.ErrorMessage);
+                throw ArgumentParseError();
             }
 
             if (ArgumentParser.Help)
             {
-                EventHandlers.Raise(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
-                return 0;
+                return Help();
             }
 
-            if (!ArgumentParser.InProc)
+            if (ArgumentParser.InProc)
             {
-                return RunFiles(ArgumentParser.TestFiles);
+                return InProc(ArgumentParser.TestFiles[0]);
             }
-            else
-            {
-                return RunFile(ArgumentParser.TestFiles[0]);
-            }
+
+            return Main5(ArgumentParser.TestFiles);
         }
 
 
         /// <summary>
-        /// Run one or more test file(s) by reinvoking a TestRunner --inproc child processes for each
+        /// 5. Run test file(s)
         /// </summary>
         //
-        static int RunFiles(IList<string> testFiles)
+        static int Main5(IList<string> testFiles)
         {
+            Banner();
             EventHandlers.Raise(new TestRunBeginEvent() {});
             bool success = true;
             foreach (var testFile in ArgumentParser.TestFiles)
             {
-                var exitCode =
-                    ProcessExtensions.ExecuteDotnet(
-                        ProgramPath,
-                        $"--inproc --outputformat machine \"{testFile}\"",
-                        (proc, line) => {
-                            var e = MachineReadableEventSerializer.TryDeserialize(line);
-                            EventHandlers.Raise(
-                                e ??
-                                new StandardOutputEvent() {
-                                    ProcessId = proc.Id,
-                                    Message = line,
-                                });
-                        },
-                        (proc, line) => {
-                            EventHandlers.Raise(
-                                new ErrorOutputEvent() {
-                                    ProcessId = proc.Id,
-                                    Message = line,
-                                });
-                        });
-
-                if (exitCode != 0) success = false;
+                if (!Reinvoke(testFile)) success = false;
             }
             EventHandlers.Raise(new TestRunEndEvent() { Success = success });
             return success ? 0 : 1;
@@ -162,10 +128,53 @@ namespace TestRunner.Program
 
 
         /// <summary>
-        /// Run an individual test file in-process
+        /// Reinvoke testrunner to run an individual test file in its own process
         /// </summary>
-        //
-        static int RunFile(string testFile)
+        ///
+        static bool Reinvoke(string testFile)
+        {
+            var exitCode =
+                ProcessExtensions.ExecuteDotnet(
+                    ProgramPath,
+                    $"--inproc --outputformat machine \"{testFile}\"",
+                    (proc, line) => {
+                        var e = MachineReadableEventSerializer.TryDeserialize(line);
+                        EventHandlers.Raise(
+                            e ??
+                            new StandardOutputEvent() {
+                                ProcessId = proc.Id,
+                                Message = line,
+                            });
+                    },
+                    (proc, line) => {
+                        EventHandlers.Raise(
+                            new ErrorOutputEvent() {
+                                ProcessId = proc.Id,
+                                Message = line,
+                            });
+                    });
+
+            return exitCode == 0;
+        }
+
+
+        /// <summary>
+        /// --help: Print out brief program usage information
+        /// </summary>
+        ///
+        static int Help()
+        {
+            Banner();
+            Usage();
+            return 0;
+        }
+
+
+        /// <summary>
+        /// --inproc: Run an individual test file in-process
+        /// </summary>
+        ///
+        static int InProc(string testFile)
         {
             var eventHandler = new LastTestAssemblyResultEventHandler();
             using (EventHandlers.Append(eventHandler))
@@ -177,19 +186,78 @@ namespace TestRunner.Program
 
 
         /// <summary>
-        /// Print program information
+        /// Handle argument parse error
         /// </summary>
         ///
-        static string[] Banner()
+        static UserException ArgumentParseError()
+        {
+            Banner();
+            Usage();
+            return new UserException(ArgumentParser.ErrorMessage);
+        }
+
+
+        /// <summary>
+        /// Print program name, version, and copyright banner
+        /// </summary>
+        ///
+        static void Banner()
         {
             var name = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName;
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
 
-            return new[]{
-                $"{name} v{version}",
-                copyright,
-            };
+            EventHandlers.Raise(
+                new ProgramBannerEvent() {
+                    Lines = new[]{
+                        $"{name} v{version}",
+                        copyright,
+                    },
+                });
+        }
+
+
+        /// <summary>
+        /// Print program usage information
+        /// </summary>
+        ///
+        static void Usage()
+        {
+            EventHandlers.Raise(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
+        }
+
+
+        /// <summary>
+        /// Handle user-facing error
+        /// </summary>
+        ///
+        static void HandleUserException(UserException ue)
+        {
+            EventHandlers.Raise(new ProgramUserErrorEvent() { Message = ue.Message });
+        }
+
+
+        /// <summary>
+        /// Handle internal TestRunner error
+        /// </summary>
+        ///
+        static void HandleInternalException(Exception e)
+        {
+            EventHandlers.Raise(
+                new ProgramInternalErrorEvent() {
+                    Exception = new ExceptionInfo(e)
+                });
+
+            if (e is ReflectionTypeLoadException rtle)
+            {
+                foreach (var le in rtle.LoaderExceptions)
+                {
+                    EventHandlers.Raise(
+                        new ProgramInternalErrorEvent() {
+                            Exception = new ExceptionInfo(le)
+                        });
+                }
+            }
         }
 
     }
