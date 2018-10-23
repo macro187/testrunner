@@ -73,17 +73,16 @@ MSTest
 ------
 
 The runners interpret and interact with test assemblies through types in the
-`MSTest` namespace.  These mirror the attributes and other elements found in the
-*MSTest* DLLs referenced by test assemblies, except they bind to those elements
-at runtime using reflection.  There is also a reflection-based `TestContext`
-implementation.  Together, they allow `testrunner` to work with test assemblies
-referencing any of the various available versions of the *MSTest* DLL.
+`MSTest` namespace, which use reflection to discover, bind, and interact with
+test assembly elements at runtime.  These elements include the test assemblies
+themselves, test classes, initialization, test, and cleanup methods, MSTest
+attributes, and a `TestContext` implementation.
 
 
 Events
 ------
 
-As the runners execute tests, they emit events into a chain of event handlers in
+As the runners execute tests, they emit events into an event handler chain in
 the `Events` namespace.  Individual handlers focus on single supporting
 responsibilities like measurement, analysis, aggregation, and output.
 Distributing responsibility across the runners and handlers keeps down their
@@ -93,7 +92,7 @@ individual complexity.
 Results
 -------
 
-As tests run, results are recorded in types from the `Results` namespace.
+As tests run, results are recorded using types from the `Results` namespace.
 
 
 Infrastructure
