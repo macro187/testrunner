@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using TestRunner.EventHandlers;
 #if NET461
 using System;
 using System.Configuration;
@@ -57,7 +58,7 @@ namespace TestRunner.Runners
                 currentField.SetValue(null, null);
             }
 
-            EventHandlers.Raise(new TestAssemblyConfigFileSwitchedEvent() { Path = configPath });
+            EventHandlerPipeline.Raise(new TestAssemblyConfigFileSwitchedEvent() { Path = configPath });
             #endif
         }
         

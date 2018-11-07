@@ -1,6 +1,7 @@
-﻿using TestRunner.Results;
+﻿using TestRunner.Events;
+using TestRunner.Results;
 
-namespace TestRunner.Events
+namespace TestRunner.EventHandlers
 {
 
     /// <summary>

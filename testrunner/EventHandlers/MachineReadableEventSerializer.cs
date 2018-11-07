@@ -6,8 +6,9 @@ using System.Text;
 using TestRunner.MSTest;
 using TestRunner.Infrastructure;
 using TestRunner.Results;
+using TestRunner.Events;
 
-namespace TestRunner.Events
+namespace TestRunner.EventHandlers
 {
 
     /// <summary>

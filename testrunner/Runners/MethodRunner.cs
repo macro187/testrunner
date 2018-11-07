@@ -6,6 +6,7 @@ using TestRunner.Events;
 using TestRunner.Infrastructure;
 using TestRunner.Results;
 using System.Diagnostics;
+using TestRunner.EventHandlers;
 
 namespace TestRunner.Runners
 {
@@ -17,14 +18,14 @@ namespace TestRunner.Runners
             Guard.NotNull(testAssembly, nameof(testAssembly));
             var method = testAssembly.AssemblyInitializeMethod;
             if (method == null) return true;
-            EventHandlers.Raise(
+            EventHandlerPipeline.Raise(
                 new AssemblyInitializeMethodBeginEvent() {
                     MethodName = method.Name,
                     FirstTestClassFullName = testAssembly.TestClasses.First().FullName,
                     FirstTestMethodName = testAssembly.TestClasses.First().TestMethods.First().Name,
                 });
             var success = Run(method, null, true, null, false);
-            EventHandlers.Raise(new AssemblyInitializeMethodEndEvent());
+            EventHandlerPipeline.Raise(new AssemblyInitializeMethodEndEvent());
             return success;
         }
 
@@ -34,9 +35,9 @@ namespace TestRunner.Runners
             Guard.NotNull(testAssembly, nameof(testAssembly));
             var method = testAssembly.AssemblyCleanupMethod;
             if (method == null) return true;
-            EventHandlers.Raise(new AssemblyCleanupMethodBeginEvent() { MethodName = method.Name });
+            EventHandlerPipeline.Raise(new AssemblyCleanupMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, null, false, null, false);
-            EventHandlers.Raise(new AssemblyCleanupMethodEndEvent());
+            EventHandlerPipeline.Raise(new AssemblyCleanupMethodEndEvent());
             return success;
         }
 
@@ -46,13 +47,13 @@ namespace TestRunner.Runners
             Guard.NotNull(testClass, nameof(testClass));
             var method = testClass.ClassInitializeMethod;
             if (method == null) return true;
-            EventHandlers.Raise(
+            EventHandlerPipeline.Raise(
                 new ClassInitializeMethodBeginEvent() {
                     MethodName = method.Name,
                     FirstTestMethodName = testClass.TestMethods.First().Name,
                 });
             var success = Run(method, null, true, null, false);
-            EventHandlers.Raise(new ClassInitializeMethodEndEvent());
+            EventHandlerPipeline.Raise(new ClassInitializeMethodEndEvent());
             return success;
         }
 
@@ -62,9 +63,9 @@ namespace TestRunner.Runners
             Guard.NotNull(testClass, nameof(testClass));
             var method = testClass.ClassCleanupMethod;
             if (method == null) return true;
-            EventHandlers.Raise(new ClassCleanupMethodBeginEvent() { MethodName = method.Name });
+            EventHandlerPipeline.Raise(new ClassCleanupMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, null, false, null, false);
-            EventHandlers.Raise(new ClassCleanupMethodEndEvent());
+            EventHandlerPipeline.Raise(new ClassCleanupMethodEndEvent());
             return success;
         }
 
@@ -75,9 +76,9 @@ namespace TestRunner.Runners
             Guard.NotNull(instance, nameof(instance));
             var method = testClass.TestContextSetter;
             if (method == null) return;
-            EventHandlers.Raise(new TestContextSetterBeginEvent() { MethodName = method.Name });
+            EventHandlerPipeline.Raise(new TestContextSetterBeginEvent() { MethodName = method.Name });
             var success = Run(method, instance, true, null, false);
-            EventHandlers.Raise(new TestContextSetterEndEvent());
+            EventHandlerPipeline.Raise(new TestContextSetterEndEvent());
         }
 
 
@@ -87,9 +88,9 @@ namespace TestRunner.Runners
             Guard.NotNull(instance, nameof(instance));
             var method = testClass.TestInitializeMethod;
             if (method == null) return true;
-            EventHandlers.Raise(new TestInitializeMethodBeginEvent() { MethodName = method.Name });
+            EventHandlerPipeline.Raise(new TestInitializeMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, instance, false, null, false);
-            EventHandlers.Raise(new TestInitializeMethodEndEvent());
+            EventHandlerPipeline.Raise(new TestInitializeMethodEndEvent());
             return success;
         }
 
@@ -98,14 +99,14 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(testMethod, nameof(testMethod));
             Guard.NotNull(instance, nameof(instance));
-            EventHandlers.Raise(new TestMethodBeginEvent() { MethodName = testMethod.Name });
+            EventHandlerPipeline.Raise(new TestMethodBeginEvent() { MethodName = testMethod.Name });
             var success = Run(
                 testMethod.MethodInfo,
                 instance,
                 false,
                 testMethod.ExpectedException,
                 testMethod.AllowDerivedExpectedExceptionTypes);
-            EventHandlers.Raise(new TestMethodEndEvent());
+            EventHandlerPipeline.Raise(new TestMethodEndEvent());
             return success;
         }
 
@@ -116,9 +117,9 @@ namespace TestRunner.Runners
             Guard.NotNull(instance, nameof(instance));
             var method = testClass.TestCleanupMethod;
             if (method == null) return true;
-            EventHandlers.Raise(new TestCleanupMethodBeginEvent() { MethodName = method.Name });
+            EventHandlerPipeline.Raise(new TestCleanupMethodBeginEvent() { MethodName = method.Name });
             var success = Run(method, instance, false, null, false);
-            EventHandlers.Raise(new TestCleanupMethodEndEvent());
+            EventHandlerPipeline.Raise(new TestCleanupMethodEndEvent());
             return success;
         }
 
@@ -167,7 +168,7 @@ namespace TestRunner.Runners
 
             if (exceptionWasExpected)
             {
-                EventHandlers.Raise(
+                EventHandlerPipeline.Raise(
                     new MethodExpectedExceptionEvent() {
                         ExpectedFullName = expectedException.FullName,
                         Exception = new ExceptionInfo(exception),
@@ -175,7 +176,7 @@ namespace TestRunner.Runners
             }
             else
             {
-                EventHandlers.Raise(
+                EventHandlerPipeline.Raise(
                     new MethodUnexpectedExceptionEvent() {
                         Exception = new ExceptionInfo(exception)
                     });

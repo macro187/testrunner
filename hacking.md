@@ -82,17 +82,23 @@ attributes, and a `TestContext` implementation.
 Events
 ------
 
-As the runners execute tests, they emit events into an event handler chain in
-the `Events` namespace.  Individual handlers focus on single supporting
-responsibilities like measurement, analysis, aggregation, and output.
-Distributing responsibility across the runners and handlers keeps down their
-individual complexity.
+As the runners execute tests, they emit events from the `Events` namespace...
+
+
+EventHandlers
+-------------
+
+...into a pipeline of event handlers in the `EventHandlers` namespace.
+Individual handlers focus on single supporting responsibilities like
+measurement, analysis, aggregation, and output.  Distributing responsibility
+across the runners and handlers keeps down their individual complexity.
 
 
 Results
 -------
 
-As tests run, results are recorded using types from the `Results` namespace.
+As tests run, event handlers record results in types from the `Results`
+namespace.
 
 
 Infrastructure

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TestRunner.Events;
 using TestRunner.Results;
 
-namespace TestRunner.Events
+namespace TestRunner.EventHandlers
 {
 
     /// <summary>

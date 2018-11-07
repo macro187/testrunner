@@ -4,6 +4,7 @@ using System.Reflection;
 using TestRunner.MSTest;
 using TestRunner.Infrastructure;
 using TestRunner.Events;
+using TestRunner.EventHandlers;
 
 namespace TestRunner.Runners
 {
@@ -23,7 +24,7 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(assemblyPath, nameof(assemblyPath));
 
-            EventHandlers.Raise(new TestAssemblyBeginEvent() { Path = assemblyPath });
+            EventHandlerPipeline.Raise(new TestAssemblyBeginEvent() { Path = assemblyPath });
 
             do
             {
@@ -37,7 +38,7 @@ namespace TestRunner.Runners
 
                 if (!File.Exists(fullAssemblyPath))
                 {
-                    EventHandlers.Raise(new TestAssemblyNotFoundEvent() { Path = fullAssemblyPath });
+                    EventHandlerPipeline.Raise(new TestAssemblyNotFoundEvent() { Path = fullAssemblyPath });
                     break;
                 }
 
@@ -51,7 +52,7 @@ namespace TestRunner.Runners
                 }
                 catch (BadImageFormatException)
                 {
-                    EventHandlers.Raise(new TestAssemblyNotDotNetEvent() { Path = fullAssemblyPath });
+                    EventHandlerPipeline.Raise(new TestAssemblyNotDotNetEvent() { Path = fullAssemblyPath });
                     break;
                 }
 
@@ -61,7 +62,7 @@ namespace TestRunner.Runners
                 var testAssembly = TestAssembly.TryCreate(assembly);
                 if (testAssembly == null)
                 {
-                    EventHandlers.Raise(new TestAssemblyNotTestEvent() { Path = fullAssemblyPath });
+                    EventHandlerPipeline.Raise(new TestAssemblyNotTestEvent() { Path = fullAssemblyPath });
                     break;
                 }
 
@@ -90,7 +91,7 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandlers.Raise(new TestAssemblyEndEvent());
+            EventHandlerPipeline.Raise(new TestAssemblyEndEvent());
         }
 
     }

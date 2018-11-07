@@ -1,7 +1,8 @@
 ﻿using TestRunner.MSTest;
 using System.Linq;
+using TestRunner.Events;
 
-namespace TestRunner.Events
+namespace TestRunner.EventHandlers
 {
 
     /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
+using TestRunner.Events;
 
-namespace TestRunner.Events
+namespace TestRunner.EventHandlers
 {
 
     /// <summary>
@@ -33,7 +34,7 @@ namespace TestRunner.Events
                     line = buffer + line;
                     buffer = "";
                 }
-                EventHandlers.Raise(new TraceOutputEvent() { Message = line });
+                EventHandlerPipeline.Raise(new TraceOutputEvent() { Message = line });
 
                 message = message.Substring(i + 1);
             }

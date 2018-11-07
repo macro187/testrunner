@@ -1,6 +1,7 @@
 ﻿using System;
 using TestRunner.MSTest;
 using TestRunner.Events;
+using TestRunner.EventHandlers;
 
 namespace TestRunner.Runners
 {
@@ -17,7 +18,7 @@ namespace TestRunner.Runners
         ///
         static public void Run(TestMethod testMethod)
         {
-            EventHandlers.Raise(new TestBeginEvent() { Name = testMethod.Name });
+            EventHandlerPipeline.Raise(new TestBeginEvent() { Name = testMethod.Name });
 
             do
             {
@@ -26,7 +27,7 @@ namespace TestRunner.Runners
                 //
                 if (testMethod.IsIgnored)
                 {
-                    EventHandlers.Raise(new TestIgnoredEvent());
+                    EventHandlerPipeline.Raise(new TestIgnoredEvent());
                     break;
                 }
 
@@ -57,7 +58,7 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandlers.Raise(new TestEndEvent());
+            EventHandlerPipeline.Raise(new TestEndEvent());
         }
         
     }

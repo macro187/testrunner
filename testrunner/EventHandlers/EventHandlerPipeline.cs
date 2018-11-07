@@ -1,7 +1,8 @@
 ﻿using System;
+using TestRunner.Events;
 using TestRunner.Infrastructure;
 
-namespace TestRunner.Events
+namespace TestRunner.EventHandlers
 {
 
     /// <summary>
@@ -13,10 +14,10 @@ namespace TestRunner.Events
     /// actions and/or modify the event before propagating to the next one.
     /// </remarks>
     ///
-    public static class EventHandlers
+    public static class EventHandlerPipeline
     {
 
-        static EventHandlers()
+        static EventHandlerPipeline()
         {
             Append(new EventHandler());
         }

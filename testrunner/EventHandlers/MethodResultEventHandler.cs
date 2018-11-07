@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using TestRunner.Events;
 using TestRunner.Results;
 
-namespace TestRunner.Events
+namespace TestRunner.EventHandlers
 {
 
     /// <summary>

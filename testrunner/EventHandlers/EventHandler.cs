@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
+using TestRunner.Events;
 using TestRunner.Infrastructure;
 
-namespace TestRunner.Events
+namespace TestRunner.EventHandlers
 {
     public class EventHandler
     {

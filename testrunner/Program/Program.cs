@@ -7,6 +7,7 @@ using TestRunner.Runners;
 using TestRunner.Events;
 using System.Collections.Generic;
 using TestRunner.Results;
+using TestRunner.EventHandlers;
 
 namespace TestRunner.Program
 {
@@ -34,11 +35,11 @@ namespace TestRunner.Program
         ///
         static int Main2(string[] args)
         {
-            EventHandlers.Append(new MethodResultEventHandler());
-            EventHandlers.Append(new TestResultEventHandler());
-            EventHandlers.Append(new TestClassResultEventHandler());
-            EventHandlers.Append(new TestAssemblyResultEventHandler());
-            EventHandlers.Append(new TestContextEventHandler());
+            EventHandlerPipeline.Append(new MethodResultEventHandler());
+            EventHandlerPipeline.Append(new TestResultEventHandler());
+            EventHandlerPipeline.Append(new TestClassResultEventHandler());
+            EventHandlerPipeline.Append(new TestAssemblyResultEventHandler());
+            EventHandlerPipeline.Append(new TestContextEventHandler());
             return Main3(args);
         }
 
@@ -81,10 +82,10 @@ namespace TestRunner.Program
             switch(ArgumentParser.OutputFormat)
             {
                 case OutputFormats.Human:
-                    EventHandlers.Append(new HumanOutputEventHandler());
+                    EventHandlerPipeline.Append(new HumanOutputEventHandler());
                     break;
                 case OutputFormats.Machine:
-                    EventHandlers.Append(new MachineOutputEventHandler());
+                    EventHandlerPipeline.Append(new MachineOutputEventHandler());
                     break;
                 default:
                     throw new Exception($"Unrecognised <outputformat> from parser {ArgumentParser.OutputFormat}");
@@ -116,13 +117,13 @@ namespace TestRunner.Program
         static int Main5(IList<string> testFiles)
         {
             Banner();
-            EventHandlers.Raise(new TestRunBeginEvent() {});
+            EventHandlerPipeline.Raise(new TestRunBeginEvent() {});
             bool success = true;
             foreach (var testFile in ArgumentParser.TestFiles)
             {
                 if (!Reinvoke(testFile)) success = false;
             }
-            EventHandlers.Raise( new TestRunEndEvent() { Result = new TestRunResult() { Success = success } });
+            EventHandlerPipeline.Raise( new TestRunEndEvent() { Result = new TestRunResult() { Success = success } });
             return success ? 0 : 1;
         }
 
@@ -139,7 +140,7 @@ namespace TestRunner.Program
                     $"--inproc --outputformat machine \"{testFile}\"",
                     (proc, line) => {
                         var e = MachineReadableEventSerializer.TryDeserialize(line);
-                        EventHandlers.Raise(
+                        EventHandlerPipeline.Raise(
                             e ??
                             new StandardOutputEvent() {
                                 ProcessId = proc.Id,
@@ -147,7 +148,7 @@ namespace TestRunner.Program
                             });
                     },
                     (proc, line) => {
-                        EventHandlers.Raise(
+                        EventHandlerPipeline.Raise(
                             new ErrorOutputEvent() {
                                 ProcessId = proc.Id,
                                 Message = line,
@@ -177,7 +178,7 @@ namespace TestRunner.Program
         static int InProc(string testFile)
         {
             var eventHandler = new LastTestAssemblyResultEventHandler();
-            using (EventHandlers.Append(eventHandler))
+            using (EventHandlerPipeline.Append(eventHandler))
             {
                 TestAssemblyRunner.Run(testFile);
             }
@@ -207,7 +208,7 @@ namespace TestRunner.Program
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             var copyright = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).LegalCopyright;
 
-            EventHandlers.Raise(
+            EventHandlerPipeline.Raise(
                 new ProgramBannerEvent() {
                     Lines = new[]{
                         $"{name} v{version}",
@@ -223,7 +224,7 @@ namespace TestRunner.Program
         ///
         static void Usage()
         {
-            EventHandlers.Raise(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
+            EventHandlerPipeline.Raise(new ProgramUsageEvent() { Lines = ArgumentParser.GetUsage() });
         }
 
 
@@ -233,7 +234,7 @@ namespace TestRunner.Program
         ///
         static void HandleUserException(UserException ue)
         {
-            EventHandlers.Raise(new ProgramUserErrorEvent() { Message = ue.Message });
+            EventHandlerPipeline.Raise(new ProgramUserErrorEvent() { Message = ue.Message });
         }
 
 
@@ -243,7 +244,7 @@ namespace TestRunner.Program
         ///
         static void HandleInternalException(Exception e)
         {
-            EventHandlers.Raise(
+            EventHandlerPipeline.Raise(
                 new ProgramInternalErrorEvent() {
                     Exception = new ExceptionInfo(e)
                 });
@@ -252,7 +253,7 @@ namespace TestRunner.Program
             {
                 foreach (var le in rtle.LoaderExceptions)
                 {
-                    EventHandlers.Raise(
+                    EventHandlerPipeline.Raise(
                         new ProgramInternalErrorEvent() {
                             Exception = new ExceptionInfo(le)
                         });

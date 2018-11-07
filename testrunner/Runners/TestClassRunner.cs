@@ -1,6 +1,7 @@
 ﻿using TestRunner.MSTest;
 using TestRunner.Events;
 using TestRunner.Infrastructure;
+using TestRunner.EventHandlers;
 
 namespace TestRunner.Runners
 {
@@ -15,7 +16,7 @@ namespace TestRunner.Runners
         {
             Guard.NotNull(testClass, nameof(testClass));
 
-            EventHandlers.Raise(new TestClassBeginEvent() { FullName = testClass.FullName });
+            EventHandlerPipeline.Raise(new TestClassBeginEvent() { FullName = testClass.FullName });
 
             do
             {
@@ -24,7 +25,7 @@ namespace TestRunner.Runners
                 //
                 if (testClass.IsIgnored)
                 {
-                    EventHandlers.Raise(new TestClassIgnoredEvent());
+                    EventHandlerPipeline.Raise(new TestClassIgnoredEvent());
                     break;
                 }
 
@@ -48,7 +49,7 @@ namespace TestRunner.Runners
             }
             while (false);
 
-            EventHandlers.Raise(new TestClassEndEvent());
+            EventHandlerPipeline.Raise(new TestClassEndEvent());
         }
         
     }
