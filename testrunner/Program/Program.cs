@@ -8,6 +8,7 @@ using TestRunner.Events;
 using System.Collections.Generic;
 using TestRunner.Results;
 using TestRunner.EventHandlers;
+using System.Linq;
 
 namespace TestRunner.Program
 {
@@ -177,12 +178,12 @@ namespace TestRunner.Program
         ///
         static int InProc(string testFile)
         {
-            var eventHandler = new LastTestAssemblyResultEventHandler();
+            var eventHandler = new ResultAccumulatingEventHandler();
             using (EventHandlerPipeline.Append(eventHandler))
             {
                 TestAssemblyRunner.Run(testFile);
             }
-            return eventHandler.LastTestAssemblyResult.Success ? 0 : 1;
+            return eventHandler.TestAssemblyResults.Last().Success ? 0 : 1;
         }
 
 
