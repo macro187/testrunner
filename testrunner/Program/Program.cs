@@ -122,7 +122,7 @@ namespace TestRunner.Program
             {
                 if (!Reinvoke(testFile)) success = false;
             }
-            EventHandlers.Raise(new TestRunEndEvent() { Success = success });
+            EventHandlers.Raise( new TestRunEndEvent() { Result = new TestRunResult() { Success = success } });
             return success ? 0 : 1;
         }
 
