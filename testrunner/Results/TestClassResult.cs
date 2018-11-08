@@ -2,6 +2,8 @@
 {
     public class TestClassResult
     {
+        public string TestAssemblyPath { get; set; }
+        public string TestClassFullName { get; set; }
         public bool Success { get; set; }
         public bool ClassIgnored { get; set; }
         public bool InitializePresent { get; set; }

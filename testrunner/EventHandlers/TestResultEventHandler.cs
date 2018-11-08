@@ -1,5 +1,4 @@
-﻿using System;
-using TestRunner.Events;
+﻿using TestRunner.Events;
 using TestRunner.Results;
 
 namespace TestRunner.EventHandlers
@@ -9,10 +8,9 @@ namespace TestRunner.EventHandlers
     /// Event handler that accumulates test execution information and populates <see cref="TestEndEvent"/> results
     /// </summary>
     ///
-    public class TestResultEventHandler : EventHandler
+    public class TestResultEventHandler : ContextTrackingEventHandler
     {
 
-        bool isRunningTest;
         bool ignored;
         MethodResult testInitializeMethodResult;
         MethodResult testMethodResult;
@@ -21,69 +19,60 @@ namespace TestRunner.EventHandlers
 
         protected override void Handle(TestBeginEvent e)
         {
-            ExpectIsNotRunningTest();
+            base.Handle(e);
             ignored = false;
             testInitializeMethodResult = null;
             testMethodResult = null;
             testCleanupMethodResult = null;
-            isRunningTest = true;
         }
 
 
         protected override void Handle(TestIgnoredEvent e)
         {
-            ExpectIsRunningTest();
+            base.Handle(e);
             ignored = true;
         }
 
 
         protected override void Handle(TestInitializeMethodEndEvent e)
         {
-            ExpectIsRunningTest();
+            base.Handle(e);
             testInitializeMethodResult = e.Result;
         }
 
 
         protected override void Handle(TestMethodEndEvent e)
         {
-            ExpectIsRunningTest();
+            base.Handle(e);
             testMethodResult = e.Result;
         }
 
 
         protected override void Handle(TestCleanupMethodEndEvent e)
         {
-            ExpectIsRunningTest();
+            base.Handle(e);
             testCleanupMethodResult = e.Result;
         }
 
 
         protected override void Handle(TestEndEvent e)
         {
-            ExpectIsRunningTest();
-
-            var success = false;
-            if (ignored) success = true;
-            if (testInitializeMethodResult?.Success == false) success = false;
-            if (testMethodResult?.Success == true) success = true;
-            if (testCleanupMethodResult?.Success == false) success = false;
-
+            base.Handle(e);
+            e.Result.TestAssemblyPath = CurrentTestAssemblyPath;
+            e.Result.TestClassFullName = CurrentTestClassFullName;
+            e.Result.TestName = CurrentTestName;
+            e.Result.Success = GetSuccess();
             e.Result.Ignored = ignored;
-            e.Result.Success = success;
-
-            isRunningTest = false;
         }
 
 
-        void ExpectIsRunningTest()
+        bool GetSuccess()
         {
-            if (!isRunningTest) throw new InvalidOperationException("Expected to be running a test");
-        }
-
-
-        void ExpectIsNotRunningTest()
-        {
-            if (isRunningTest) throw new InvalidOperationException("Expected not to be running a test");
+            if (ignored) return true;
+            if (testInitializeMethodResult?.Success == false) return false;
+            if (testMethodResult?.Success == false) return false;
+            if (testCleanupMethodResult?.Success == false) return false;
+            return true;
         }
 
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using TestRunner.Events;
 using TestRunner.Results;
@@ -12,10 +11,9 @@ namespace TestRunner.EventHandlers
     /// <see cref="TestAssemblyEndEvent"/> results
     /// </summary>
     ///
-    public class TestAssemblyResultEventHandler : EventHandler
+    public class TestAssemblyResultEventHandler : ContextTrackingEventHandler
     {
 
-        bool isRunningTestAssembly;
         bool assemblyNotFound;
         bool assemblyNotDotNet;
         bool assemblyNotTest;
@@ -27,7 +25,7 @@ namespace TestRunner.EventHandlers
 
         protected override void Handle(TestAssemblyBeginEvent e)
         {
-            ExpectIsNotRunningTestAssembly();
+            base.Handle(e);
             assemblyNotFound = false;
             assemblyNotDotNet = false;
             assemblyNotTest = false;
@@ -35,64 +33,63 @@ namespace TestRunner.EventHandlers
             assemblyInitializeResult = null;
             testClassResults = new List<TestClassResult>();
             assemblyCleanupResult = null;
-            isRunningTestAssembly = true;
         }
 
 
         protected override void Handle(TestAssemblyNotFoundEvent e)
         {
-            ExpectIsRunningTestAssembly();
+            base.Handle(e);
             assemblyNotFound = true;
         }
 
 
         protected override void Handle(TestAssemblyNotDotNetEvent e)
         {
-            ExpectIsRunningTestAssembly();
+            base.Handle(e);
             assemblyNotDotNet = true;
         }
 
 
         protected override void Handle(TestAssemblyNotTestEvent e)
         {
-            ExpectIsRunningTestAssembly();
+            base.Handle(e);
             assemblyNotTest = true;
         }
 
 
         protected override void Handle(TestAssemblyConfigFileSwitchedEvent e)
         {
-            ExpectIsRunningTestAssembly();
+            base.Handle(e);
             configFilePath = e.Path;
         }
 
 
         protected override void Handle(AssemblyInitializeMethodEndEvent e)
         {
-            ExpectIsRunningTestAssembly();
+            base.Handle(e);
             assemblyInitializeResult = e.Result;
         }
 
 
         protected override void Handle(TestClassEndEvent e)
         {
-            ExpectIsRunningTestAssembly();
+            base.Handle(e);
             testClassResults.Add(e.Result);
         }
 
 
         protected override void Handle(AssemblyCleanupMethodEndEvent e)
         {
-            ExpectIsRunningTestAssembly();
+            base.Handle(e);
             assemblyCleanupResult = e.Result;
         }
 
 
         protected override void Handle(TestAssemblyEndEvent e)
         {
-            ExpectIsRunningTestAssembly();
+            base.Handle(e);
+            e.Result.TestAssemblyPath = CurrentTestAssemblyPath;
             e.Result.Success = GetSuccess();
-            isRunningTestAssembly = false;
         }
 
 
@@ -105,20 +102,6 @@ namespace TestRunner.EventHandlers
             if (testClassResults.Any(r => !r.Success)) return false;
             if (assemblyCleanupResult?.Success == false) return false;
             return true;
-        }
-
-
-        void ExpectIsRunningTestAssembly()
-        {
-            if (!isRunningTestAssembly)
-                throw new InvalidOperationException("Expected to be running a test assembly");
-        }
-
-
-        void ExpectIsNotRunningTestAssembly()
-        {
-            if (isRunningTestAssembly)
-                throw new InvalidOperationException("Expected not to be running a test assembly");
         }
 
     }
