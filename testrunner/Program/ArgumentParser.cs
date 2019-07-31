@@ -108,12 +108,12 @@ namespace TestRunner.Program
                 new[] {
                     $"SYNOPSIS",
                     $"",
-                    $"    {fileName} [options] <testfile>...",
+                    $"    {fileName} [options] <file>...",
                     $"    {fileName} --help",
                     $"",
                     $"DESCRIPTION",
                     $"",
-                    $"    Run all tests in <testfile>(s)",
+                    $"    Run all tests in <file>(s)",
                     $"",
                     $"OPTIONS",
                     $"",
@@ -196,13 +196,13 @@ namespace TestRunner.Program
 
             if (TestFiles.Count == 0)
             {
-                ErrorMessage = "No <testfile>s specified";
+                ErrorMessage = "No <file>s specified";
                 return;
             }
 
             if (InProc && TestFiles.Count > 1)
             {
-                ErrorMessage = "Only one <testfile> allowed when --inproc";
+                ErrorMessage = "Only one <file> allowed when --inproc";
                 return;
             }
 
