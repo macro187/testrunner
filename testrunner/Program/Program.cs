@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using TestRunner.Infrastructure;
 using TestRunner.Runners;
 using TestRunner.Events;
-using System.Collections.Generic;
 using TestRunner.Results;
 using TestRunner.EventHandlers;
 using System.Linq;
@@ -14,10 +12,6 @@ namespace TestRunner.Program
 {
     static class Program
     {
-
-        static readonly string ProgramPath = Assembly.GetExecutingAssembly().Location;
-        static readonly string ProgramName = Path.GetFileName(ProgramPath);
-
 
         /// <summary>
         /// 1. Run the program and exit assertively killing any background threads
@@ -137,7 +131,7 @@ namespace TestRunner.Program
         {
             var exitCode =
                 ProcessExtensions.ExecuteDotnet(
-                    ProgramPath,
+                    Assembly.GetExecutingAssembly().Location,
                     $"--inproc --outputformat machine \"{testFile}\"",
                     (proc, line) => {
                         var e = MachineReadableEventSerializer.TryDeserialize(line);
