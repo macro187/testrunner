@@ -104,10 +104,10 @@ namespace TestRunner.Program
 
             if (ArgumentParser.InProc)
             {
-                return InProc(ArgumentParser.TestFiles[0]);
+                return InProc();
             }
 
-            return Main5(ArgumentParser.TestFiles);
+            return Main5();
         }
 
 
@@ -115,7 +115,7 @@ namespace TestRunner.Program
         /// 5. Run test file(s)
         /// </summary>
         //
-        static int Main5(IList<string> testFiles)
+        static int Main5()
         {
             Banner();
             EventHandlerPipeline.Raise(new TestRunBeginEvent() {});
@@ -176,12 +176,12 @@ namespace TestRunner.Program
         /// --inproc: Run an individual test file in-process
         /// </summary>
         ///
-        static int InProc(string testFile)
+        static int InProc()
         {
             var eventHandler = new ResultAccumulatingEventHandler();
             using (EventHandlerPipeline.Append(eventHandler))
             {
-                TestAssemblyRunner.Run(testFile);
+                TestAssemblyRunner.Run(ArgumentParser.TestFiles[0]);
             }
             return eventHandler.TestAssemblyResults.Last().Success ? 0 : 1;
         }
