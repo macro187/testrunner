@@ -15,6 +15,9 @@ namespace TestRunner.Program
     static class ArgumentParser
     {
 
+        static List<string> _testFiles = new List<string>();
+
+
         /// <summary>
         /// Were the command line arguments valid?
         /// </summary>
@@ -74,15 +77,7 @@ namespace TestRunner.Program
         /// Path(s) to test assemblies listed on the command line
         /// </summary>
         ///
-        static public IList<string> TestFiles
-        {
-            get
-            {
-                return new ReadOnlyCollection<string>(_testFiles);
-            }
-        }
-
-        static List<string> _testFiles;
+        static public IReadOnlyList<string> TestFiles { get; } = new ReadOnlyCollection<string>(_testFiles);
 
 
         /// <summary>
@@ -149,7 +144,6 @@ namespace TestRunner.Program
             OutputFormat = OutputFormats.Human;
             InProc = false;
             Help = false;
-            _testFiles = new List<string>();
             Parse(new Queue<string>(args));
         }
 
