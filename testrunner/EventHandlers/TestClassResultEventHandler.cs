@@ -15,6 +15,7 @@ namespace TestRunner.EventHandlers
     {
 
         bool ignored;
+        bool ignoredFromCommandLine;
         MethodResult classInitializeMethodResult;
         IList<TestResult> testResults;
         MethodResult classCleanupMethodResult;
@@ -24,6 +25,7 @@ namespace TestRunner.EventHandlers
         {
             base.Handle(e);
             ignored = false;
+            ignoredFromCommandLine = false;
             classInitializeMethodResult = null;
             testResults = new List<TestResult>();
             classCleanupMethodResult = null;
@@ -34,6 +36,7 @@ namespace TestRunner.EventHandlers
         {
             base.Handle(e);
             ignored = true;
+            ignoredFromCommandLine = e.IgnoredFromCommandLine;
         }
 
 
@@ -65,6 +68,7 @@ namespace TestRunner.EventHandlers
             e.Result.TestClassFullName = CurrentTestClassFullName;
             e.Result.Success = GetSuccess();
             e.Result.ClassIgnored = ignored;
+            e.Result.ClassIgnoredFromCommandLine = ignoredFromCommandLine;
             e.Result.InitializePresent = classInitializeMethodResult != null;
             e.Result.InitializeSucceeded = classInitializeMethodResult?.Success ?? false;
             e.Result.TestsTotal = testResults.Count;

@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using TestRunner.Infrastructure;
 using TestRunner.Runners;
 using TestRunner.Events;
 using TestRunner.Results;
 using TestRunner.EventHandlers;
-using System.Linq;
 
 namespace TestRunner.Program
 {
@@ -129,10 +130,22 @@ namespace TestRunner.Program
         ///
         static bool Reinvoke(string testFile)
         {
+            var args = new List<string>();
+
+            args.Add("--inproc");
+            args.Add("--outputformat machine");
+
+            foreach (var @class in ArgumentParser.Classes)
+            {
+                args.Add($"--class {@class}");
+            }
+
+            args.Add($"\"{testFile}\"");
+
             var exitCode =
                 ProcessExtensions.ExecuteDotnet(
                     Assembly.GetExecutingAssembly().Location,
-                    $"--inproc --outputformat machine \"{testFile}\"",
+                    string.Join(" ", args),
                     (proc, line) => {
                         var e = MachineReadableEventSerializer.TryDeserialize(line);
                         EventHandlerPipeline.Raise(

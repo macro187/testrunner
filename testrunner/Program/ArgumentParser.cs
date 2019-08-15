@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using TestRunner.Infrastructure;
 
 namespace TestRunner.Program
 {
@@ -15,6 +16,7 @@ namespace TestRunner.Program
     static class ArgumentParser
     {
 
+        static List<string> _classes = new List<string>();
         static List<string> _testFiles = new List<string>();
 
 
@@ -38,6 +40,13 @@ namespace TestRunner.Program
             get;
             private set;
         }
+
+
+        /// <summary>
+        /// The specified --class options
+        /// </summary>
+        ///
+        static public IReadOnlyCollection<string> Classes { get; } = new ReadOnlyCollection<string>(_classes);
 
 
         /// <summary>
@@ -108,7 +117,7 @@ namespace TestRunner.Program
                     $"",
                     $"DESCRIPTION",
                     $"",
-                    $"    Run all tests in <file>(s)",
+                    $"    Run tests in <file>(s)",
                     $"",
                     $"OPTIONS",
                     $"",
@@ -121,6 +130,19 @@ namespace TestRunner.Program
                     $"        machine",
                     $"            Machine-readable JSON-based format (experimental)",
                     $"",
+                    $"    --class <namespace>.<class>",
+                    $"    --class <class>",
+                    $"        Run the specified test class or, if <namespace> is omitted, all",
+                    $"        test classes with the specified name.",
+                    $"",
+                    $"        Can be specified multiple times.",
+                    $"",
+                    $"        If not specified, all test classes are run.",
+                    $"",
+                    $"        Case-sensitive.",
+                    $"",
+                    $"        Does not override [Ignore] attributes.",
+                    $"",
                     $"    --help",
                     $"        Show usage information",
                     $"",
@@ -130,6 +152,34 @@ namespace TestRunner.Program
                     $"",
                     $"    {shellPrefix} {fileName} {examplePath}TestAssembly.dll {examplePath}AnotherTestAssembly.dll",
                     };
+        }
+
+
+        /// <summary>
+        /// Decide whether a test class should run given the specified --class options
+        /// </summary>
+        ///
+        static public bool ClassShouldRun(string fullTestClassName)
+        {
+            Guard.NotNullOrWhiteSpace(fullTestClassName, nameof(fullTestClassName));
+
+            if (!Classes.Any())
+            {
+                return true;
+            }
+
+            if (Classes.Contains(fullTestClassName))
+            {
+                return true;
+            }
+
+            var testClassName = fullTestClassName.Split('.').Last();
+            if (Classes.Contains(testClassName))
+            {
+                return true;
+            }
+
+            return false;
         }
 
 
@@ -169,6 +219,11 @@ namespace TestRunner.Program
                         if (ErrorMessage != "") return;
                         break;
 
+                    case "--class":
+                        ParseClass(args);
+                        if (ErrorMessage != "") return;
+                        break;
+
                     case "--inproc":
                         InProc = true;
                         break;
@@ -201,6 +256,18 @@ namespace TestRunner.Program
             }
 
             Success = true;
+        }
+
+
+        static void ParseClass(Queue<string> args)
+        {
+            if (args.Count == 0)
+            {
+                ErrorMessage = "Expected <class>";
+                return;
+            }
+
+            _classes.Add(args.Dequeue());
         }
 
 

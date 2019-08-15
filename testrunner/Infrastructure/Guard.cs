@@ -17,6 +17,16 @@ namespace TestRunner.Infrastructure
             if (value == null) throw new ArgumentNullException(paramName);
         }
 
+
+        public static void NotNullOrWhiteSpace(string value, string paramName)
+        {
+            NotNull(value, paramName);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("Argument is empty or whitespace-only", paramName);
+            }
+        }
+
     }
 
 }

@@ -95,7 +95,7 @@ SYNOPSIS
 
 DESCRIPTION
 
-    Run all tests in <testfile>(s)
+    Run tests in <testfile>(s)
 
 OPTIONS
 
@@ -107,6 +107,19 @@ OPTIONS
 
         machine
             Machine-readable JSON-based format (experimental)
+
+    --class <namespace>.<class>
+    --class <class>
+        Run the specified test class or, if <namespace> is omitted, all
+        test classes with the specified name.
+
+        Can be specified multiple times.
+
+        If not specified, all test classes are run.
+
+        Case-sensitive.
+
+        Does not override [Ignore] attributes.
 
     --help
         Show usage information

@@ -2,6 +2,7 @@
 using TestRunner.Events;
 using TestRunner.Infrastructure;
 using TestRunner.EventHandlers;
+using TestRunner.Program;
 
 namespace TestRunner.Runners
 {
@@ -20,6 +21,15 @@ namespace TestRunner.Runners
 
             do
             {
+                //
+                // Handle exclusion from the command line
+                //
+                if (!ArgumentParser.ClassShouldRun(testClass.FullName))
+                {
+                    EventHandlerPipeline.Raise(new TestClassIgnoredEvent() { IgnoredFromCommandLine = true });
+                    break;
+                }
+
                 //
                 // Handle [Ignored] [TestClass]
                 //

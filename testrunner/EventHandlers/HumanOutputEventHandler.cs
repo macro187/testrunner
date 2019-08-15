@@ -260,7 +260,14 @@ namespace TestRunner.EventHandlers
             if (e.Result.ClassIgnored)
             {
                 WriteOut();
-                WriteOut("Ignored all tests because class is decorated with [Ignore]");
+                if (e.Result.ClassIgnoredFromCommandLine)
+                {
+                    WriteOut("Ignored all tests because class is excluded by command line option(s)");
+                }
+                else
+                {
+                    WriteOut("Ignored all tests because class is decorated with [Ignore]");
+                }
             }
 
             WriteOut();

@@ -6,6 +6,7 @@
         public string TestClassFullName { get; set; }
         public bool Success { get; set; }
         public bool ClassIgnored { get; set; }
+        public bool ClassIgnoredFromCommandLine { get; set; }
         public bool InitializePresent { get; set; }
         public bool InitializeSucceeded { get; set; }
         public int TestsTotal { get; set; }
