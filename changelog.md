@@ -5,6 +5,8 @@ TestRunner Changelog
 v1.9.0
 ------
 
+Switch to MIT license
+
 Add --class command line option
 
 Add experimental machine-readable output format

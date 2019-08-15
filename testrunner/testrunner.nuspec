@@ -10,8 +10,8 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
         <copyright>$copyright$</copyright>
+        <license type="expression">MIT</license>
         <projectUrl>https://github.com/macro187/testrunner</projectUrl>
-        <licenseUrl>https://github.com/macro187/testrunner/blob/master/license.txt</licenseUrl>
         <releaseNotes>https://github.com/macro187/testrunner/blob/master/changelog.md</releaseNotes>
     </metadata>
     <files>
