@@ -2,6 +2,18 @@ TestRunner Changelog
 ====================
 
 
+v1.9.0
+------
+
+Add --class command line option
+
+Add experimental machine-readable output format
+
+Correctly capture stderr output from child processes
+
+Correctly propagate --outputformat to child processes
+
+
 v1.8.0
 ------
 
