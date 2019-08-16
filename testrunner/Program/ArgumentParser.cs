@@ -17,6 +17,7 @@ namespace TestRunner.Program
     {
 
         static List<string> _classes = new List<string>();
+        static List<string> _methods = new List<string>();
         static List<string> _testFiles = new List<string>();
 
 
@@ -47,6 +48,13 @@ namespace TestRunner.Program
         /// </summary>
         ///
         static public IReadOnlyCollection<string> Classes { get; } = new ReadOnlyCollection<string>(_classes);
+
+
+        /// <summary>
+        /// The specified --method options
+        /// </summary>
+        ///
+        static public IReadOnlyCollection<string> Methods { get; } = new ReadOnlyCollection<string>(_methods);
 
 
         /// <summary>
@@ -132,12 +140,29 @@ namespace TestRunner.Program
                     $"",
                     $"    --class <namespace>.<class>",
                     $"    --class <class>",
-                    $"        Run the specified test class or, if <namespace> is omitted, all",
-                    $"        test classes with the specified name.",
+                    $"        Run the specified test class.",
+                    $"",
+                    $"        If <namespace> is omitted, run all test classes with the specified",
+                    $"        name.",
+                    $"",
+                    $"        If not specified, run all test classes.",
                     $"",
                     $"        Can be specified multiple times.",
                     $"",
-                    $"        If not specified, all test classes are run.",
+                    $"        Case-sensitive.",
+                    $"",
+                    $"        Does not override [Ignore] attributes.",
+                    $"",
+                    $"    --method <namespace>.<class>.<method>",
+                    $"    --method <method>",
+                    $"        Run the specified test method.",
+                    $"",
+                    $"        If <namespace> and <class> are omitted, run all test methods with",
+                    $"        the specified name (constrained by --class).",
+                    $"",
+                    $"        If not specified, run all test methods (constrained by --class).",
+                    $"",
+                    $"        Can be specified multiple times.",
                     $"",
                     $"        Case-sensitive.",
                     $"",
@@ -159,22 +184,71 @@ namespace TestRunner.Program
         /// Decide whether a test class should run given the specified --class options
         /// </summary>
         ///
-        static public bool ClassShouldRun(string fullTestClassName)
+        static public bool ClassShouldRun(string fullClassName)
         {
-            Guard.NotNullOrWhiteSpace(fullTestClassName, nameof(fullTestClassName));
+            Guard.NotNullOrWhiteSpace(fullClassName, nameof(fullClassName));
 
             if (!Classes.Any())
             {
                 return true;
             }
 
-            if (Classes.Contains(fullTestClassName))
+            if (WasFullClassSpecified(fullClassName))
             {
                 return true;
             }
 
-            var testClassName = fullTestClassName.Split('.').Last();
-            if (Classes.Contains(testClassName))
+            if (WasClassSpecified(fullClassName))
+            {
+                return true;
+            }
+
+            if (WasFullMethodInClassSpecified(fullClassName))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// Decide whether a test method should run given the specified --class and --method options
+        /// </summary>
+        ///
+        static public bool MethodShouldRun(string fullMethodName)
+        {
+            Guard.NotNullOrWhiteSpace(fullMethodName, nameof(fullMethodName));
+
+            if (!Methods.Any())
+            {
+                return true;
+            }
+
+            if (WasFullMethodSpecified(fullMethodName))
+            {
+                return true;
+            }
+
+            if (!WasMethodSpecified(fullMethodName))
+            {
+                return false;
+            }
+
+            var a = fullMethodName.Split('.');
+            var fullClassName = string.Join(".", a.Take(a.Length - 1));
+
+            if (!Classes.Any())
+            {
+                return true;
+            }
+
+            if (WasFullClassSpecified(fullClassName))
+            {
+                return true;
+            }
+
+            if (WasClassSpecified(fullClassName))
             {
                 return true;
             }
@@ -221,6 +295,11 @@ namespace TestRunner.Program
 
                     case "--class":
                         ParseClass(args);
+                        if (ErrorMessage != "") return;
+                        break;
+
+                    case "--method":
+                        ParseMethod(args);
                         if (ErrorMessage != "") return;
                         break;
 
@@ -271,6 +350,18 @@ namespace TestRunner.Program
         }
 
 
+        static void ParseMethod(Queue<string> args)
+        {
+            if (args.Count == 0)
+            {
+                ErrorMessage = "Expected <method>";
+                return;
+            }
+
+            _methods.Add(args.Dequeue());
+        }
+
+
         static void ParseOutputFormat(Queue<string> args)
         {
             if (args.Count == 0)
@@ -291,6 +382,38 @@ namespace TestRunner.Program
                     ErrorMessage = $"Unrecognised <outputformat> {s}";
                     break;
             }
+        }
+
+
+        static bool WasFullClassSpecified(string fullClassName)
+        {
+            return Classes.Contains(fullClassName);
+        }
+
+
+        static bool WasClassSpecified(string fullClassName)
+        {
+            var className = fullClassName.Split('.').Last();
+            return Classes.Contains(className);
+        }
+
+
+        static bool WasFullMethodInClassSpecified(string fullClassName)
+        {
+            return Methods.Any(m => m.StartsWith($"{fullClassName}.", StringComparison.Ordinal));
+        }
+
+
+        static bool WasFullMethodSpecified(string fullMethodName)
+        {
+            return Methods.Contains(fullMethodName);
+        }
+
+
+        static bool WasMethodSpecified(string fullMethodName)
+        {
+            var methodName = fullMethodName.Split('.').Last();
+            return Methods.Contains(methodName);
         }
 
     }

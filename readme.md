@@ -110,12 +110,29 @@ OPTIONS
 
     --class <namespace>.<class>
     --class <class>
-        Run the specified test class or, if <namespace> is omitted, all
-        test classes with the specified name.
+        Run the specified test class.
+
+        If <namespace> is omitted, run all test classes with the specified
+        name.
+
+        If not specified, run all test classes.
 
         Can be specified multiple times.
 
-        If not specified, all test classes are run.
+        Case-sensitive.
+
+        Does not override [Ignore] attributes.
+
+    --method <namespace>.<class>.<method>
+    --method <method>
+        Run the specified test method.
+
+        If <namespace> and <class> are omitted, run all test methods with
+        the specified name (constrained by --class).
+
+        If not specified, run all test methods (constrained by --class).
+
+        Can be specified multiple times.
 
         Case-sensitive.
 

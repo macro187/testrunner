@@ -7,5 +7,6 @@
         public string TestName { get; set; }
         public bool Success { get; set; }
         public bool Ignored { get; set; }
+        public bool IgnoredFromCommandLine { get; set; }
     }
 }

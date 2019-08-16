@@ -2,6 +2,7 @@
 using TestRunner.MSTest;
 using TestRunner.Events;
 using TestRunner.EventHandlers;
+using TestRunner.Program;
 
 namespace TestRunner.Runners
 {
@@ -22,6 +23,15 @@ namespace TestRunner.Runners
 
             do
             {
+                //
+                // Handle exclusion from the command line
+                //
+                if (!ArgumentParser.MethodShouldRun(testMethod.FullName))
+                {
+                    EventHandlerPipeline.Raise(new TestIgnoredEvent() { IgnoredFromCommandLine = true });
+                    break;
+                }
+
                 //
                 // Handle [Ignored] [TestMethod]
                 //

@@ -73,6 +73,15 @@ namespace TestRunner.MSTest
             }
         }
 
+
+        public string FullName
+        {
+            get
+            {
+                return $"{TestClass.FullName}.{Name}";
+            }
+        }
+
     }
 
 }

@@ -288,20 +288,25 @@ namespace TestRunner.EventHandlers
         }
 
 
-        protected override void Handle(TestIgnoredEvent e)
-        {
-            WriteOut();
-            WriteOut("Ignored because [TestMethod] is decorated with [Ignore]");
-        }
-
-
         protected override void Handle(TestEndEvent e)
         {
             WriteOut();
-            WriteOut(
-                e.Result.Ignored ? "Ignored"
-                : e.Result.Success ? "Passed"
-                : "FAILED");
+            if (e.Result.Ignored && e.Result.IgnoredFromCommandLine)
+            {
+                WriteOut("Ignored because method is excluded by command line option(s)");
+            }
+            else if (e.Result.Ignored)
+            {
+                WriteOut("Ignored because method is decorated with [Ignore]");
+            }
+            else if (e.Result.Success)
+            {
+                WriteOut("Passed");
+            }
+            else
+            {
+                WriteOut("FAILED");
+            }
         }
 
 

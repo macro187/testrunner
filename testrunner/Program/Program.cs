@@ -140,6 +140,11 @@ namespace TestRunner.Program
                 args.Add($"--class {@class}");
             }
 
+            foreach (var method in ArgumentParser.Methods)
+            {
+                args.Add($"--method {method}");
+            }
+
             args.Add($"\"{testFile}\"");
 
             var exitCode =

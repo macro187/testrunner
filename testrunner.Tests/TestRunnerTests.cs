@@ -238,10 +238,7 @@ namespace TestRunner.Tests
         {
             var results = ProcessExtensions.ExecuteDotnet(testRunner, Quote(includeExcludeTests));
 
-            Assert.AreEqual(
-                0, results.ExitCode,
-                "TestRunner.exe returned non-zero exit code");
-
+            AssertZeroExitCode(results.ExitCode);
             AssertIncludeExcludeMethodRan(results.Output, "A.A.a()");
             AssertIncludeExcludeMethodRan(results.Output, "A.A.b()");
             AssertIncludeExcludeMethodRan(results.Output, "A.B.a()");
@@ -254,15 +251,12 @@ namespace TestRunner.Tests
 
 
         [TestMethod]
-        public void Namespace_Qualified_Class_Switch_Runs_That_Exact_Class()
+        public void Qualified_Class_Switch_Runs_That_Exact_Class()
         {
             var results = ProcessExtensions.ExecuteDotnet(
                 testRunner, Quote("--class", "A.A", includeExcludeTests));
 
-            Assert.AreEqual(
-                0, results.ExitCode,
-                "TestRunner.exe returned non-zero exit code");
-
+            AssertZeroExitCode(results.ExitCode);
             AssertIncludeExcludeMethodRan(results.Output, "A.A.a()");
             AssertIncludeExcludeMethodRan(results.Output, "A.A.b()");
             AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.a()");
@@ -280,10 +274,7 @@ namespace TestRunner.Tests
             var results = ProcessExtensions.ExecuteDotnet(
                 testRunner, Quote("--class", "A", includeExcludeTests));
 
-            Assert.AreEqual(
-                0, results.ExitCode,
-                "TestRunner.exe returned non-zero exit code");
-
+            AssertZeroExitCode(results.ExitCode);
             AssertIncludeExcludeMethodRan(results.Output, "A.A.a()");
             AssertIncludeExcludeMethodRan(results.Output, "A.A.b()");
             AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.a()");
@@ -301,10 +292,7 @@ namespace TestRunner.Tests
             var results = ProcessExtensions.ExecuteDotnet(
                 testRunner, Quote("--class", "A.A", "--class", "B.B", includeExcludeTests));
 
-            Assert.AreEqual(
-                0, results.ExitCode,
-                "TestRunner.exe returned non-zero exit code");
-
+            AssertZeroExitCode(results.ExitCode);
             AssertIncludeExcludeMethodRan(results.Output, "A.A.a()");
             AssertIncludeExcludeMethodRan(results.Output, "A.A.b()");
             AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.a()");
@@ -313,6 +301,102 @@ namespace TestRunner.Tests
             AssertIncludeExcludeMethodDidNotRun(results.Output, "B.A.b()");
             AssertIncludeExcludeMethodRan(results.Output, "B.B.a()");
             AssertIncludeExcludeMethodRan(results.Output, "B.B.b()");
+        }
+
+
+        [TestMethod]
+        public void Qualified_Method_Switch_Runs_That_Exact_Method()
+        {
+            var results = ProcessExtensions.ExecuteDotnet(
+                testRunner, Quote("--method", "A.B.b", includeExcludeTests));
+
+            AssertZeroExitCode(results.ExitCode);
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.A.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.a()");
+            AssertIncludeExcludeMethodRan(results.Output, "A.B.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.A.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.B.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.B.b()");
+        }
+
+
+        [TestMethod]
+        public void Unqualified_Method_Switch_Runs_Methods_With_That_Name()
+        {
+            var results = ProcessExtensions.ExecuteDotnet(
+                testRunner, Quote("--method", "b", includeExcludeTests));
+
+            AssertZeroExitCode(results.ExitCode);
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.A.a()");
+            AssertIncludeExcludeMethodRan(results.Output, "A.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.a()");
+            AssertIncludeExcludeMethodRan(results.Output, "A.B.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.A.a()");
+            AssertIncludeExcludeMethodRan(results.Output, "B.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.B.a()");
+            AssertIncludeExcludeMethodRan(results.Output, "B.B.b()");
+        }
+
+
+        [TestMethod]
+        public void Multiple_Method_Switches_Runs_All_Specified_Methods()
+        {
+            var results = ProcessExtensions.ExecuteDotnet(
+                testRunner, Quote("--method", "A.A.b", "--method", "B.B.b", includeExcludeTests));
+
+            AssertZeroExitCode(results.ExitCode);
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.A.a()");
+            AssertIncludeExcludeMethodRan(results.Output, "A.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.A.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.B.a()");
+            AssertIncludeExcludeMethodRan(results.Output, "B.B.b()");
+        }
+
+
+        [TestMethod]
+        public void Unqualified_Method_Switch_Is_Constrained_By_Class_Switches()
+        {
+            var results = ProcessExtensions.ExecuteDotnet(
+                testRunner, Quote("--class", "B.A", "--method", "b", includeExcludeTests));
+
+            AssertZeroExitCode(results.ExitCode);
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.A.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.A.a()");
+            AssertIncludeExcludeMethodRan(results.Output, "B.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.B.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.B.b()");
+        }
+
+
+        [TestMethod]
+        public void Qualified_Method_Switch_Does_Not_Include_Other_Unqualified_Methods_In_Class()
+        {
+            var results = ProcessExtensions.ExecuteDotnet(
+                testRunner, Quote("--class", "A.A", "--method", "a", "--method", "B.B.b", includeExcludeTests));
+
+            AssertZeroExitCode(results.ExitCode);
+            AssertIncludeExcludeMethodRan(results.Output, "A.A.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "A.B.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.A.a()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.A.b()");
+            AssertIncludeExcludeMethodDidNotRun(results.Output, "B.B.a()");
+            AssertIncludeExcludeMethodRan(results.Output, "B.B.b()");
+        }
+
+
+        void AssertZeroExitCode(int exitCode)
+        {
+            Assert.AreEqual(0, exitCode, "TestRunner.exe returned non-zero exit code");
         }
 
 

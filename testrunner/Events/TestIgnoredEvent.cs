@@ -2,5 +2,6 @@
 {
     public class TestIgnoredEvent : TestRunnerEvent
     {
+        public bool IgnoredFromCommandLine { get; set; }
     }
 }
