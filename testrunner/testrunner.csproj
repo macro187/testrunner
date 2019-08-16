@@ -3,8 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
-    <Version>1.9.1-master</Version>
-    <AssemblyFileVersion>1.9.1.0</AssemblyFileVersion>
+    <Version>1.10.0-master</Version>
+    <AssemblyFileVersion>1.10.0.0</AssemblyFileVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <Copyright>Copyright (c) 2012-2019 Ron MacNeil</Copyright>
     <NuspecFile>testrunner.nuspec</NuspecFile>
