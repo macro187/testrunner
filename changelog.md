@@ -2,6 +2,12 @@ TestRunner Changelog
 ====================
 
 
+v1.10.0
+-------
+
+Add --method command line option
+
+
 v1.9.0
 ------
 
