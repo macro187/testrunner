@@ -1,4 +1,4 @@
-﻿namespace TestRunner.Events
+namespace TestRunner.Events
 {
     public class TestClassBeginEvent : TestRunnerEvent
     {

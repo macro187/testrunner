@@ -1,4 +1,4 @@
-﻿namespace TestRunner.Tests.ReferencedAssembly
+namespace TestRunner.Tests.ReferencedAssembly
 {
     public static class TestReferencedClass
     {

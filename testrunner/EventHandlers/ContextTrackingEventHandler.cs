@@ -1,4 +1,4 @@
-﻿using TestRunner.Events;
+using TestRunner.Events;
 
 namespace TestRunner.EventHandlers
 {

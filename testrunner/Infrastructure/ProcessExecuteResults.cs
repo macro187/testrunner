@@ -1,4 +1,4 @@
-﻿
+
 namespace TestRunner.Infrastructure
 {
     public class ProcessExecuteResults

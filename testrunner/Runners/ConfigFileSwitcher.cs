@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using TestRunner.EventHandlers;
 #if NET461
 using System;

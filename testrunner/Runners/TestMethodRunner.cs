@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using TestRunner.MSTest;
 using TestRunner.Events;
 using TestRunner.EventHandlers;

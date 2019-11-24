@@ -1,4 +1,4 @@
-﻿namespace TestRunner.MSTest
+namespace TestRunner.MSTest
 {
     public enum UnitTestOutcome : int
     {

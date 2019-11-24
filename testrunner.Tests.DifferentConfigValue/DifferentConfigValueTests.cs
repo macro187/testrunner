@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 #if NET461
 using System.Configuration;
 #endif

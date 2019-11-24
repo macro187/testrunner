@@ -1,4 +1,4 @@
-﻿namespace TestRunner.Results
+namespace TestRunner.Results
 {
     public class TestResult
     {

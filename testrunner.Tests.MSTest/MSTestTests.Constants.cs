@@ -1,4 +1,4 @@
-﻿namespace TestRunner.Tests.MSTest
+namespace TestRunner.Tests.MSTest
 {
 
     public partial class MSTestTests

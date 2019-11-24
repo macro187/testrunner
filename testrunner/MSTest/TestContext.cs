@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP2_0
+#if NETCOREAPP2_0
 using System.Collections.Generic;
 #else
 using System.Collections;

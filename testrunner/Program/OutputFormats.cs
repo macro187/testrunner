@@ -1,4 +1,4 @@
-﻿namespace TestRunner.Program
+namespace TestRunner.Program
 {
 
     /// <summary>

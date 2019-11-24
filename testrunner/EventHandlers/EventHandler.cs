@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using TestRunner.Events;
 using TestRunner.Infrastructure;
 
